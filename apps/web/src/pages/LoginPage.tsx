@@ -140,7 +140,7 @@ export default function LoginPage() {
       setAccessToken(res.accessToken)
       setUser(res.user)
       toast.success('Welcome back!')
-      navigate('/pipeline')
+      navigate('/dashboard')
     } catch {
       toast.error('Invalid email or password')
     } finally {
@@ -155,7 +155,7 @@ export default function LoginPage() {
       setAccessToken(res.accessToken)
       setUser(res.user)
       toast.success('Account created!')
-      navigate('/pipeline')
+      navigate('/dashboard')
     } catch {
       toast.error('Email already in use')
     } finally {

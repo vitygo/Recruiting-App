@@ -99,15 +99,11 @@ import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
 import { useThemeStore } from './store/themeStore'
-// import { ProtectedRoute } from './components/ProtectedRoute'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
-// const RegisterPage = lazy(() => import('./pages/RegisterPage'))
-// const PipelinePage = lazy(() => import('./pages/PipelinePage'))
-// const CandidatesPage = lazy(() => import('./pages/CandidatesPage'))
-// const JobsPage = lazy(() => import('./pages/JobsPage'))
-// const InterviewsPage = lazy(() => import('./pages/InterviewsPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 
 const Spinner = () => (
   <div style={{
@@ -140,7 +136,7 @@ export default function App() {
 
   useEffect(() => {
     initAuth()
-  }, [initAuth])
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -153,6 +149,14 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<LoginPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

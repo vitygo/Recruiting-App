@@ -33,6 +33,10 @@ client.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    if (original.url?.includes('/auth/me') || original.url?.includes('/auth/refresh')) {
+      return Promise.reject(error)
+    }
+
     original._retry = true
 
     try {
@@ -49,7 +53,6 @@ client.interceptors.response.use(
       return client(original)
     } catch {
       setAccessToken(null)
-      window.location.href = '/login'
       return Promise.reject(error)
     }
   }

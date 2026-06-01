@@ -22,12 +22,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 app.options('*', cors())
-app.use(express.json({ limit: '10mb' }))
+app.use(express.json({ limit: '500kb' }))
 app.use(cookieParser())
 
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 20,
   message: 'Too many requests',
 }))
 

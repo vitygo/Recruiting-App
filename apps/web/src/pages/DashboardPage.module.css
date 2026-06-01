@@ -1,0 +1,348 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 24px;
+  }
+  
+  .greeting {
+    margin-bottom: 4px;
+  }
+  
+  .greetingTitle {
+    font-size: 1.75rem;
+    font-weight: 500;
+    color: var(--c-ink);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  
+  .greetingSub {
+    font-size: 0.9375rem;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.15px;
+  }
+  
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  
+  .statCard {
+    background: var(--c-surface-1);
+    border-radius: var(--r-xl);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  
+  .statCard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .statCard:hover {
+    transform: translateY(-2px);
+  }
+  
+  .statHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .statLabel {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.13px;
+  }
+  
+  .statIconWrap {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  
+  .statBottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  
+  .statValue {
+    font-size: 2.25rem;
+    font-weight: 500;
+    color: var(--c-ink);
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+  
+  .statDelta {
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    letter-spacing: -0.12px;
+    white-space: nowrap;
+  }
+  
+  .deltaPositive {
+    color: var(--c-success);
+    background: rgba(34, 197, 94, 0.1);
+  }
+  
+  .deltaNeutral {
+    color: var(--c-ink-muted);
+    background: var(--c-surface-2);
+  }
+  
+  .deltaNegative {
+    color: var(--c-coral);
+    background: rgba(255, 85, 119, 0.1);
+  }
+  
+  .bottomRow {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 12px;
+  }
+  
+  .card {
+    background: var(--c-surface-1);
+    border-radius: var(--r-xl);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .cardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  
+  .cardTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--c-ink);
+    letter-spacing: -0.5px;
+  }
+  
+  .cardAction {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--c-accent);
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: -0.13px;
+    transition: opacity 0.15s;
+  }
+  
+  .cardAction:hover {
+    opacity: 0.7;
+  }
+  
+  .pipelineRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .pipelineRow:last-child {
+    margin-bottom: 0;
+  }
+  
+  .pipelineDot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--r-full);
+    flex-shrink: 0;
+  }
+  
+  .pipelineLabel {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.14px;
+    width: 80px;
+    flex-shrink: 0;
+  }
+  
+  .pipelineBarWrap {
+    flex: 1;
+    height: 8px;
+    background: var(--c-surface-2);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+  }
+  
+  .pipelineBar {
+    height: 100%;
+    border-radius: var(--r-pill);
+    transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+  
+  .pipelineBar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25));
+    border-radius: 0 var(--r-pill) var(--r-pill) 0;
+  }
+  
+  .pipelineCount {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--c-ink);
+    letter-spacing: -0.14px;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  
+  .interviewItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: var(--r-lg);
+    margin-bottom: 8px;
+    background: var(--c-surface-2);
+    transition: transform 0.15s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .interviewItem::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  
+  .interviewItem:hover {
+    transform: translateY(-1px);
+  }
+  
+  .interviewItem:last-child {
+    margin-bottom: 0;
+  }
+  
+  .interviewAvatar {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--r-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  
+  .interviewInfo {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .interviewName {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--c-ink);
+    letter-spacing: -0.14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .interviewRole {
+    font-size: 0.8125rem;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.13px;
+    margin-top: 2px;
+  }
+  
+  .interviewMeta {
+    text-align: right;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  
+  .interviewTime {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.13px;
+  }
+  
+  .interviewBadge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: -0.12px;
+  }
+  
+  @media (max-width: 1100px) {
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .bottomRow {
+      grid-template-columns: 1fr;
+    }
+  
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
