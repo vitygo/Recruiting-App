@@ -1,0 +1,311 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+:root {
+  --c-canvas:        #090909;
+  --c-surface-1:     #141414;
+  --c-surface-2:     #1c1c1c;
+  --c-hairline:      #262626;
+  --c-hairline-soft: #1a1a1a;
+  --c-ink:           #ffffff;
+  --c-ink-muted:     #999999;
+  --c-accent:        #0099ff;
+  --c-success:       #22c55e;
+  --c-magenta:       #d44df0;
+  --c-violet:        #6a4cf5;
+  --c-orange:        #ff7a3d;
+  --c-coral:         #ff5577;
+
+  --f-display: 'Inter', system-ui, sans-serif;
+  --f-body:    'Inter', system-ui, sans-serif;
+
+  --r-xs:   4px;
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   15px;
+  --r-xl:   20px;
+  --r-xxl:  30px;
+  --r-pill: 100px;
+  --r-full: 9999px;
+
+  --sp-xxs: 4px;
+  --sp-xs:  8px;
+  --sp-sm:  12px;
+  --sp-md:  15px;
+  --sp-lg:  20px;
+  --sp-xl:  30px;
+  --sp-xxl: 40px;
+  --sp-section: 96px;
+
+  --sp-section-fluid: clamp(48px, 8vw, 96px);
+  --container-pad:    clamp(16px, 4vw, 32px);
+}
+
+[data-theme="light"] {
+  --c-canvas:        #f5f5f5;
+  --c-surface-1:     #ffffff;
+  --c-surface-2:     #eeeeee;
+  --c-hairline:      #dedede;
+  --c-hairline-soft: #e8e8e8;
+  --c-ink:           #0a0a0a;
+  --c-ink-muted:     #666666;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--f-body);
+  background: var(--c-canvas);
+  color: var(--c-ink);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--c-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-hairline);
+  border-radius: var(--r-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-ink-muted);
+}
+
+/* Typography */
+.t-display-xxl {
+  font-family: var(--f-display);
+  font-size: clamp(52px, 9.5vw, 110px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -3px;
+}
+
+.t-display-xl {
+  font-family: var(--f-display);
+  font-size: clamp(40px, 7vw, 85px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -2px;
+}
+
+.t-display-lg {
+  font-family: var(--f-display);
+  font-size: clamp(32px, 5vw, 62px);
+  font-weight: 700;
+  line-height: 1.0;
+  letter-spacing: -1.5px;
+}
+
+.t-display-md {
+  font-family: var(--f-display);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 700;
+  line-height: 1.13;
+  letter-spacing: -0.5px;
+}
+
+.t-headline {
+  font-family: var(--f-body);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.20;
+  letter-spacing: -0.5px;
+}
+
+.t-body-lg {
+  font-family: var(--f-body);
+  font-size: clamp(16px, 2vw, 18px);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.t-body {
+  font-family: var(--f-body);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.t-body-sm {
+  font-family: var(--f-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.t-caption {
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, transform 0.15s;
+  text-decoration: none;
+  min-height: 44px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  opacity: 0.88;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--c-ink);
+  color: var(--c-canvas);
+}
+
+.btn-secondary {
+  background: var(--c-surface-1);
+  color: var(--c-ink);
+  border: 1px solid var(--c-hairline);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--c-ink-muted);
+  border: 1px solid var(--c-hairline);
+}
+
+/* Ripple Effect */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(0);
+  animation: ripple-anim 0.5s linear;
+  pointer-events: none;
+}
+
+[data-theme="light"] .ripple {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes ripple-anim {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Scroll Reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* Cards */
+.card {
+  background: var(--c-surface-1);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--c-hairline);
+  padding: 24px;
+}
+
+.card-featured {
+  background: var(--c-surface-2);
+  border-color: rgba(106, 76, 245, 0.38);
+}
+
+/* Input */
+.input {
+  background: var(--c-surface-1);
+  color: var(--c-ink);
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-hairline);
+  font-size: 15px;
+  font-family: var(--f-body);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.15);
+}
+
+/*Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+/* Back to Top */
+.back-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 999;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  background: var(--c-surface-2);
+}
