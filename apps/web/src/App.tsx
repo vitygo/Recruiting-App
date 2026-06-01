@@ -102,7 +102,7 @@ import { useThemeStore } from './store/themeStore'
 // import { ProtectedRoute } from './components/ProtectedRoute'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
-// const LoginPage = lazy(() => import('./pages/LoginPage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
 // const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 // const PipelinePage = lazy(() => import('./pages/PipelinePage'))
 // const CandidatesPage = lazy(() => import('./pages/CandidatesPage'))
@@ -151,6 +151,8 @@ export default function App() {
       <Suspense fallback={<Spinner />}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
