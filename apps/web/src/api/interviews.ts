@@ -1,5 +1,5 @@
 import client from './client'
-import { Interview } from '../types'
+import type { Interview } from '../types'
 
 interface GetInterviewsParams {
   date?: string

@@ -1,5 +1,5 @@
 import client from './client'
-import { CandidateJob, PipelineStage } from '../types'
+import type { CandidateJob, PipelineStage } from '../types'
 
 export const pipelineApi = {
   getAll: async (params?: { jobId?: string; stage?: string }) => {

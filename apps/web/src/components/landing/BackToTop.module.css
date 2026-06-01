@@ -1,0 +1,29 @@
+.button {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-full);
+    background: var(--c-surface-1);
+    border: 1px solid var(--c-hairline);
+    color: var(--c-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 999;
+    overflow: hidden;
+  }
+  
+  .button.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .button:hover {
+    background: var(--c-surface-2);
+  }

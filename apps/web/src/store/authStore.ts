@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { User } from '../types'
+import type { User } from '../types'
 import { authApi } from '../api'
 import { setAccessToken } from '../api/client'
 

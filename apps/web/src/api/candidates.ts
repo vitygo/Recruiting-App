@@ -1,5 +1,5 @@
 import client from './client'
-import { Candidate } from '../types'
+import type { Candidate } from '../types'
 
 interface GetCandidatesParams {
   search?: string

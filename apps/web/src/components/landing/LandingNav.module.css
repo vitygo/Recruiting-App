@@ -1,0 +1,229 @@
+.nav {
+    position: fixed;
+    top: 1rem;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    height: 56px;
+    background: rgba(5, 4, 7, 0.45);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--container-pad2);
+    z-index: 100;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    width: 40%;
+    border-radius: 2rem;
+  }
+  
+  [data-theme="light"] .nav {
+    background: rgba(245, 243, 255, 0.55);
+    border-bottom: 1px solid rgba(106, 76, 245, 0.1);
+  }
+  
+  .logo {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+  
+  .logoText {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--c-ink);
+    letter-spacing: -0.3px;
+    cursor: pointer;
+  }
+  
+  .logoText span {
+    display: inline-block;
+    transition: color 0.08s;
+  }
+  
+  .links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  
+  .link {
+    color: var(--c-ink-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.15s;
+  }
+  
+  .link:hover {
+    color: var(--c-ink);
+  }
+  
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .themeBtn {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--r-full);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--c-ink-muted);
+    transition: background 0.15s;
+    backdrop-filter: blur(8px);
+  }
+  
+  .themeBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  [data-theme="light"] .themeBtn {
+    background: rgba(106, 76, 245, 0.08);
+    border-color: rgba(106, 76, 245, 0.15);
+  }
+  
+  .signIn {
+    color: var(--c-ink-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    padding: 8px 12px;
+    transition: color 0.15s;
+  }
+  
+  .signIn:hover {
+    color: var(--c-ink);
+  }
+  
+  .menuBtn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--c-ink);
+    cursor: pointer;
+    padding: 8px;
+  }
+  
+  .mobileMenu {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background: rgba(5, 4, 7, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 30px 20px 30px 20px;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 99;
+    display: none;
+    width: 95%;
+    margin: 0 auto;
+    border-radius: 2rem;
+  }
+  
+  [data-theme="light"] .mobileMenu {
+    background: rgba(245, 243, 255, 0.8);
+    border-bottom: 1px solid rgba(106, 76, 245, 0.1);
+  }
+  .mobileMenu.open {
+    display: flex;
+    top: 5rem;
+  }
+  
+  .mobileLink {
+    color: var(--c-ink-muted);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--c-hairline-soft);
+    transition: color 0.15s;
+  }
+  
+  .mobileLink:hover {
+    color: var(--c-ink);
+  }
+  
+  .mobileTheme {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--c-hairline-soft);
+    color: var(--c-ink-muted);
+    font-size: 0.9375rem;
+  }
+  
+  .mobileActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .link {
+    color: var(--c-ink-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+    position: relative;
+    padding-bottom: 2px;
+  }
+  
+  .link:hover {
+    color: var(--c-ink);
+  }
+  
+  .link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    right: 50%;
+    height: 1.5px;
+    background: var(--c-ink);
+    border-radius: var(--r-pill);
+    transition: left 0.3s ease, right 0.3s ease;
+  }
+  
+  .linkActive {
+    color: var(--c-ink);
+  }
+  
+  .linkActive::after {
+    left: 0;
+    right: 0;
+  }
+  
+  .mobileLinkActive {
+    color: var(--c-ink);
+  }
+  
+  @media (max-width: 810px) {
+    .links {
+      display: none;
+    }
+  
+    .menuBtn {
+      display: flex;
+    }
+  
+    .actions {
+      display: none;
+    }
+    .nav{
+        width: 95%;
+        top: 0.5rem;
+    }
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }

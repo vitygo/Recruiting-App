@@ -1,5 +1,5 @@
 import client from './client'
-import { Job } from '../types'
+import type { Job } from '../types'
 
 interface GetJobsParams {
   status?: string

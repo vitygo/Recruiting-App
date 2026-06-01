@@ -1,5 +1,5 @@
 import client from './client'
-import { Note } from '../types'
+import type { Note } from '../types'
 
 export const notesApi = {
   getAll: async (candidateId: string) => {

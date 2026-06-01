@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap');
 :root {
   --c-canvas:        #090909;
   --c-surface-1:     #141414;
@@ -38,6 +38,7 @@
 
   --sp-section-fluid: clamp(48px, 8vw, 96px);
   --container-pad:    clamp(16px, 4vw, 32px);
+  --container-pad2:    clamp(16px, 7vw, 32px);
 }
 
 [data-theme="light"] {
@@ -64,30 +65,59 @@ body {
   font-family: var(--f-body);
   background: var(--c-canvas);
   color: var(--c-ink);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom Scrollbar */
+/* ── Custom Scrollbar ── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--c-canvas);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--c-hairline);
-  border-radius: var(--r-pill);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--c-ink-muted);
-}
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(106, 76, 245, 0.25);
+    border-radius: var(--r-pill);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    backdrop-filter: blur(4px);
+    
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(106, 76, 245, 0.5);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  ::-webkit-scrollbar-thumb:active {
+    background: rgba(106, 76, 245, 0.7);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  
+  [data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(106, 76, 245, 0.2);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(106, 76, 245, 0.4);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
 
 /* Typography */
 .t-display-xxl {
@@ -124,7 +154,7 @@ body {
 
 .t-headline {
   font-family: var(--f-body);
-  font-size: 22px;
+  font-size: 1.375rem;
   font-weight: 700;
   line-height: 1.20;
   letter-spacing: -0.5px;
@@ -139,21 +169,21 @@ body {
 
 .t-body {
   font-family: var(--f-body);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 400;
   line-height: 1.5;
 }
 
 .t-body-sm {
   font-family: var(--f-body);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.4;
 }
 
 .t-caption {
   font-family: var(--f-body);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -166,7 +196,7 @@ body {
   gap: 6px;
   padding: 10px 20px;
   border-radius: var(--r-pill);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   line-height: 1;
   cursor: pointer;
@@ -261,7 +291,7 @@ body {
   padding: 10px 14px;
   border-radius: var(--r-md);
   border: 1px solid var(--c-hairline);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-family: var(--f-body);
   width: 100%;
   outline: none;
