@@ -1,0 +1,116 @@
+// apps/api/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("RECRUITER")
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+
+  jobs          Job[]
+  candidates    Candidate[]
+  interviews    Interview[]
+  notes         Note[]
+  refreshTokens RefreshToken[]
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  department  String
+  location    String
+  type        String   @default("FULL_TIME")
+  salaryMin   Int?
+  salaryMax   Int?
+  description String
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  candidates CandidateJob[]
+}
+
+model Candidate {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  linkedinUrl String?
+  cvUrl       String?
+  location    String?
+  source      String   @default("MANUAL")
+  createdAt   DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  jobs       CandidateJob[]
+  notes      Note[]
+  interviews Interview[]
+}
+
+model CandidateJob {
+  id              String   @id @default(cuid())
+  candidateId     String
+  jobId           String
+  stage           String   @default("APPLIED")
+  aiScore         Int?
+  aiReason        String?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, jobId])
+}
+
+model Interview {
+  id          String   @id @default(cuid())
+  candidateId String
+  jobId       String
+  userId      String
+  scheduledAt DateTime
+  duration    Int      @default(60)
+  type        String   @default("VIDEO")
+  meetLink    String?
+  status      String   @default("SCHEDULED")
+  scorecard   String?
+  createdAt   DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  content     String
+  type        String   @default("TEXT")
+  candidateId String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
