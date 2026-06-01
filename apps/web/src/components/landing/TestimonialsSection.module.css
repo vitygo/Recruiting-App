@@ -94,7 +94,7 @@
 
   .section {
     padding: var(--sp-section-fluid) 0;
-    background: var(--c-surface-1);
+    background: var( --c-canvas);
     border-top: 1px solid var(--c-hairline-soft);
     border-bottom: 1px solid var(--c-hairline-soft);
   }
