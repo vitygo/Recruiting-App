@@ -69,39 +69,59 @@
 
 
 import styles from './TestimonialsSection.module.css'
+import { useTilt } from '../../hooks/useTilt'
 
 const PAIN_POINTS = [
   {
     icon: 'ti-table-off',
-    quote: "We were tracking 200+ candidates in a spreadsheet. Columns everywhere, no history, no context. One wrong filter and everything was gone.",
+    highlight: ['200+ candidates', ' in a spreadsheet.'],
+    quote: 'Columns everywhere, no history, no context. One wrong filter and everything was gone.',
     role: 'Recruiter at a Series A startup',
+    span: 'g5',
   },
   {
     icon: 'ti-clock-x',
-    quote: "I spent 2 hours every Monday just scheduling interviews. Back-and-forth emails, timezone confusion, last-minute cancellations. It was exhausting.",
+    highlight: ['2 hours every Monday', ' just scheduling interviews.'],
+    quote: 'Back-and-forth emails, timezone confusion, last-minute cancellations. It was exhausting.',
     role: 'Talent Lead, remote-first team',
+    span: 'g7',
   },
   {
     icon: 'ti-brain-off',
-    quote: "Our ATS gave us a score but never explained why. We hired someone with a 91% match who was completely wrong for the role.",
+    highlight: ['91% match.', ' Completely wrong hire.'],
+    quote: 'The ATS never explained why. We trusted the score and paid for it.',
     role: 'Hiring Manager, 50-person company',
+    span: 'g4',
   },
   {
     icon: 'ti-messages-off',
-    quote: "Feedback was scattered across Slack, email, and sticky notes. By the time we made a decision, half the team forgot what they even thought.",
+    highlight: ['Feedback ', 'scattered', ' everywhere.'],
+    quote: 'Slack, email, sticky notes. By decision time half the team forgot what they thought.',
     role: 'Engineering Manager',
+    span: 'g4',
+    accentMiddle: true,
   },
   {
     icon: 'ti-plug-off',
-    quote: "Our old ATS took 3 months to set up, required a dedicated ops person, and still didn't work the way we actually hired.",
+    highlight: ['3 months', ' to set up. Still broken.'],
+    quote: 'Required a dedicated ops person and still didn\'t work the way we actually hired.',
     role: 'Head of People, growth-stage startup',
+    span: 'g4',
   },
   {
     icon: 'ti-eye-off',
-    quote: "We had no idea where candidates were dropping off. Was it the job description? The process? We were flying blind.",
+    highlight: ['We were ', 'flying blind.'],
+    quote: 'No idea where candidates dropped off. Zero visibility into our own funnel.',
     role: 'Recruiter, agency',
+    span: 'g5',
+    accentMiddle: true,
   },
 ]
+
+function TiltCard({ className, children }: { className: string; children: React.ReactNode }) {
+  const ref = useTilt<HTMLDivElement>({ max: 5, scale: 1.01, speed: 500 })
+  return <div ref={ref} className={className}>{children}</div>
+}
 
 export function TestimonialsSection() {
   return (
@@ -119,18 +139,41 @@ export function TestimonialsSection() {
 
         <div className={styles.grid}>
           {PAIN_POINTS.map((p, i) => (
-            <div
+            <TiltCard
               key={i}
-              className={`${styles.card} reveal`}
-              style={{ transitionDelay: `${i * 0.08}s` }}
+              className={`${styles.card} ${styles[p.span]} reveal`}
             >
               <div className={styles.iconWrap}>
                 <i className={`ti ${p.icon}`} />
               </div>
-              <p className={styles.quote}>"{p.quote}"</p>
+              <div className={styles.highlight}>
+                {p.accentMiddle ? (
+                  <>
+                    <span>{p.highlight[0]}</span>
+                    <span className={styles.accent}>{p.highlight[1]}</span>
+                    {p.highlight[2] && <span>{p.highlight[2]}</span>}
+                  </>
+                ) : (
+                  <>
+                    <span className={styles.accent}>{p.highlight[0]}</span>
+                    <span>{p.highlight[1]}</span>
+                  </>
+                )}
+              </div>
+              <p className={styles.quote}>{p.quote}</p>
               <div className={styles.role}>{p.role}</div>
-            </div>
+            </TiltCard>
           ))}
+
+          <TiltCard className={`${styles.card} ${styles.cardCta} ${styles.g7} reveal`}>
+            <div className={styles.ctaTitle}>
+              RecruitApex fixes<br />
+              <span className={styles.ctaAccent}>all of this.</span>
+            </div>
+            <p className={styles.ctaSub}>
+              Setup in 15 minutes. No ops person needed. AI that explains itself. Scheduling that just works.
+            </p>
+          </TiltCard>
         </div>
       </div>
     </section>
