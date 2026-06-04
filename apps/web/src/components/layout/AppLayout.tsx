@@ -37,53 +37,69 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
     <div className={styles.root}>
       <div className={styles.sidebarWrap}>
         <div className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
-          <NavLink to="/" className={styles.logo}>
+          <NavLink
+            to="/"
+            className={`${styles.logo} ${collapsed ? styles.logoCollapsed : ''}`}
+          >
             <div className={styles.logoDot} />
-            <span className={styles.logoText}>RecruitApex</span>
+            <span className={`${styles.logoText} ${collapsed ? styles.logoTextHidden : ''}`}>
+              RecruitApex
+            </span>
           </NavLink>
 
-          <div className={styles.navSection}>Main</div>
+          <div className={`${styles.navSection} ${collapsed ? styles.navSectionHidden : ''}`}>
+            Main
+          </div>
+
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
+                `${styles.navItem} ${collapsed ? styles.navItemCollapsed : ''} ${isActive ? styles.navItemActive : ''}`
               }
             >
               <i className={`ti ${item.icon} ${styles.navIcon}`} />
-              <span className={styles.navLabel}>{item.label}</span>
+              <span className={`${styles.navLabel} ${collapsed ? styles.navLabelHidden : ''}`}>
+                {item.label}
+              </span>
               {item.badge && (
-                <span className={styles.navBadge}>{item.badge}</span>
+                <span className={`${styles.navBadge} ${collapsed ? styles.navBadgeHidden : ''}`}>
+                  {item.badge}
+                </span>
               )}
-              {collapsed && (
-                <span className={styles.tooltip}>{item.label}</span>
-              )}
+              {collapsed && <span className={styles.tooltip}>{item.label}</span>}
             </NavLink>
           ))}
 
-          <div className={styles.navSection}>Settings</div>
+          <div className={`${styles.navSection} ${collapsed ? styles.navSectionHidden : ''}`}>
+            Settings
+          </div>
+
           {SETTINGS_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
+                `${styles.navItem} ${collapsed ? styles.navItemCollapsed : ''} ${isActive ? styles.navItemActive : ''}`
               }
             >
               <i className={`ti ${item.icon} ${styles.navIcon}`} />
-              <span className={styles.navLabel}>{item.label}</span>
-              {collapsed && (
-                <span className={styles.tooltip}>{item.label}</span>
-              )}
+              <span className={`${styles.navLabel} ${collapsed ? styles.navLabelHidden : ''}`}>
+                {item.label}
+              </span>
+              {collapsed && <span className={styles.tooltip}>{item.label}</span>}
             </NavLink>
           ))}
 
           <div className={styles.spacer} />
 
-          <div className={styles.userArea} onClick={handleLogout}>
+          <div
+            className={`${styles.userArea} ${collapsed ? styles.userAreaCollapsed : ''}`}
+            onClick={handleLogout}
+          >
             <div className={styles.userAvatar}>{initials}</div>
-            <div>
+            <div className={`${collapsed ? styles.userInfoHidden : ''}`}>
               <div className={styles.userName}>{user?.name || 'User'}</div>
               <div className={styles.userRole}>{user?.role || 'Recruiter'}</div>
             </div>
@@ -103,8 +119,19 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
           <div className={styles.topbarTitle}>{title}</div>
 
           <div className={styles.topbarSearch}>
-            <i className="ti ti-search" style={{ fontSize: '0.875rem' }} />
-            Search candidates, jobs...
+            <i className="ti ti-search" style={{ fontSize: '0.875rem', flexShrink: 0 }} />
+            <input
+              placeholder="Search..."
+              style={{
+                background: 'none',
+                border: 'none',
+                outline: 'none',
+                color: 'var(--c-ink)',
+                fontSize: '0.8125rem',
+                width: '100%',
+                fontFamily: 'var(--f-body)',
+              }}
+            />
           </div>
 
           <div className={styles.topbarActions}>
@@ -122,6 +149,21 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
           {children}
         </div>
       </div>
+
+      <nav className={styles.mobileNav}>
+        {NAV_ITEMS.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `${styles.mobileNavItem} ${isActive ? styles.mobileNavItemActive : ''}`
+            }
+          >
+            <i className={`ti ${item.icon}`} />
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   )
 }
