@@ -35,10 +35,10 @@ export async function register(req: Request, res: Response): Promise<void> {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure:   process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge:   7 * 24 * 60 * 60 * 1000,
-      path:     '/api/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     })
 
     res.status(201).json({ accessToken, user })
@@ -76,11 +76,12 @@ export async function login(req: Request, res: Response): Promise<void> {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure:   process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge:   7 * 24 * 60 * 60 * 1000,
-      path:     '/api/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     })
+    
 
     const { passwordHash: _, ...safeUser } = user
     res.json({ accessToken, user: safeUser })
@@ -105,7 +106,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       return
     }
 
-    await prisma.refreshToken.delete({ where: { token } })
+    await prisma.refreshToken.deleteMany({ where: { token } })
 
     const newRefreshToken = generateRefreshToken(payload.userId)
     const newAccessToken  = generateAccessToken(payload.userId)
@@ -120,11 +121,12 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
-      secure:   process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge:   7 * 24 * 60 * 60 * 1000,
-      path:     '/api/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     })
+    
 
     res.json({ accessToken: newAccessToken })
   } catch {
@@ -139,7 +141,7 @@ export async function logout(req: Request, res: Response): Promise<void> {
       await prisma.refreshToken.deleteMany({ where: { token } })
     }
 
-    res.clearCookie('refreshToken', { path: '/api/auth' })
+    res.clearCookie('refreshToken', { path: '/' })
     res.json({ message: 'Logged out' })
   } catch {
     res.status(500).json({ error: 'Internal server error' })

@@ -13,30 +13,62 @@ interface AuthState {
   logout: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+let initPromise: Promise<void> | null = null
+
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
-
   setAccessToken: (token) => setAccessToken(token),
 
   initAuth: async () => {
-    try {
-      const { user } = await authApi.me()
-      set({ user, isAuthenticated: true, isLoading: false })
-    } catch {
-      set({ user: null, isAuthenticated: false, isLoading: false })
-    }
+    if (initPromise) return initPromise
+
+    initPromise = (async () => {
+      try {
+        const refreshRes = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'include',
+        })
+
+        if (!refreshRes.ok) {
+          set({ user: null, isAuthenticated: false, isLoading: false })
+          return
+        }
+
+        const data = await refreshRes.json()
+        setAccessToken(data.accessToken)
+
+        const meRes = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${data.accessToken}` },
+          credentials: 'include',
+        })
+
+        if (!meRes.ok) {
+          set({ user: null, isAuthenticated: false, isLoading: false })
+          return
+        }
+
+        const { user } = await meRes.json()
+        set({ user, isAuthenticated: true, isLoading: false })
+      } catch {
+        set({ user: null, isAuthenticated: false, isLoading: false })
+      } finally {
+        initPromise = null
+      }
+    })()
+
+    return initPromise
   },
-  
+
   logout: async () => {
     try {
       await authApi.logout()
     } finally {
       setAccessToken(null)
-      set({ user: null, isAuthenticated: false })
+      set({ user: null, isAuthenticated: false, isLoading: true })
     }
   },
 }))
