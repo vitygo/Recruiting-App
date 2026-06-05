@@ -67,11 +67,11 @@
     from var(--angle, 0deg),
     transparent 0deg,
     transparent 60deg,
-    rgba(106, 76, 245, 0.9) 90deg,
-    rgba(212, 77, 240, 1) 120deg,
-    rgba(255, 255, 255, 0.9) 140deg,
-    rgba(212, 77, 240, 1) 160deg,
-    rgba(106, 76, 245, 0.9) 190deg,
+    rgba(255, 122, 61, 0.95) 85deg,
+    rgba(255, 122, 61, 1) 115deg,
+    rgba(255, 255, 255, 0.9) 135deg,
+    rgba(37, 99, 235, 1) 165deg,
+    rgba(0, 87, 255, 0.9) 190deg,
     transparent 220deg,
     transparent 360deg
   );
@@ -103,7 +103,7 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--c-violet), var(--c-magenta));
+  background: var(--c-orange);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
@@ -169,12 +169,12 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--c-orange-light);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--c-success);
+  color: var(--c-orange);
 }
 
 .cta {

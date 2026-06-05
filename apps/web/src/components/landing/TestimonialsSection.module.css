@@ -62,8 +62,8 @@
 }
 
 .cardCta {
-  background: linear-gradient(135deg, rgba(106, 76, 245, 0.2), rgba(212, 77, 240, 0.15));
-  border-color: rgba(106, 76, 245, 0.3);
+  background: var( --main-transparent-gradient);
+  border-color: var(--c-orange-light);
   justify-content: center;
 }
 
@@ -71,8 +71,8 @@
   width: 32px;
   height: 32px;
   border-radius: var(--r-sm);
-  background: rgba(255, 85, 119, 0.1);
-  border: 1px solid rgba(255, 85, 119, 0.2);
+  background: var(--c-orange-light);
+  border: 1px solid var(--c-orange);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -91,7 +91,7 @@
 }
 
 .accent {
-  color: var(--c-violet);
+  color: var(--c-orange);
 }
 
 .quote {
@@ -123,7 +123,7 @@
 }
 
 .ctaAccent {
-  background: linear-gradient(135deg, var(--c-violet), var(--c-magenta));
+  background: var(--main-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

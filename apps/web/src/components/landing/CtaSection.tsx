@@ -36,7 +36,6 @@ export function CtaSection() {
               onClick={createRipple}
               style={{ padding: '12px 32px', fontSize: 15 }}
             >
-                
               Talk to us
             </a>
           </div>

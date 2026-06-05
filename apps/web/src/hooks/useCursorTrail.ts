@@ -18,7 +18,7 @@ export function useCursorTrail() {
         width: `${size}px`,
         height: `${size}px`,
         borderRadius: '50%',
-        border: `1px solid ${isDark ? 'rgba(140,90,255,0.6)' : 'rgba(106,76,245,0.4)'}`,
+        border: `1px solid ${isDark ? ' #ff7a3d' : ' #ff7a3d'}`,
         pointerEvents: 'none',
         zIndex: '9999',
         transform: 'translate(-50%, -50%) scale(0)',

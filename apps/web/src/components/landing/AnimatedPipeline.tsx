@@ -4,12 +4,12 @@ import styles from './AnimatedPipeline.module.css'
 const STAGES = ['Applied', 'Screening', 'Interview', 'Offer']
 
 const INITIAL_CARDS = [
-  { id: 1, initials: 'AJ', name: 'Alex Johnson', role: 'Senior Engineer', score: 92, color: '#6a4cf5', stage: 0 },
-  { id: 2, initials: 'MK', name: 'Maria Kim', role: 'Product Designer', score: 87, color: '#d44df0', stage: 0 },
-  { id: 3, initials: 'RS', name: 'Ryan Smith', role: 'Frontend Dev', score: 78, color: '#0099ff', stage: 1 },
-  { id: 4, initials: 'PL', name: 'Priya Lal', role: 'Data Scientist', score: 94, color: '#22c55e', stage: 1 },
+  { id: 1, initials: 'AJ', name: 'Alex Johnson', role: 'Senior Engineer', score: 92, color: '#ff7a3d', stage: 0 },
+  { id: 2, initials: 'MK', name: 'Maria Kim', role: 'Product Designer', score: 87, color: '#ff7a3d', stage: 0 },
+  { id: 3, initials: 'RS', name: 'Ryan Smith', role: 'Frontend Dev', score: 78, color: '#ff7a3d', stage: 1 },
+  { id: 4, initials: 'PL', name: 'Priya Lal', role: 'Data Scientist', score: 94, color: '#ff7a3d', stage: 1 },
   { id: 5, initials: 'TW', name: 'Tom Walker', role: 'Backend Dev', score: 81, color: '#ff7a3d', stage: 2 },
-  { id: 6, initials: 'SC', name: 'Sarah Chen', role: 'UX Researcher', score: 89, color: '#f472b6', stage: 3 },
+  { id: 6, initials: 'SC', name: 'Sarah Chen', role: 'UX Researcher', score: 89, color: '#ff7a3d', stage: 3 },
 ]
 
 const STAGE_COLORS = [

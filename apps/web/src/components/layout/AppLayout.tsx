@@ -5,16 +5,27 @@ import { useThemeStore } from '../../store/themeStore'
 import { useRipple } from '../../hooks/useRipple'
 import styles from './AppLayout.module.css'
 
+
+import { SquaresFour } from "@phosphor-icons/react/SquaresFour"
+import { Kanban } from "@phosphor-icons/react/Kanban"
+import { Users } from "@phosphor-icons/react/Users"
+import { Briefcase } from "@phosphor-icons/react/Briefcase"
+import { CalendarBlank } from "@phosphor-icons/react/CalendarBlank"
+import { CaretLeft } from "@phosphor-icons/react/CaretLeft"
+import { CaretRight } from "@phosphor-icons/react/CaretRight"
+import { Gear } from "@phosphor-icons/react/Gear"
+
 const NAV_ITEMS = [
-  { to: '/dashboard', icon: 'ti-layout-dashboard', label: 'Dashboard' },
-  { to: '/pipeline', icon: 'ti-layout-kanban', label: 'Pipeline', badge: '14' },
-  { to: '/candidates', icon: 'ti-users', label: 'Candidates' },
-  { to: '/jobs', icon: 'ti-briefcase', label: 'Jobs' },
-  { to: '/interviews', icon: 'ti-calendar', label: 'Interviews', badge: '3' },
+  { to: '/dashboard', icon: SquaresFour, label: 'Dashboard' },
+  { to: '/pipeline', icon: Kanban, label: 'Pipeline', badge: '14' },
+  { to: '/candidates', icon: Users, label: 'Candidates' },
+  { to: '/jobs', icon: Briefcase, label: 'Jobs' },
+  { to: '/interviews', icon: CalendarBlank, label: 'Interviews', badge: '3' },
 ]
 
+
 const SETTINGS_ITEMS = [
-  { to: '/settings', icon: 'ti-settings', label: 'Settings' },
+  { to: '/settings', icon: Gear, label: 'Settings' },
 ]
 
 export function AppLayout({ children, title }: { children: React.ReactNode; title: string }) {
@@ -35,88 +46,95 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
 
   return (
     <div className={styles.root}>
-      <div className={styles.sidebarWrap}>
-        <div className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
-          <NavLink
-            to="/"
-            className={`${styles.logo} ${collapsed ? styles.logoCollapsed : ''}`}
-          >
-            <div className={styles.logoDot} />
-            <span className={`${styles.logoText} ${collapsed ? styles.logoTextHidden : ''}`}>
-              RecruitApex
-            </span>
-          </NavLink>
+    <div className={styles.sidebarWrap}>
+  <div className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+    <NavLink
+      to="/dashboard"
+      className={`${styles.logo} ${collapsed ? styles.logoCollapsed : ''}`}
+    >
+      <span className={`${styles.logoText} ${collapsed ? styles.logoTextHidden : ''}`}>
+        RecruitApex
+      </span>
+    </NavLink>
 
-          <div className={`${styles.navSection} ${collapsed ? styles.navSectionHidden : ''}`}>
-            Main
-          </div>
+    <div className={`${styles.navSection} ${collapsed ? styles.navSectionHidden : ''}`}>
+      Main
+    </div>
 
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `${styles.navItem} ${collapsed ? styles.navItemCollapsed : ''} ${isActive ? styles.navItemActive : ''}`
-              }
-            >
-              <i className={`ti ${item.icon} ${styles.navIcon}`} />
-              <span className={`${styles.navLabel} ${collapsed ? styles.navLabelHidden : ''}`}>
-                {item.label}
-              </span>
-              {item.badge && (
-                <span className={`${styles.navBadge} ${collapsed ? styles.navBadgeHidden : ''}`}>
-                  {item.badge}
-                </span>
-              )}
-              {collapsed && <span className={styles.tooltip}>{item.label}</span>}
-            </NavLink>
-          ))}
-
-          <div className={`${styles.navSection} ${collapsed ? styles.navSectionHidden : ''}`}>
-            Settings
-          </div>
-
-          {SETTINGS_ITEMS.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `${styles.navItem} ${collapsed ? styles.navItemCollapsed : ''} ${isActive ? styles.navItemActive : ''}`
-              }
-            >
-              <i className={`ti ${item.icon} ${styles.navIcon}`} />
-              <span className={`${styles.navLabel} ${collapsed ? styles.navLabelHidden : ''}`}>
-                {item.label}
-              </span>
-              {collapsed && <span className={styles.tooltip}>{item.label}</span>}
-            </NavLink>
-          ))}
-
-          <div className={styles.spacer} />
-
-          <div
-            className={`${styles.userArea} ${collapsed ? styles.userAreaCollapsed : ''}`}
-            onClick={handleLogout}
-          >
-            <div className={styles.userAvatar}>{initials}</div>
-            <div className={`${collapsed ? styles.userInfoHidden : ''}`}>
-              <div className={styles.userName}>{user?.name || 'User'}</div>
-              <div className={styles.userRole}>{user?.role || 'Recruiter'}</div>
-            </div>
-          </div>
-        </div>
-
-        <button
-          className={styles.collapseBtn}
-          onClick={() => setCollapsed(!collapsed)}
+    {NAV_ITEMS.map((item) => {
+      const IconComponent = item.icon
+      return (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) =>
+            `${styles.navItem} ${collapsed ? styles.navItemCollapsed : ''} ${isActive ? styles.navItemActive : ''}`
+          }
         >
-          <i className={`ti ${collapsed ? 'ti-chevron-right' : 'ti-chevron-left'}`} />
-        </button>
+          <IconComponent size={18} weight="fill" className={styles.navIcon} />
+          <span className={`${styles.navLabel} ${collapsed ? styles.navLabelHidden : ''}`}>
+            {item.label}
+          </span>
+          {item.badge && (
+            <span className={`${styles.navBadge} ${collapsed ? styles.navBadgeHidden : ''}`}>
+              {item.badge}
+            </span>
+          )}
+          {collapsed && <span className={styles.tooltip}>{item.label}</span>}
+        </NavLink>
+      )
+    })}
+
+    <div className={`${styles.navSection} ${collapsed ? styles.navSectionHidden : ''}`}>
+      Settings
+    </div>
+
+    {SETTINGS_ITEMS.map((item) => {
+      const IconComponent = item.icon
+      return (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) =>
+            `${styles.navItem} ${collapsed ? styles.navItemCollapsed : ''} ${isActive ? styles.navItemActive : ''}`
+          }
+        >
+          <IconComponent size={18} weight="fill" className={styles.navIcon} />
+          <span className={`${styles.navLabel} ${collapsed ? styles.navLabelHidden : ''}`}>
+            {item.label}
+          </span>
+          {collapsed && <span className={styles.tooltip}>{item.label}</span>}
+        </NavLink>
+      )
+    })}
+
+    <div className={styles.spacer} />
+
+    <div
+      className={`${styles.userArea} ${collapsed ? styles.userAreaCollapsed : ''}`}
+      onClick={handleLogout}
+    >
+      <div className={styles.avatarBtn }>{initials}</div>
+      <div className={`${collapsed ? styles.userInfoHidden : ''}`}>
+        <div className={styles.userName}>{user?.name || 'User'}</div>
+        <div className={styles.userRole}>{user?.role || 'Recruiter'}</div>
       </div>
+    </div>
+  </div>
+
+  <button
+    className={styles.collapseBtn}
+    onClick={() => setCollapsed(!collapsed)}
+  >
+    {collapsed ? <CaretRight size={12} weight="bold" /> : <CaretLeft size={12} weight="bold" />}
+  </button>
+</div>
 
       <div className={styles.main}>
         <div className={styles.topbar}>
-          <div className={styles.topbarTitle}>{title}</div>
+          <div className={`${styles.topbarLogo} ${collapsed ? styles.topbarLogoVisible : ''}`}>
+            RecruitApex
+          </div>
 
           <div className={styles.topbarSearch}>
             <i className="ti ti-search" style={{ fontSize: '0.875rem', flexShrink: 0 }} />
@@ -159,7 +177,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
               `${styles.mobileNavItem} ${isActive ? styles.mobileNavItemActive : ''}`
             }
           >
-            <i className={`ti ${item.icon}`} />
+            <item.icon size="20px" weight="fill"></item.icon>
             <span>{item.label}</span>
           </NavLink>
         ))}

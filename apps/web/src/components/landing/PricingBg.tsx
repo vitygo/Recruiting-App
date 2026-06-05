@@ -16,10 +16,18 @@ export function PricingBg() {
       cv.height = cv.offsetHeight
     }
 
-    const blob = (cx: number, cy: number, r: number, red: number, g: number, b: number, a: number) => {
+    const blob = (
+      cx: number,
+      cy: number,
+      r: number,
+      red: number,
+      g: number,
+      b: number,
+      a: number
+    ) => {
       const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
       grad.addColorStop(0, `rgba(${red},${g},${b},${a})`)
-      grad.addColorStop(0.5, `rgba(${red},${g},${b},${a * 0.2})`)
+      grad.addColorStop(0.5, `rgba(${red},${g},${b},${a * 0.25})`)
       grad.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = grad
       ctx.fillRect(0, 0, cv.width, cv.height)
@@ -34,9 +42,26 @@ export function PricingBg() {
       const s = Math.sin(t * 0.5)
       const c = Math.cos(t * 0.4)
 
-      blob(W * (0.2 + s * 0.08), H * (0.3 + c * 0.1), W * 0.4, 106, 76, 245, 0.12)
-      blob(W * (0.8 + c * 0.06), H * (0.7 + s * 0.08), W * 0.35, 212, 77, 240, 0.1)
-      blob(W * (0.5 + s * 0.05), H * (0.5 + c * 0.06), W * 0.3, 106, 76, 245, 0.08)
+
+      blob(
+        W * (0.25 + s * 0.08),
+        H * (0.3 + c * 0.1),
+        W * 0.42,
+        255, 122, 61, 0.14 // #FF7A3D
+      )
+      blob(
+        W * (0.8 + c * 0.06),
+        H * (0.7 + s * 0.08),
+        W * 0.38,
+        37, 99, 235, 0.12 // #2563FF
+      )
+
+      blob(
+        W * (0.5 + s * 0.05),
+        H * (0.55 + c * 0.06),
+        W * 0.3,
+        255, 140, 80, 0.07
+      )
 
       animId = requestAnimationFrame(draw)
     }

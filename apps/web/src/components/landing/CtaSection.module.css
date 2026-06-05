@@ -5,8 +5,11 @@
 .container{
     padding: 0 2rem;
 }
+
+
+
   .inner {
-    background: linear-gradient(135deg, var(--c-violet) 0%, var(--c-magenta) 55%, var(--c-coral) 100%);
+    background: var(--main-gradient);
     border-radius: var(--r-xxl);
     padding: 50px 48px;
     text-align: center;

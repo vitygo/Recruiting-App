@@ -64,89 +64,89 @@ const PLANS = [
 function FeaturedCard({ children }: { children: React.ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  useEffect(() => {
-    const cv = canvasRef.current
-    if (!cv) return
-    const ctx = cv.getContext('2d')!
-    let animId: number
+  // useEffect(() => {
+  //   const cv = canvasRef.current
+  //   if (!cv) return
+  //   const ctx = cv.getContext('2d')!
+  //   let animId: number
 
-    const resize = () => {
-      cv.width = cv.offsetWidth
-      cv.height = cv.offsetHeight
-    }
+  //   const resize = () => {
+  //     cv.width = cv.offsetWidth
+  //     cv.height = cv.offsetHeight
+  //   }
 
-    interface Star {
-      x: number
-      y: number
-      size: number
-      opacity: number
-      speed: number
-      angle: number
-      pulse: number
-      pulseSpeed: number
-    }
+  //   interface Star {
+  //     x: number
+  //     y: number
+  //     size: number
+  //     opacity: number
+  //     speed: number
+  //     angle: number
+  //     pulse: number
+  //     pulseSpeed: number
+  //   }
 
-    const stars: Star[] = Array.from({ length: 20 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      size: 1 + Math.random() * 2,
-      opacity: 0.2 + Math.random() * 0.6,
-      speed: 0.0003 + Math.random() * 0.0005,
-      angle: Math.random() * Math.PI * 2,
-      pulse: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.02 + Math.random() * 0.03,
-    }))
+  //   const stars: Star[] = Array.from({ length: 20 }, () => ({
+  //     x: Math.random(),
+  //     y: Math.random(),
+  //     size: 1 + Math.random() * 2,
+  //     opacity: 0.2 + Math.random() * 0.6,
+  //     speed: 0.0003 + Math.random() * 0.0005,
+  //     angle: Math.random() * Math.PI * 2,
+  //     pulse: Math.random() * Math.PI * 2,
+  //     pulseSpeed: 0.02 + Math.random() * 0.03,
+  //   }))
 
-    const drawStar = (cx: number, cy: number, size: number) => {
-      const spikes = 4
-      const outer = size
-      const inner = size * 0.3
-      let rot = -Math.PI / 4
-      ctx.beginPath()
-      for (let i = 0; i < spikes * 2; i++) {
-        const r = i % 2 === 0 ? outer : inner
-        ctx.lineTo(cx + Math.cos(rot) * r, cy + Math.sin(rot) * r)
-        rot += Math.PI / spikes
-      }
-      ctx.closePath()
-    }
+  //   const drawStar = (cx: number, cy: number, size: number) => {
+  //     const spikes = 4
+  //     const outer = size
+  //     const inner = size * 0.3
+  //     let rot = -Math.PI / 4
+  //     ctx.beginPath()
+  //     for (let i = 0; i < spikes * 2; i++) {
+  //       const r = i % 2 === 0 ? outer : inner
+  //       ctx.lineTo(cx + Math.cos(rot) * r, cy + Math.sin(rot) * r)
+  //       rot += Math.PI / spikes
+  //     }
+  //     ctx.closePath()
+  //   }
 
-    const draw = () => {
-      const W = cv.width, H = cv.height
-      ctx.clearRect(0, 0, W, H)
+  //   const draw = () => {
+  //     const W = cv.width, H = cv.height
+  //     ctx.clearRect(0, 0, W, H)
 
-      stars.forEach((s) => {
-        s.angle += s.speed * Math.PI * 2
-        s.pulse += s.pulseSpeed
+  //     stars.forEach((s) => {
+  //       s.angle += s.speed * Math.PI * 2
+  //       s.pulse += s.pulseSpeed
 
-        const orbitX = 0.5 + Math.cos(s.angle) * 0.45
-        const orbitY = 0.5 + Math.sin(s.angle) * 0.48
-        const x = orbitX * W
-        const y = orbitY * H
-        const pulse = 1 + Math.sin(s.pulse) * 0.3
-        const size = s.size * pulse
-        const opacity = s.opacity * (0.7 + Math.sin(s.pulse) * 0.3)
+  //       const orbitX = 0.5 + Math.cos(s.angle) * 0.45
+  //       const orbitY = 0.5 + Math.sin(s.angle) * 0.48
+  //       const x = orbitX * W
+  //       const y = orbitY * H
+  //       const pulse = 1 + Math.sin(s.pulse) * 0.3
+  //       const size = s.size * pulse
+  //       const opacity = s.opacity * (0.7 + Math.sin(s.pulse) * 0.3)
 
-        ctx.save()
-        ctx.globalAlpha = opacity
-        ctx.fillStyle = 'rgba(180, 150, 255, 0.9)'
-        drawStar(x, y, size)
-        ctx.fill()
-        ctx.restore()
-      })
+  //       ctx.save()
+  //       ctx.globalAlpha = opacity
+  //       ctx.fillStyle = 'rgba(180, 150, 255, 0.9)'
+  //       drawStar(x, y, size)
+  //       ctx.fill()
+  //       ctx.restore()
+  //     })
 
-      animId = requestAnimationFrame(draw)
-    }
+  //     animId = requestAnimationFrame(draw)
+  //   }
 
-    resize()
-    window.addEventListener('resize', resize)
-    draw()
+  //   resize()
+  //   window.addEventListener('resize', resize)
+  //   draw()
 
-    return () => {
-      cancelAnimationFrame(animId)
-      window.removeEventListener('resize', resize)
-    }
-  }, [])
+  //   return () => {
+  //     cancelAnimationFrame(animId)
+  //     window.removeEventListener('resize', resize)
+  //   }
+  // }, [])
 
   return (
     <div className={`${styles.card} ${styles.cardFeatured}`}>

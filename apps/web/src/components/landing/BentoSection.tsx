@@ -45,7 +45,6 @@ export function BentoSection() {
         </div>
 
         <div className={styles.bento}>
-          {/* Row 1: AI Scoring (violet, 5col, 2row) + Visual Pipeline (7col, 2row) */}
           <TiltCard className={`${styles.bc} ${styles.bcViolet} ${styles.onGrad} ${styles.g5} ${styles.r2} reveal`}>
             <div className={styles.bcIcon}><i className="ti ti-brain" /></div>
             <div className={styles.bcTitle}>AI Candidate Scoring</div>
@@ -76,7 +75,7 @@ export function BentoSection() {
             </div>
           </TiltCard>
 
-          {/* Row 2: 18d stat (4col) + Team Collab magenta (4col) + Smart Scheduling (4col) */}
+
           <TiltCard className={`${styles.bc} ${styles.g4} reveal`}>
             <div className={styles.bcStat}>
               18<span className={styles.bcStatUnit}>d</span>
@@ -102,7 +101,7 @@ export function BentoSection() {
             </div>
           </TiltCard>
 
-          {/* Row 3: Analytics orange (4col) + Integrations (8col) */}
+
           <TiltCard className={`${styles.bc} ${styles.bcOrange} ${styles.onGrad} ${styles.g4} reveal`}>
             <div className={styles.bcIcon}><i className="ti ti-chart-dots" /></div>
             <div className={styles.bcTitle}>Hiring Analytics</div>

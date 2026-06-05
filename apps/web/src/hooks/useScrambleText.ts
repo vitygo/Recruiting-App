@@ -28,7 +28,7 @@ export function useScrambleText(original: string) {
             s.style.color = ''
           } else {
             s.textContent = CHARS[Math.floor(Math.random() * CHARS.length)]
-            s.style.color = 'rgba(160,130,255,0.9)'
+            s.style.color = '#ff7a3d'
           }
         })
 

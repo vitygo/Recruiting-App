@@ -1,186 +1,322 @@
+import { useState } from 'react'
 import { AppLayout } from '../components/layout/AppLayout'
 import { useAuthStore } from '../store/authStore'
 import styles from './DashboardPage.module.css'
 
-const STATS = [
+import { ChartBar } from "@phosphor-icons/react/ChartBar"
+import { Briefcase } from "@phosphor-icons/react/Briefcase"
+import { CaretUp } from "@phosphor-icons/react/CaretUp"
+import { CaretDown } from "@phosphor-icons/react/CaretDown"
+import { MapPin } from "@phosphor-icons/react/MapPin"
+import { Plus } from "@phosphor-icons/react/Plus"
+import { ArrowRight } from "@phosphor-icons/react/ArrowRight"
+
+const PIPELINE_DATA = [
+  { label: 'Applied', short: 'A', count: 42, max: 42, color: 'var(--c-ink-muted)' },
+  { label: 'Screening', short: 'S', count: 27, max: 42, color: 'var(--c-ink)' },
+  { label: 'Interview', short: 'I', count: 17, max: 42, color: 'var(--c-orange)' },
+  { label: 'Offer', short: 'O', count: 7, max: 42, color: '#f97316' },
+  { label: 'Hired', short: 'H', count: 4, max: 42, color: 'var(--c-accent, #3b82f6)' },
+]
+
+const JOBS_DATA = [
   {
-    label: 'Total candidates',
-    icon: 'ti-users',
-    value: '248',
-    delta: '+12 this week',
-    deltaType: 'positive',
-    iconBg: 'rgba(106,76,245,0.15)',
-    iconColor: '#a78bfa',
+    id: 1,
+    title: 'Senior Full-Stack Engineer',
+    status: 'Active',
+    type: 'Remote',
+    schedule: 'Full-time',
+    candidates: '42 candidates',
+    location: 'Ukraine',
+    time: '2h ago',
+    open: true,
   },
   {
-    label: 'Active jobs',
-    icon: 'ti-briefcase',
-    value: '7',
-    delta: '2 closing soon',
-    deltaType: 'neutral',
-    iconBg: 'rgba(0,153,255,0.15)',
-    iconColor: '#0099ff',
+    id: 2,
+    title: 'Product Designer',
+    status: 'Draft',
+    type: 'Hybrid',
+    schedule: 'Part-time',
+    candidates: '0 candidates',
+    location: 'Poland',
+    time: '1d ago',
+    open: false,
   },
   {
-    label: 'Interviews this week',
-    icon: 'ti-calendar',
-    value: '12',
-    delta: '+3 vs last week',
-    deltaType: 'positive',
-    iconBg: 'rgba(212,77,240,0.15)',
-    iconColor: '#d44df0',
-  },
-  {
-    label: 'Avg time-to-hire',
-    icon: 'ti-clock',
-    value: '18d',
-    delta: '-4d vs last month',
-    deltaType: 'positive',
-    iconBg: 'rgba(34,197,94,0.15)',
-    iconColor: '#22c55e',
+    id: 3,
+    title: 'DevOps Engineer',
+    status: 'Active',
+    type: 'Remote',
+    schedule: 'Full-time',
+    candidates: '17 candidates',
+    location: 'Remote',
+    time: '3d ago',
+    open: false,
   },
 ]
 
-const PIPELINE = [
-  { label: 'Applied', count: 42, max: 42, color: 'rgba(255,255,255,0.25)', dotColor: 'var(--c-ink-muted)' },
-  { label: 'Screening', count: 27, max: 42, color: '#0099ff', dotColor: '#0099ff' },
-  { label: 'Interview', count: 17, max: 42, color: '#6a4cf5', dotColor: '#6a4cf5' },
-  { label: 'Offer', count: 7, max: 42, color: '#d44df0', dotColor: '#d44df0' },
-  { label: 'Hired', count: 4, max: 42, color: '#22c55e', dotColor: '#22c55e' },
+const QUICK_CONTACTS = [
+  { name: 'Alex Johnson', role: 'Senior Full-Stack Engineer', level: 'Senior', initials: 'AJ', color: '#6a4cf5' },
+  { name: 'Maria Kim', role: 'Product Designer', level: 'Middle', initials: 'MK', color: '#d44df0' },
 ]
 
-const INTERVIEWS = [
-  {
-    initials: 'AJ',
-    name: 'Alex Johnson',
-    role: 'Senior Engineer',
-    time: 'Today 2:00 PM',
-    type: 'Video',
-    color: '#6a4cf5',
-    badgeBg: 'rgba(0,153,255,0.12)',
-    badgeColor: '#38bdf8',
-  },
-  {
-    initials: 'MK',
-    name: 'Maria Kim',
-    role: 'Product Designer',
-    time: 'Tomorrow 11:00 AM',
-    type: 'Onsite',
-    color: '#d44df0',
-    badgeBg: 'rgba(106,76,245,0.12)',
-    badgeColor: '#a78bfa',
-  },
-  {
-    initials: 'RS',
-    name: 'Ryan Smith',
-    role: 'Frontend Dev',
-    time: 'Thu 3:30 PM',
-    type: 'Phone',
-    color: '#0099ff',
-    badgeBg: 'rgba(34,197,94,0.12)',
-    badgeColor: '#22c55e',
-  },
-]
+const SIZE = 220
+const CX = SIZE / 2
+const CY = SIZE / 2
+const STROKE = 8
+const RADII = [96, 80, 64, 48, 32]
+
+function polarToXY(cx: number, cy: number, r: number, angle: number) {
+  const rad = (angle - 90) * (Math.PI / 180)
+  return {
+    x: cx + r * Math.cos(rad),
+    y: cy + r * Math.sin(rad),
+  }
+}
+
+function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
+  const start = polarToXY(cx, cy, r, startAngle)
+  const end = polarToXY(cx, cy, r, endAngle)
+  const largeArc = endAngle - startAngle > 180 ? 1 : 0
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`
+}
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
-  const firstName = user?.name?.split(' ')[0] || 'there'
+  const [activeStage, setActiveStage] = useState('Screening')
+
+  const totalCandidates = PIPELINE_DATA.reduce((acc, curr) => acc + curr.count, 0)
+  const activeStageData = PIPELINE_DATA.find(r => r.label === activeStage)
 
   return (
     <AppLayout title="Dashboard">
-      <div className={styles.page}>
-        <div className={styles.greeting}>
-          <div className={styles.greetingTitle}>Welcome back, {firstName}</div>
-          <div className={styles.greetingSub}>Here's what's happening with your pipeline today.</div>
-        </div>
+      <div className={styles.dashboardContainer}>
 
-        <div className={styles.stats}>
-          {STATS.map((stat, i) => (
-            <div key={i} className={styles.statCard}>
-              <div className={styles.statHeader}>
-                <div className={styles.statLabel}>{stat.label}</div>
-                <div
-                  className={styles.statIconWrap}
-                  style={{ background: stat.iconBg, color: stat.iconColor }}
-                >
-                  <i className={`ti ${stat.icon}`} />
-                </div>
+        <div className={styles.topSection}>
+
+          <div className={styles.trackerCard}>
+            <div className={styles.trackerHeaderRow}>
+              <div className={styles.iconWrapper}>
+                <ChartBar size={20} weight="fill" />
               </div>
-
-              <div className={styles.statBottom}>
-                <div className={styles.statValue}>{stat.value}</div>
-                <div className={`${styles.statDelta} ${
-                  stat.deltaType === 'positive' ? styles.deltaPositive :
-                  stat.deltaType === 'negative' ? styles.deltaNegative :
-                  styles.deltaNeutral
-                }`}>
-                  {stat.deltaType === 'positive' && <i className="ti ti-trending-up" style={{ fontSize: '0.75rem' }} />}
-                  {stat.deltaType === 'negative' && <i className="ti ti-trending-down" style={{ fontSize: '0.75rem' }} />}
-                  {stat.delta}
-                </div>
+              <div>
+                <h3 className={styles.cardTitle}>Pipeline Tracker</h3>
+                <p className={styles.cardSubtitle}>Conversion and candidate flow overview</p>
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className={styles.bottomRow}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div className={styles.cardTitle}>Pipeline overview</div>
-              <span className={styles.cardAction}>
-                View all <i className="ti ti-arrow-right" style={{ fontSize: '0.75rem' }} />
-              </span>
-            </div>
-            {PIPELINE.map((row) => (
-              <div key={row.label} className={styles.pipelineRow}>
-                <div className={styles.pipelineDot} style={{ background: row.dotColor }} />
-                <div className={styles.pipelineLabel}>{row.label}</div>
-                <div className={styles.pipelineBarWrap}>
-                  <div
-                    className={styles.pipelineBar}
-                    style={{
-                      width: `${(row.count / row.max) * 100}%`,
-                      background: row.color,
-                    }}
-                  />
-                </div>
-                <div className={styles.pipelineCount}>{row.count}</div>
-              </div>
-            ))}
-          </div>
+            <div className={styles.trackerContent}>
+              <div className={styles.radialWrap}>
+                <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+                  {PIPELINE_DATA.map((stage, i) => {
+                    const r = RADII[i]
+                    const pct = stage.count / stage.max
+                    const angle = pct * 340
+                    const isActive = activeStage === stage.label
 
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div className={styles.cardTitle}>Upcoming interviews</div>
-              <span className={styles.cardAction}>
-                View all <i className="ti ti-arrow-right" style={{ fontSize: '0.75rem' }} />
-              </span>
-            </div>
-            {INTERVIEWS.map((iv, i) => (
-              <div key={i} className={styles.interviewItem}>
-                <div
-                  className={styles.interviewAvatar}
-                  style={{ background: iv.color }}
-                >
-                  {iv.initials}
-                </div>
-                <div className={styles.interviewInfo}>
-                  <div className={styles.interviewName}>{iv.name}</div>
-                  <div className={styles.interviewRole}>{iv.role}</div>
-                </div>
-                <div className={styles.interviewMeta}>
-                  <div className={styles.interviewTime}>{iv.time}</div>
-                  <span
-                    className={styles.interviewBadge}
-                    style={{ background: iv.badgeBg, color: iv.badgeColor }}
+                    return (
+                      <g key={stage.label}>
+                        <circle
+                          cx={CX} cy={CY} r={r}
+                          fill="none"
+                          stroke="var(--c-hairline-soft)"
+                          strokeWidth={STROKE}
+                        />
+                        {angle > 0 && (
+                          <path
+                            d={describeArc(CX, CY, r, 0, angle)}
+                            fill="none"
+                            stroke={stage.color}
+                            strokeWidth={isActive ? STROKE + 3 : STROKE}
+                            strokeLinecap="round"
+                            style={{ transition: 'stroke-width 0.15s ease, stroke 0.2s' }}
+                            onMouseEnter={() => setActiveStage(stage.label)}
+                            cursor="pointer"
+                          />
+                        )}
+                      </g>
+                    )
+                  })}
+
+                  <text
+                    x={CX} y={CY - 4}
+                    textAnchor="middle"
+                    fill="var(--c-ink)"
+                    fontSize="24"
+                    fontWeight="700"
+                    fontFamily="var(--f-body)"
                   >
-                    {iv.type}
-                  </span>
-                </div>
+                    {activeStageData ? activeStageData.count : totalCandidates}
+                  </text>
+                  <text
+                    x={CX} y={CY + 14}
+                    textAnchor="middle"
+                    fill="var(--c-ink-muted)"
+                    fontSize="9"
+                    fontWeight="600"
+                    fontFamily="var(--f-body)"
+                    letterSpacing="0.5"
+                  >
+                    {activeStageData ? activeStageData.label.toUpperCase() : 'TOTAL CAND.'}
+                  </text>
+                </svg>
               </div>
-            ))}
+
+              <div className={styles.legendList}>
+                {PIPELINE_DATA.map((stage) => (
+                  <div
+                    key={stage.label}
+                    className={`${styles.legendItem} ${activeStage === stage.label ? styles.legendItemHovered : ''}`}
+                    onMouseEnter={() => setActiveStage(stage.label)}
+                  >
+                    <div className={styles.legendDot} style={{ background: stage.color }} />
+                    <div className={styles.legendInfo}>
+                      <span className={styles.legendName}>{stage.label}</span>
+                      <span className={styles.legendCount}>{stage.count} candidates</span>
+                    </div>
+                    <div className={styles.legendBadge}>{stage.short}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.metricFooter}>
+              <div className={styles.metricValue}>+20%</div>
+              <p className={styles.metricDesc}>This week's hiring velocity is higher than last week's</p>
+            </div>
           </div>
+
+          <div className={styles.jobsCard}>
+            <div className={styles.sectionHeader}>
+              <h4 className={styles.sectionTitle}>Your Active Jobs</h4>
+              <span className={styles.seeAllLink}>See all jobs</span>
+            </div>
+
+            <div className={styles.jobsList}>
+              {JOBS_DATA.map((job) => (
+                <div key={job.id} className={`${styles.jobItem} ${job.open ? styles.jobItemExpanded : ''}`}>
+                  <div className={styles.jobMainRow}>
+                    <div className={styles.jobIcon}>
+                      <Briefcase size={20} weight="fill" />
+                    </div>
+                    <div className={styles.jobMeta}>
+                      <div className={styles.jobTitleWrap}>
+                        <h5>{job.title}</h5>
+                        <span className={`${styles.badge} ${job.status === 'Active' ? styles.badgeSuccess : styles.badgeDraft}`}>
+                          {job.status}
+                        </span>
+                      </div>
+                      <p className={styles.jobSubText}>{job.candidates}</p>
+                    </div>
+                    <button className={styles.expandBtn}>
+                      {job.open ? <CaretUp size={16} weight="fill" /> : <CaretDown size={16} weight="fill" />}
+                    </button>
+                  </div>
+
+                  {job.open && (
+                    <div className={styles.jobDetailsArea}>
+                      <div className={styles.tagRow}>
+                        <span className={styles.filterTag}>{job.type}</span>
+                        <span className={styles.filterTag}>{job.schedule}</span>
+                      </div>
+                      <p className={styles.jobDescriptionSnippet}>
+                        This role involves building scalable features, conducting code reviews, and collaborating with product and design teams.
+                      </p>
+                      <div className={styles.jobFooterInfo}>
+                        <span>
+                          <MapPin size={14} weight="fill" style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                          {job.location}
+                        </span>
+                        <span>{job.time}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
+
+        <div className={styles.bottomSection}>
+
+          <div className={styles.connectCard}>
+            <div className={styles.sectionHeader}>
+              <h4 className={styles.sectionTitle}>Recent Candidates</h4>
+              <span className={styles.seeAllLink}>See all</span>
+            </div>
+            <div className={styles.connectList}>
+              {QUICK_CONTACTS.map((person, idx) => (
+                <div key={idx} className={styles.connectItem}>
+                  <div
+                    className={styles.avatar}
+                    style={{
+                      background: person.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {person.initials}
+                  </div>
+                  <div className={styles.connectInfo}>
+                    <h6>{person.name} <span className={styles.levelLabel}>{person.level}</span></h6>
+                    <p>{person.role}</p>
+                  </div>
+                  <button className={styles.addBtn}>
+                    <Plus size={14} weight="fill" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.premiumCard}>
+            <h5>Unlock AI Sourcing</h5>
+            <p>Get access to AI candidate scoring, smart scheduling and advanced pipeline analytics.</p>
+            <button className={styles.premiumBtn}>
+              Upgrade to Pro <ArrowRight size={16} weight="fill" style={{ marginLeft: '6px' }} />
+            </button>
+          </div>
+
+          <div className={styles.progressCard}>
+            <div className={styles.sectionHeader}>
+              <h4 className={styles.sectionTitle}>Hiring Progress</h4>
+              <span className={styles.dateSelector}>
+                June, 2026 <CaretDown size={12} weight="bold" style={{ marginLeft: '4px' }} />
+              </span>
+            </div>
+
+            <div className={styles.progressGrid}>
+              <div className={styles.progressMetric}>
+                <span>Reviewed</span>
+                <strong>64</strong>
+              </div>
+              <div className={styles.progressMetric} style={{ borderColor: 'var(--c-orange)' }}>
+                <span>Interviews</span>
+                <strong style={{ color: 'var(--c-orange)' }}>12</strong>
+              </div>
+              <div className={styles.progressMetric}>
+                <span>Hired</span>
+                <strong>10</strong>
+              </div>
+            </div>
+
+            <div className={styles.combChart}>
+              {Array.from({ length: 30 }).map((_, i) => {
+                let barColor = 'var(--c-hairline)'
+                if (i >= 10 && i <= 18) barColor = 'var(--c-orange)'
+                if (i > 18 && i <= 24) barColor = 'var(--c-ink)'
+                return <div key={i} className={styles.combTooth} style={{ backgroundColor: barColor }} />
+              })}
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </AppLayout>
   )

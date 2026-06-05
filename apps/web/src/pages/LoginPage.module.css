@@ -71,7 +71,7 @@
   }
   
   .titleGrad {
-    background: linear-gradient(135deg, var(--c-violet), var(--c-magenta));
+    background: var(--main-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -178,7 +178,7 @@
   }
   
   .formSub a {
-    color: var(--c-violet);
+    color: var(--c-orange);
     text-decoration: none;
     cursor: pointer;
   }
@@ -310,7 +310,7 @@
   }
   
   .formFooter a {
-    color: var(--c-violet);
+    color: var(--c-orange);
     text-decoration: none;
     cursor: pointer;
   }
