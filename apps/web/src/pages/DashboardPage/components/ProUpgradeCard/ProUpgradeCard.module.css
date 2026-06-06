@@ -1,0 +1,41 @@
+.premiumCard {
+  background: linear-gradient(135deg, var(--c-surface-2) 0%, var(--c-hairline-soft) 100%);
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--r-xxl);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.premiumCard h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  margin: 0;
+}
+
+.premiumCard p {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.premiumBtn {
+  background: var(--c-ink);
+  color: var(--c-canvas);
+  border: none;
+  padding: 10px 16px;
+  border-radius: var(--r-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+  min-height: 44px;
+}

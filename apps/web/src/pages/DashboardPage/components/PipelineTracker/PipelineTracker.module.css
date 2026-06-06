@@ -1,0 +1,168 @@
+.trackerCard {
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--r-xxl);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.trackerHeaderRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.iconWrapper {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-hairline-soft);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink);
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  margin: 0;
+}
+
+.cardSubtitle {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  margin: 4px 0 0 0;
+}
+
+.trackerContent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.radialWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.legendList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--r-xl);
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.legendItemHovered {
+  background: var(--c-surface-2);
+  border-color: var(--c-hairline);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.legendName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--c-ink);
+}
+
+.legendCount {
+  font-size: 0.75rem;
+  color: var(--c-ink-muted);
+}
+
+.legendBadge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--c-ink-muted);
+  background: var(--c-hairline-soft);
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metricFooter {
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--c-hairline-soft);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.metricValue {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--c-ink);
+  line-height: 1;
+}
+
+.metricDesc {
+  font-size: 0.875rem;
+  color: var(--c-ink-muted);
+  margin: 0;
+  max-width: 320px;
+}
+
+@media (max-width: 640px) {
+  .trackerContent {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 1.5rem;
+  }
+
+  .legendList {
+    width: 100%;
+  }
+}
+
+@media (max-width: 580px) {
+  .metricFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .trackerCard {
+    padding: 1.25rem;
+  }
+
+  .metricValue {
+    font-size: 2.75rem;
+  }
+}

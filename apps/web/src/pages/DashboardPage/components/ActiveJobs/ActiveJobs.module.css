@@ -1,0 +1,112 @@
+.jobsCard {
+  border-radius: var(--r-xxl);
+  padding: 1.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  margin: 0;
+}
+
+.seeAllLink {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.cardSubtitle {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  margin: 4px 0 0 0;
+}
+
+.jobsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.jobItem {
+  border-radius: var(--r-xl);
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.jobMainRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.jobIcon {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--c-orange);
+  color: #fff;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.jobMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.jobTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.jobTitleWrap h5 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jobSubText {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  margin: 2px 0 0 0;
+}
+
+.badge {
+  font-size: 0.6875rem;
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  font-weight: 500;
+}
+
+.badgeSuccess {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--c-success);
+}
+
+.badgeDraft {
+  background: var(--c-hairline);
+  color: var(--c-ink-muted);
+}
+
+@media (max-width: 480px) {
+  .jobTitleWrap h5 {
+    white-space: normal;
+  }
+}
