@@ -39,7 +39,7 @@ interface Candidate {
   name: string
   role: string
   initials: string
-  color: string
+  color?: string
   score: number
   source: string
   email: string
@@ -49,12 +49,12 @@ interface Candidate {
 }
 
 const INITIAL_CANDIDATES: Candidate[] = [
-  { id: '1', name: 'Alex Johnson', role: 'Senior Engineer', initials: 'AJ', color: '#6a4cf5', score: 92, source: 'LinkedIn', email: 'alex@email.com', location: 'Kyiv, Ukraine', stage: 'APPLIED', notes: 'Strong system design skills. 5+ years experience.' },
-  { id: '2', name: 'Maria Kim', role: 'Product Designer', initials: 'MK', color: '#d44df0', score: 87, source: 'Referral', email: 'maria@email.com', location: 'Warsaw, Poland', stage: 'APPLIED', notes: 'Great portfolio. Worked at top agencies.' },
-  { id: '3', name: 'Ryan Smith', role: 'Frontend Dev', initials: 'RS', color: '#0099ff', score: 78, source: 'Indeed', email: 'ryan@email.com', location: 'Remote', stage: 'SCREENING', notes: 'Solid React skills. Needs assessment.' },
-  { id: '4', name: 'Priya Lal', role: 'Data Scientist', initials: 'PL', color: '#22c55e', score: 94, source: 'LinkedIn', email: 'priya@email.com', location: 'Berlin, Germany', stage: 'SCREENING', notes: 'PhD in ML. Excellent match.' },
-  { id: '5', name: 'Tom Walker', role: 'Backend Dev', initials: 'TW', color: '#fb923c', score: 81, source: 'Manual', email: 'tom@email.com', location: 'Lviv, Ukraine', stage: 'INTERVIEW', notes: 'Good Go/Rust skills. Culture fit TBD.' },
-  { id: '6', name: 'Sarah Chen', role: 'UX Researcher', initials: 'SC', color: '#f472b6', score: 89, source: 'LinkedIn', email: 'sarah@email.com', location: 'Remote', stage: 'OFFER', notes: 'Exceptional research skills. Top pick.' },
+  { id: '1', name: 'Alex Johnson', role: 'Senior Engineer', initials: 'AJ', score: 92, source: 'LinkedIn', email: 'alex@email.com', location: 'Kyiv, Ukraine', stage: 'APPLIED', notes: 'Strong system design skills. 5+ years experience.' },
+  { id: '2', name: 'Maria Kim', role: 'Product Designer', initials: 'MK', score: 87, source: 'Referral', email: 'maria@email.com', location: 'Warsaw, Poland', stage: 'APPLIED', notes: 'Great portfolio. Worked at top agencies.' },
+  { id: '3', name: 'Ryan Smith', role: 'Frontend Dev', initials: 'RS', score: 78, source: 'Indeed', email: 'ryan@email.com', location: 'Remote', stage: 'SCREENING', notes: 'Solid React skills. Needs assessment.' },
+  { id: '4', name: 'Priya Lal', role: 'Data Scientist', initials: 'PL', score: 94, source: 'LinkedIn', email: 'priya@email.com', location: 'Berlin, Germany', stage: 'SCREENING', notes: 'PhD in ML. Excellent match.' },
+  { id: '5', name: 'Tom Walker', role: 'Backend Dev', initials: 'TW', score: 81, source: 'Manual', email: 'tom@email.com', location: 'Lviv, Ukraine', stage: 'INTERVIEW', notes: 'Good Go/Rust skills. Culture fit TBD.' },
+  { id: '6', name: 'Sarah Chen', role: 'UX Researcher', initials: 'SC', score: 89, source: 'LinkedIn', email: 'sarah@email.com', location: 'Remote', stage: 'OFFER', notes: 'Exceptional research skills. Top pick.' },
 ]
 
 function Column({ stage, candidates, onCardClick }: {
@@ -130,6 +130,11 @@ function CardContent({ candidate, onClick, isDragging = false }: {
       className={`${styles.card} ${isDragging ? styles.cardDragging : ''}`}
       onClick={onClick}
     >
+        <div className={styles.dragHandle}>
+  {Array.from({ length: 8 }).map((_, i) => (
+    <div key={i} className={styles.dragDot} />
+  ))}
+</div>
       <div className={styles.cardTop}>
         <div className={styles.cardAvatar} style={{ background: candidate.color }}>
           {candidate.initials}

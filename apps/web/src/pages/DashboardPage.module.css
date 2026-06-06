@@ -328,8 +328,12 @@
   border-radius: var(--r-full);
   object-fit: cover;
   flex-shrink: 0;
+  background: rgb(107, 107, 128);
 }
-
+[data-theme="light"] .avatar {
+  background: #64748b;
+  color: #ffffff;
+}
 .connectInfo {
   flex: 1;
   min-width: 0;

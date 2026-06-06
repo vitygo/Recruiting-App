@@ -8,6 +8,8 @@ const LandingPage = lazy(() => import('./pages/LandingPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const PipelinePage = lazy(() => import('./pages/PipelinePage'))
+const CandidatesPage = lazy(() => import('./pages/CandidatesPage'))
+
 
 const Spinner = () => (
   <div style={{
@@ -55,6 +57,7 @@ export default function App() {
           <Route path="/register" element={<LoginPage />} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/pipeline" element={<ProtectedRoute><PipelinePage /></ProtectedRoute>} />
+          <Route path="/candidates" element={<ProtectedRoute><CandidatesPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

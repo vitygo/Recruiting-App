@@ -56,8 +56,8 @@ const JOBS_DATA = [
 ]
 
 const QUICK_CONTACTS = [
-  { name: 'Alex Johnson', role: 'Senior Full-Stack Engineer', level: 'Senior', initials: 'AJ', color: '#6a4cf5' },
-  { name: 'Maria Kim', role: 'Product Designer', level: 'Middle', initials: 'MK', color: '#d44df0' },
+  { name: 'Alex Johnson', role: 'Senior Full-Stack Engineer', level: 'Senior', initials: 'AJ'},
+  { name: 'Maria Kim', role: 'Product Designer', level: 'Middle', initials: 'MK'},
 ]
 
 const SIZE = 220
