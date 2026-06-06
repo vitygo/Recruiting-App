@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { AppLayout } from '../components/layout/AppLayout'
 import { Select } from '../components/ui/Select'
-import { MagnifyingGlass, Plus, MapPin, Users, Sparkle, GraduationCap, UserCheck } from '@phosphor-icons/react'
+import { FormInput } from '../components/ui/FormInput'
+import { MagnifyingGlass, Plus, MapPin, Users, Sparkle, GraduationCap, UserCheck, X } from '@phosphor-icons/react'
 import { candidatesApi } from '../api/candidates'
 import { useDebounce } from '../hooks/useDebounce'
+import type { Candidate } from '../types'
 import styles from './CandidatesPage.module.css'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { X } from '@phosphor-icons/react'
-import { FormInput } from '../components/ui/FormInput'
+
 const SOURCE_COLORS: Record<string, { bg: string; color: string }> = {
   LINKEDIN: { bg: 'rgba(0,119,181,0.12)', color: '#0077b5' },
   INDEED: { bg: 'rgba(255,122,61,0.12)', color: '#ff7a3d' },
@@ -26,141 +27,97 @@ const STAGE_COLORS: Record<string, { bg: string; color: string }> = {
   REJECTED: { bg: 'rgba(255,85,119,0.12)', color: '#ff5577' },
 }
 
+const SOURCE_OPTIONS = [
+  { value: 'MANUAL', label: 'Manual' },
+  { value: 'LINKEDIN', label: 'LinkedIn' },
+  { value: 'INDEED', label: 'Indeed' },
+  { value: 'REFERRAL', label: 'Referral' },
+  { value: 'CAREERS_PAGE', label: 'Careers Page' },
+  { value: 'OTHER', label: 'Other' },
+]
+
 function getInitials(firstName?: string, lastName?: string) {
   return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase()
 }
 
-function AddCandidateModal({ onClose, onAdd }: {
-    onClose: () => void
-    onAdd: (data: {
-      firstName: string
-      lastName: string
-      email: string
-      phone: string
-      location: string
-      source: string
-    }) => void
-  }) {
-    const [form, setForm] = useState({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      location: '',
-      source: 'MANUAL',
-    })
-  
-    const handleSubmit = () => {
-      if (!form.firstName || !form.email) return
-      onAdd(form)
-      onClose()
-    }
-  
-    const sourceOptions = [
-      { value: 'MANUAL', label: 'Manual' },
-      { value: 'LINKEDIN', label: 'LinkedIn' },
-      { value: 'INDEED', label: 'Indeed' },
-      { value: 'REFERRAL', label: 'Referral' },
-      { value: 'CAREERS_PAGE', label: 'Careers Page' },
-      { value: 'OTHER', label: 'Other' },
-    ]
-  
-    return (
-      <div className={styles.modal}>
-        <div className={styles.modalOverlay} onClick={onClose} />
-        <div className={styles.modalBox}>
-          <div className={styles.modalHeader}>
-            <div>
-              <div className={styles.modalName}>Add candidate</div>
-              <div className={styles.modalRole}>Fill in the candidate details</div>
-            </div>
-            <button className={styles.modalCloseBtn} onClick={onClose}>
-              <X size={16} weight="bold" />
-            </button>
-          </div>
-  
-          <div className={styles.modalBody}>
-            <div className={styles.twoCol}>
-              <FormInput
-                label="First name"
-                required
-                value={form.firstName}
-                onChange={v => setForm(p => ({ ...p, firstName: v }))}
-                placeholder="Alex"
-              />
-              <FormInput
-                label="Last name"
-                value={form.lastName}
-                onChange={v => setForm(p => ({ ...p, lastName: v }))}
-                placeholder="Johnson"
-              />
-            </div>
-  
-            <FormInput
-              label="Email"
-              required
-              type="email"
-              value={form.email}
-              onChange={v => setForm(p => ({ ...p, email: v }))}
-              placeholder="alex@email.com"
-            />
-  
-            <div className={styles.twoCol}>
-              <FormInput
-                label="Phone"
-                value={form.phone}
-                onChange={v => setForm(p => ({ ...p, phone: v }))}
-                placeholder="+380 50 123 4567"
-              />
-              <FormInput
-                label="Location"
-                value={form.location}
-                onChange={v => setForm(p => ({ ...p, location: v }))}
-                placeholder="Kyiv, Ukraine"
-              />
-            </div>
-  
-            <div className={styles.modalSection}>
-              <div className={styles.modalSectionLabel}>Source</div>
-              <Select
-                value={form.source}
-                onChange={v => setForm(p => ({ ...p, source: v }))}
-                options={sourceOptions}
-              />
-            </div>
-          </div>
-  
-          <div className={styles.modalFooter}>
-            <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-            <button className={styles.saveBtn} onClick={handleSubmit}>Add candidate</button>
-          </div>
-        </div>
-      </div>
-    )
+function CandidateFormModal({ candidate, onClose, onSave, title, submitLabel }: {
+  candidate?: Candidate
+  onClose: () => void
+  onSave: (data: Partial<Candidate>) => void
+  title: string
+  submitLabel: string
+}) {
+  const [form, setForm] = useState({
+    firstName: candidate?.firstName || '',
+    lastName: candidate?.lastName || '',
+    email: candidate?.email || '',
+    phone: candidate?.phone || '',
+    location: candidate?.location || '',
+    source: candidate?.source || 'MANUAL',
+  })
+
+  const handleSubmit = () => {
+    if (!form.firstName || !form.email) return
+    onSave(form)
+    onClose()
   }
 
+  return (
+    <div className={styles.modal}>
+      <div className={styles.modalOverlay} onClick={onClose} />
+      <div className={styles.modalBox}>
+        <div className={styles.modalHeader}>
+          {candidate && (
+            <div className={styles.avatar} style={{ width: 40, height: 40, flexShrink: 0 }}>
+              {getInitials(candidate.firstName, candidate.lastName)}
+            </div>
+          )}
+          <div>
+            <div className={styles.modalName}>{title}</div>
+            <div className={styles.modalRole}>Fill in the candidate details</div>
+          </div>
+          <button className={styles.modalCloseBtn} onClick={onClose}>
+            <X size={16} weight="bold" />
+          </button>
+        </div>
+
+        <div className={styles.modalBody}>
+          <div className={styles.twoCol}>
+            <FormInput label="First name" required value={form.firstName} onChange={v => setForm(p => ({ ...p, firstName: v }))} placeholder="Alex" />
+            <FormInput label="Last name" value={form.lastName} onChange={v => setForm(p => ({ ...p, lastName: v }))} placeholder="Johnson" />
+          </div>
+
+          <FormInput label="Email" required type="email" value={form.email} onChange={v => setForm(p => ({ ...p, email: v }))} placeholder="alex@email.com" />
+
+          <div className={styles.twoCol}>
+            <FormInput label="Phone" value={form.phone} onChange={v => setForm(p => ({ ...p, phone: v }))} placeholder="+380 50 123 4567" />
+            <FormInput label="Location" value={form.location} onChange={v => setForm(p => ({ ...p, location: v }))} placeholder="Kyiv, Ukraine" />
+          </div>
+
+          <div className={styles.modalSection}>
+            <div className={styles.modalSectionLabel}>Source</div>
+            <Select fullWidth value={form.source} onChange={v => setForm(p => ({ ...p, source: v }))} options={SOURCE_OPTIONS} />
+          </div>
+        </div>
+
+        <div className={styles.modalFooter}>
+          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+          <button className={styles.saveBtn} onClick={handleSubmit}>{submitLabel}</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function CandidatesPage() {
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [sourceFilter, setSourceFilter] = useState('All')
   const [stageFilter, setStageFilter] = useState('All')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
+
   const debouncedSearch = useDebounce(search, 300)
-
-  const queryClient = useQueryClient()
-
-const addCandidateMutation = useMutation({
-  mutationFn: (data: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-    location: string
-    source: string
-  }) => candidatesApi.create(data),
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['candidates'] })
-  },
-})
 
   const { data, isLoading } = useQuery({
     queryKey: ['candidates', debouncedSearch, sourceFilter, stageFilter],
@@ -171,25 +128,29 @@ const addCandidateMutation = useMutation({
     }),
   })
 
+  const addCandidateMutation = useMutation({
+    mutationFn: (data: Partial<Candidate>) => candidatesApi.create(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidates'] }),
+  })
+
+  const updateCandidateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Candidate> }) =>
+      candidatesApi.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidates'] }),
+  })
+
   const candidates = data?.candidates || []
   const total = data?.total || 0
 
   const filtered = useMemo(() => {
     if (stageFilter === 'All') return candidates
-    return candidates.filter(c =>
-      c.candidateJobs?.some(cj => cj.stage === stageFilter)
-    )
+    return candidates.filter(c => c.candidateJobs?.some(cj => cj.stage === stageFilter))
   }, [candidates, stageFilter])
 
-  const stats = useMemo(() => {
-    const hired = candidates.filter(c =>
-      c.candidateJobs?.some(cj => cj.stage === 'HIRED')
-    ).length
-    const inPipeline = candidates.filter(c =>
-      c.candidateJobs?.some(cj => !['HIRED', 'REJECTED'].includes(cj.stage))
-    ).length
-    return { hired, inPipeline }
-  }, [candidates])
+  const stats = useMemo(() => ({
+    hired: candidates.filter(c => c.candidateJobs?.some(cj => cj.stage === 'HIRED')).length,
+    inPipeline: candidates.filter(c => c.candidateJobs?.some(cj => !['HIRED', 'REJECTED'].includes(cj.stage))).length,
+  }), [candidates])
 
   const STATS = [
     { label: 'Total candidates', icon: Users, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)', value: total.toString() },
@@ -197,8 +158,6 @@ const addCandidateMutation = useMutation({
     { label: 'In pipeline', icon: GraduationCap, iconBg: 'rgba(0,153,255,0.1)', iconColor: 'var(--c-accent)', value: stats.inPipeline.toString() },
     { label: 'Hired this month', icon: UserCheck, iconBg: 'rgba(0,153,255,0.1)', iconColor: 'var(--c-accent)', value: stats.hired.toString() },
   ]
-
-  
 
   return (
     <AppLayout title="Candidates">
@@ -228,38 +187,25 @@ const addCandidateMutation = useMutation({
             />
           </div>
 
-          <Select
-            value={sourceFilter}
-            onChange={setSourceFilter}
-            options={[
-              { value: 'All', label: 'All sources' },
-              { value: 'LINKEDIN', label: 'LinkedIn' },
-              { value: 'INDEED', label: 'Indeed' },
-              { value: 'REFERRAL', label: 'Referral' },
-              { value: 'MANUAL', label: 'Manual' },
-              { value: 'CAREERS_PAGE', label: 'Careers Page' },
-              { value: 'OTHER', label: 'Other' },
-            ]}
-          />
+          <Select value={sourceFilter} onChange={setSourceFilter} options={[
+            { value: 'All', label: 'All sources' },
+            ...SOURCE_OPTIONS,
+          ]} />
 
-          <Select
-            value={stageFilter}
-            onChange={setStageFilter}
-            options={[
-              { value: 'All', label: 'All stages' },
-              { value: 'APPLIED', label: 'Applied' },
-              { value: 'SCREENING', label: 'Screening' },
-              { value: 'INTERVIEW', label: 'Interview' },
-              { value: 'OFFER', label: 'Offer' },
-              { value: 'HIRED', label: 'Hired' },
-              { value: 'REJECTED', label: 'Rejected' },
-            ]}
-          />
+          <Select value={stageFilter} onChange={setStageFilter} options={[
+            { value: 'All', label: 'All stages' },
+            { value: 'APPLIED', label: 'Applied' },
+            { value: 'SCREENING', label: 'Screening' },
+            { value: 'INTERVIEW', label: 'Interview' },
+            { value: 'OFFER', label: 'Offer' },
+            { value: 'HIRED', label: 'Hired' },
+            { value: 'REJECTED', label: 'Rejected' },
+          ]} />
 
-            <button className={styles.addBtn} onClick={() => setShowAddModal(true)}>
+          <button className={styles.addBtn} onClick={() => setShowAddModal(true)}>
             <Plus size={14} weight="bold" />
             Add candidate
-            </button>
+          </button>
         </div>
 
         <div className={styles.grid}>
@@ -282,13 +228,11 @@ const addCandidateMutation = useMutation({
               const score = candidate.candidateJobs?.[0]?.aiScore
 
               return (
-                <div key={candidate.id} className={styles.card}>
+                <div key={candidate.id} className={styles.card} onClick={() => setSelectedCandidate(candidate)}>
                   <div className={styles.cardTop}>
                     <div className={styles.avatar}>{initials}</div>
                     <div>
-                      <div className={styles.cardName}>
-                        {candidate.firstName} {candidate.lastName}
-                      </div>
+                      <div className={styles.cardName}>{candidate.firstName} {candidate.lastName}</div>
                       <div className={styles.cardRole}>{candidate.email}</div>
                     </div>
                   </div>
@@ -311,10 +255,7 @@ const addCandidateMutation = useMutation({
                   <div className={styles.cardFooter}>
                     <div className={styles.scoreWrap}>
                       <div className={styles.scoreBar}>
-                        <div
-                          className={styles.scoreFill}
-                          style={{ width: `${score || 0}%`, background: 'var(--c-accent)' }}
-                        />
+                        <div className={styles.scoreFill} style={{ width: `${score || 0}%`, background: 'var(--c-accent)' }} />
                       </div>
                       <span className={styles.scoreVal}>{score ? `${score}%` : '—'}</span>
                     </div>
@@ -335,12 +276,25 @@ const addCandidateMutation = useMutation({
           )}
         </div>
       </div>
+
       {showAddModal && (
-  <AddCandidateModal
-    onClose={() => setShowAddModal(false)}
-    onAdd={data => addCandidateMutation.mutate(data)}
-  />
-)}
+        <CandidateFormModal
+          title="Add candidate"
+          submitLabel="Add candidate"
+          onClose={() => setShowAddModal(false)}
+          onSave={data => addCandidateMutation.mutate(data)}
+        />
+      )}
+
+      {selectedCandidate && (
+        <CandidateFormModal
+          title="Edit candidate"
+          submitLabel="Save changes"
+          candidate={selectedCandidate}
+          onClose={() => setSelectedCandidate(null)}
+          onSave={data => updateCandidateMutation.mutate({ id: selectedCandidate.id, data })}
+        />
+      )}
     </AppLayout>
   )
 }

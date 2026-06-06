@@ -1,19 +1,11 @@
 import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  useDroppable,
+  DndContext, DragOverlay, PointerSensor, useSensor, useSensors,
+  closestCenter, useDroppable,
 } from '@dnd-kit/core'
 import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-  arrayMove,
+  SortableContext, useSortable, verticalListSortingStrategy, arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AppLayout } from '../components/layout/AppLayout'
@@ -21,11 +13,10 @@ import { MagnifyingGlass, Plus, X, Envelope, CalendarBlank, Sparkle, DotsSixVert
 import { pipelineApi } from '../api/pipeline'
 import { jobsApi } from '../api/jobs'
 import { candidatesApi } from '../api/candidates'
-import type { CandidateJob, PipelineStage } from '../types'
-import styles from './PipelinePage.module.css'
 import { Select } from '../components/ui/Select'
 import { FormInput } from '../components/ui/FormInput'
-
+import type { CandidateJob, PipelineStage } from '../types'
+import styles from './PipelinePage.module.css'
 
 const STAGES: { id: PipelineStage; label: string; color: string }[] = [
   { id: 'APPLIED', label: 'Applied', color: '#9ca3af' },
@@ -43,14 +34,32 @@ const SOURCE_COLORS: Record<string, { bg: string; color: string }> = {
   OTHER: { bg: 'rgba(156,163,175,0.12)', color: '#9ca3af' },
 }
 
+const SOURCE_OPTIONS = [
+  { value: 'MANUAL', label: 'Manual' },
+  { value: 'LINKEDIN', label: 'LinkedIn' },
+  { value: 'INDEED', label: 'Indeed' },
+  { value: 'REFERRAL', label: 'Referral' },
+  { value: 'CAREERS_PAGE', label: 'Careers Page' },
+  { value: 'OTHER', label: 'Other' },
+]
+
+const STAGE_OPTIONS = [
+  { value: 'APPLIED', label: 'Applied' },
+  { value: 'SCREENING', label: 'Screening' },
+  { value: 'INTERVIEW', label: 'Interview' },
+  { value: 'OFFER', label: 'Offer' },
+  { value: 'HIRED', label: 'Hired' },
+]
+
 function getInitials(firstName?: string, lastName?: string) {
   return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase()
 }
 
-function Column({ stage, items, onCardClick }: {
+function Column({ stage, items, onCardClick, onAddClick }: {
   stage: typeof STAGES[0]
   items: CandidateJob[]
   onCardClick: (item: CandidateJob) => void
+  onAddClick: (stage: string) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id })
 
@@ -71,7 +80,7 @@ function Column({ stage, items, onCardClick }: {
             <SortableCard key={item.id} item={item} onClick={() => onCardClick(item)} />
           ))}
         </SortableContext>
-        <button className={styles.addCardBtn}>
+        <button className={styles.addCardBtn} onClick={() => onAddClick(stage.id)}>
           <Plus size={13} weight="bold" />
           Add candidate
         </button>
@@ -86,14 +95,13 @@ function SortableCard({ item, onClick }: { item: CandidateJob; onClick: () => vo
     data: { stage: item.stage },
   })
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0 : 1,
-  }
-
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0 : 1 }}
+      {...attributes}
+      {...listeners}
+    >
       <CardContent item={item} onClick={onClick} />
     </div>
   )
@@ -115,19 +123,14 @@ function CardContent({ item, onClick, isDragging = false }: {
       <div className={styles.cardTop}>
         <div className={styles.cardAvatar}>{initials}</div>
         <div>
-          <div className={styles.cardName}>
-            {item.candidate?.firstName} {item.candidate?.lastName}
-          </div>
+          <div className={styles.cardName}>{item.candidate?.firstName} {item.candidate?.lastName}</div>
           <div className={styles.cardRole}>{item.candidate?.email}</div>
         </div>
       </div>
       <div className={styles.cardBottom}>
         <div className={styles.scoreWrap}>
           <div className={styles.scoreBar}>
-            <div
-              className={styles.scoreFill}
-              style={{ width: `${item.aiScore || 0}%`, background: 'var(--c-accent)' }}
-            />
+            <div className={styles.scoreFill} style={{ width: `${item.aiScore || 0}%`, background: 'var(--c-accent)' }} />
           </div>
           <span className={styles.scoreVal}>{item.aiScore ? `${item.aiScore}%` : '—'}</span>
         </div>
@@ -154,12 +157,8 @@ function CandidateModal({ item, onClose, onStageChange }: {
         <div className={styles.modalHeader}>
           <div className={styles.modalAvatar}>{initials}</div>
           <div>
-            <div className={styles.modalName}>
-              {item.candidate?.firstName} {item.candidate?.lastName}
-            </div>
-            <div className={styles.modalRole}>
-              {item.candidate?.location || 'No location'} · {item.candidate?.source}
-            </div>
+            <div className={styles.modalName}>{item.candidate?.firstName} {item.candidate?.lastName}</div>
+            <div className={styles.modalRole}>{item.candidate?.location || 'No location'} · {item.candidate?.source}</div>
           </div>
           <div className={styles.modalActions}>
             <button className={styles.modalActionBtn}><Envelope size={16} weight="fill" /></button>
@@ -226,24 +225,22 @@ function CandidateModal({ item, onClose, onStageChange }: {
   )
 }
 
-function AddCandidateModal({ onClose, onAdd }: {
+function AddCandidateModal({ onClose, onAdd, defaultStage, jobs, selectedJobId }: {
   onClose: () => void
   onAdd: (data: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-    location: string
-    source: string
+    firstName: string; lastName: string; email: string
+    phone: string; location: string; source: string
+    stage: string; jobId: string
   }) => void
+  defaultStage: string
+  jobs: { id: string; title: string }[]
+  selectedJobId: string
 }) {
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    location: '',
-    source: 'MANUAL',
+    firstName: '', lastName: '', email: '',
+    phone: '', location: '', source: 'MANUAL',
+    stage: defaultStage,
+    jobId: selectedJobId !== 'all' ? selectedJobId : '',
   })
 
   const handleSubmit = () => {
@@ -251,15 +248,6 @@ function AddCandidateModal({ onClose, onAdd }: {
     onAdd(form)
     onClose()
   }
-
-  const sourceOptions = [
-    { value: 'MANUAL', label: 'Manual' },
-    { value: 'LINKEDIN', label: 'LinkedIn' },
-    { value: 'INDEED', label: 'Indeed' },
-    { value: 'REFERRAL', label: 'Referral' },
-    { value: 'CAREERS_PAGE', label: 'Careers Page' },
-    { value: 'OTHER', label: 'Other' },
-  ]
 
   return (
     <div className={styles.modal}>
@@ -277,53 +265,42 @@ function AddCandidateModal({ onClose, onAdd }: {
 
         <div className={styles.modalBody}>
           <div className={styles.twoCol}>
-            <FormInput
-              label="First name"
-              required
-              value={form.firstName}
-              onChange={v => setForm(p => ({ ...p, firstName: v }))}
-              placeholder="Alex"
-            />
-            <FormInput
-              label="Last name"
-              value={form.lastName}
-              onChange={v => setForm(p => ({ ...p, lastName: v }))}
-              placeholder="Johnson"
-            />
+            <FormInput label="First name" required value={form.firstName} onChange={v => setForm(p => ({ ...p, firstName: v }))} placeholder="Alex" />
+            <FormInput label="Last name" value={form.lastName} onChange={v => setForm(p => ({ ...p, lastName: v }))} placeholder="Johnson" />
           </div>
 
-          <FormInput
-            label="Email"
-            required
-            type="email"
-            value={form.email}
-            onChange={v => setForm(p => ({ ...p, email: v }))}
-            placeholder="alex@email.com"
-          />
+          <FormInput label="Email" required type="email" value={form.email} onChange={v => setForm(p => ({ ...p, email: v }))} placeholder="alex@email.com" />
 
           <div className={styles.twoCol}>
-            <FormInput
-              label="Phone"
-              value={form.phone}
-              onChange={v => setForm(p => ({ ...p, phone: v }))}
-              placeholder="+380 50 123 4567"
-            />
-            <FormInput
-              label="Location"
-              value={form.location}
-              onChange={v => setForm(p => ({ ...p, location: v }))}
-              placeholder="Kyiv, Ukraine"
-            />
+            <FormInput label="Phone" value={form.phone} onChange={v => setForm(p => ({ ...p, phone: v }))} placeholder="+380 50 123 4567" />
+            <FormInput label="Location" value={form.location} onChange={v => setForm(p => ({ ...p, location: v }))} placeholder="Kyiv, Ukraine" />
           </div>
 
-          <div className={styles.modalSection}>
-            <div className={styles.modalSectionLabel}>Source</div>
-            <Select
-              value={form.source}
-              onChange={v => setForm(p => ({ ...p, source: v }))}
-              options={sourceOptions}
-            />
+          <div className={styles.twoCol}>
+            <div className={styles.modalSection}>
+              <div className={styles.modalSectionLabel}>Source</div>
+              <Select fullWidth value={form.source} onChange={v => setForm(p => ({ ...p, source: v }))} options={SOURCE_OPTIONS} />
+            </div>
+            <div className={styles.modalSection}>
+              <div className={styles.modalSectionLabel}>Stage</div>
+              <Select fullWidth value={form.stage} onChange={v => setForm(p => ({ ...p, stage: v }))} options={STAGE_OPTIONS} />
+            </div>
           </div>
+
+          {jobs.length > 0 && (
+            <div className={styles.modalSection}>
+              <div className={styles.modalSectionLabel}>Job position</div>
+              <Select
+                fullWidth
+                value={form.jobId}
+                onChange={v => setForm(p => ({ ...p, jobId: v }))}
+                options={[
+                  { value: '', label: 'No job selected' },
+                  ...jobs.map(j => ({ value: j.id, label: j.title })),
+                ]}
+              />
+            </div>
+          )}
         </div>
 
         <div className={styles.modalFooter}>
@@ -340,6 +317,7 @@ export default function PipelinePage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [selectedItem, setSelectedItem] = useState<CandidateJob | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [addModalStage, setAddModalStage] = useState('APPLIED')
   const [search, setSearch] = useState('')
   const [jobFilter, setJobFilter] = useState('all')
 
@@ -365,19 +343,23 @@ export default function PipelinePage() {
 
   const addCandidateMutation = useMutation({
     mutationFn: async (data: {
-      firstName: string
-      lastName: string
-      email: string
-      phone: string
-      location: string
-      source: string
+      firstName: string; lastName: string; email: string
+      phone: string; location: string; source: string
+      stage: string; jobId: string
     }) => {
-      const res = await candidatesApi.create(data)
-      if (jobFilter !== 'all') {
+      const res = await candidatesApi.create({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        location: data.location,
+        source: data.source,
+      })
+      if (data.jobId) {
         await pipelineApi.addCandidate({
           candidateId: res.candidate.id,
-          jobId: jobFilter,
-          stage: 'APPLIED',
+          jobId: data.jobId,
+          stage: data.stage as PipelineStage,
         })
       }
       return res
@@ -395,8 +377,7 @@ export default function PipelinePage() {
       item.stage === stageId &&
       (search === '' ||
         `${item.candidate?.firstName} ${item.candidate?.lastName}`
-          .toLowerCase()
-          .includes(search.toLowerCase()))
+          .toLowerCase().includes(search.toLowerCase()))
     ),
     [items, search]
   )
@@ -412,55 +393,35 @@ export default function PipelinePage() {
     setActiveId(active.id as string)
   }
 
-  const handleDragOver = ({ active, over }: {
-    active: { id: string | number }
-    over: { id: string | number } | null
-  }) => {
+  const handleDragOver = ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) => {
     if (!over) return
     const from = findStage(active.id as string)
     const to = findStage(over.id as string)
     if (!from || !to || from === to) return
-    queryClient.setQueryData(
-      ['pipeline', jobFilter],
-      (old: { pipeline: CandidateJob[] } | undefined) => {
-        if (!old) return old
-        return {
-          ...old,
-          pipeline: old.pipeline.map(i =>
-            i.id === active.id ? { ...i, stage: to } : i
-          ),
-        }
-      }
-    )
+    queryClient.setQueryData(['pipeline', jobFilter], (old: { pipeline: CandidateJob[] } | undefined) => {
+      if (!old) return old
+      return { ...old, pipeline: old.pipeline.map(i => i.id === active.id ? { ...i, stage: to } : i) }
+    })
   }
 
-  const handleDragEnd = ({ active, over }: {
-    active: { id: string | number }
-    over: { id: string | number } | null
-  }) => {
+  const handleDragEnd = ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) => {
     setActiveId(null)
     if (!over || active.id === over.id) return
-
     const from = findStage(active.id as string)
     const to = findStage(over.id as string)
-
     if (from && to && from !== to) {
       updateStageMutation.mutate({ id: active.id as string, stage: to })
       return
     }
-
     if (from && to && from === to) {
-      queryClient.setQueryData(
-        ['pipeline', jobFilter],
-        (old: { pipeline: CandidateJob[] } | undefined) => {
-          if (!old) return old
-          const inStage = old.pipeline.filter(i => i.stage === from)
-          const rest = old.pipeline.filter(i => i.stage !== from)
-          const oldIdx = inStage.findIndex(i => i.id === active.id)
-          const newIdx = inStage.findIndex(i => i.id === over.id)
-          return { ...old, pipeline: [...rest, ...arrayMove(inStage, oldIdx, newIdx)] }
-        }
-      )
+      queryClient.setQueryData(['pipeline', jobFilter], (old: { pipeline: CandidateJob[] } | undefined) => {
+        if (!old) return old
+        const inStage = old.pipeline.filter(i => i.stage === from)
+        const rest = old.pipeline.filter(i => i.stage !== from)
+        const oldIdx = inStage.findIndex(i => i.id === active.id)
+        const newIdx = inStage.findIndex(i => i.id === over.id)
+        return { ...old, pipeline: [...rest, ...arrayMove(inStage, oldIdx, newIdx)] }
+      })
     }
   }
 
@@ -468,6 +429,11 @@ export default function PipelinePage() {
     if (!selectedItem) return
     updateStageMutation.mutate({ id: selectedItem.id, stage })
     setSelectedItem(prev => prev ? { ...prev, stage } : null)
+  }
+
+  const handleAddClick = (stage: string) => {
+    setAddModalStage(stage)
+    setShowAddModal(true)
   }
 
   return (
@@ -488,12 +454,12 @@ export default function PipelinePage() {
             value={jobFilter}
             onChange={setJobFilter}
             options={[
-        { value: 'all', label: 'All jobs' },
-        ...(jobsData?.jobs.map(job => ({ value: job.id, label: job.title })) || []),
-                    ]}
-/>
+              { value: 'all', label: 'All jobs' },
+              ...(jobsData?.jobs.map(j => ({ value: j.id, label: j.title })) || []),
+            ]}
+          />
 
-          <button className={styles.addBtn} onClick={() => setShowAddModal(true)}>
+          <button className={styles.addBtn} onClick={() => handleAddClick('APPLIED')}>
             <Plus size={14} weight="bold" />
             Add candidate
           </button>
@@ -513,14 +479,13 @@ export default function PipelinePage() {
                 stage={stage}
                 items={getByStage(stage.id)}
                 onCardClick={setSelectedItem}
+                onAddClick={handleAddClick}
               />
             ))}
           </div>
 
           <DragOverlay>
-            {activeItem && (
-              <CardContent item={activeItem} onClick={() => {}} isDragging />
-            )}
+            {activeItem && <CardContent item={activeItem} onClick={() => {}} isDragging />}
           </DragOverlay>
         </DndContext>
       </div>
@@ -537,6 +502,9 @@ export default function PipelinePage() {
         <AddCandidateModal
           onClose={() => setShowAddModal(false)}
           onAdd={data => addCandidateMutation.mutate(data)}
+          defaultStage={addModalStage}
+          jobs={jobsData?.jobs || []}
+          selectedJobId={jobFilter}
         />
       )}
     </AppLayout>

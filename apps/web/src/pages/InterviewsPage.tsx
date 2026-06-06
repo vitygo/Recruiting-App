@@ -1,111 +1,101 @@
 import { useState, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  useDroppable,
+  DndContext, DragOverlay, PointerSensor, useSensor, useSensors,
+  closestCenter, useDroppable,
 } from '@dnd-kit/core'
 import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-  arrayMove,
+  SortableContext, useSortable, verticalListSortingStrategy, arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AppLayout } from '../components/layout/AppLayout'
-import {
-  MagnifyingGlass,
-  Plus,
-  CalendarBlank,
-  VideoCamera,
-  Phone,
-  Buildings,
-  Clock,
-  Users,
-  X,
-  DotsSixVertical,
-} from '@phosphor-icons/react'
-import styles from './InterviewsPage.module.css'
 import { Select } from '../components/ui/Select'
-
-
-interface Interview {
-  id: string
-  candidateName: string
-  candidateRole: string
-  candidateInitials: string
-  jobTitle: string
-  timeLabel: string
-  dayLabel: string
-  duration: number
-  type: 'VIDEO' | 'PHONE' | 'ONSITE'
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
-}
-
-const INITIAL_INTERVIEWS: Interview[] = [
-  { id: '1', candidateName: 'Alex Johnson', candidateRole: 'Senior Engineer', candidateInitials: 'AJ', jobTitle: 'Senior Full-Stack Engineer', timeLabel: '2:00 PM', dayLabel: 'Today', duration: 60, type: 'VIDEO', status: 'SCHEDULED' },
-  { id: '2', candidateName: 'Maria Kim', candidateRole: 'Product Designer', candidateInitials: 'MK', jobTitle: 'Product Designer', timeLabel: '4:30 PM', dayLabel: 'Today', duration: 45, type: 'PHONE', status: 'SCHEDULED' },
-  { id: '3', candidateName: 'Ryan Smith', candidateRole: 'Frontend Dev', candidateInitials: 'RS', jobTitle: 'Senior Full-Stack Engineer', timeLabel: '11:00 AM', dayLabel: 'Tomorrow', duration: 60, type: 'VIDEO', status: 'SCHEDULED' },
-  { id: '4', candidateName: 'Priya Lal', candidateRole: 'Data Scientist', candidateInitials: 'PL', jobTitle: 'Data Scientist', timeLabel: '3:00 PM', dayLabel: 'Tomorrow', duration: 90, type: 'ONSITE', status: 'SCHEDULED' },
-  { id: '5', candidateName: 'Tom Walker', candidateRole: 'Backend Dev', candidateInitials: 'TW', jobTitle: 'DevOps Engineer', timeLabel: '10:00 AM', dayLabel: 'Thu', duration: 60, type: 'VIDEO', status: 'SCHEDULED' },
-  { id: '6', candidateName: 'Sarah Chen', candidateRole: 'UX Researcher', candidateInitials: 'SC', jobTitle: 'Product Designer', timeLabel: '2:00 PM', dayLabel: 'Thu', duration: 45, type: 'PHONE', status: 'COMPLETED' },
-  { id: '7', candidateName: 'Nina Patel', candidateRole: 'ML Engineer', candidateInitials: 'NP', jobTitle: 'Data Scientist', timeLabel: '1:00 PM', dayLabel: 'Fri', duration: 60, type: 'VIDEO', status: 'CANCELLED' },
-]
-
-const DAYS = ['Today', 'Tomorrow', 'Thu', 'Fri']
-
-const STATS = [
-  { label: 'This week', value: '12', icon: CalendarBlank, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
-  { label: 'Scheduled', value: '8', icon: Clock, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
-  { label: 'Completed', value: '3', icon: Users, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
-  { label: 'Avg duration', value: '58m', icon: Clock, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
-]
+import { FormInput } from '../components/ui/FormInput'
+import {
+  MagnifyingGlass, Plus, X, VideoCamera, Phone, Buildings,
+  CalendarBlank, Clock, Users, DotsSixVertical, GoogleLogo, Trash,
+} from '@phosphor-icons/react'
+import { interviewsApi } from '../api/interviews'
+import { candidatesApi } from '../api/candidates'
+import { jobsApi } from '../api/jobs'
+import type { Interview } from '../types'
+import styles from './InterviewsPage.module.css'
 
 const CALENDAR_DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
-const CALENDAR_DATES = [
-  { day: 2, hasEvent: false }, { day: 3, hasEvent: false }, { day: 4, hasEvent: true },
-  { day: 5, hasEvent: false }, { day: 6, hasEvent: true }, { day: 7, hasEvent: false },
-  { day: 8, hasEvent: false }, { day: 9, hasEvent: false }, { day: 10, hasEvent: false },
-  { day: 11, hasEvent: true }, { day: 12, hasEvent: true }, { day: 13, hasEvent: false },
-  { day: 14, hasEvent: false }, { day: 15, hasEvent: false }, { day: 16, hasEvent: false },
-  { day: 17, hasEvent: false }, { day: 18, hasEvent: true }, { day: 19, hasEvent: false },
-  { day: 20, hasEvent: false }, { day: 21, hasEvent: false }, { day: 22, hasEvent: false },
-  { day: 23, hasEvent: false }, { day: 24, hasEvent: true }, { day: 25, hasEvent: false },
-  { day: 26, hasEvent: false }, { day: 27, hasEvent: false }, { day: 28, hasEvent: false },
-  { day: 29, hasEvent: false }, { day: 30, hasEvent: false },
+
+const TYPE_OPTIONS = [
+  { value: 'VIDEO', label: 'Video' },
+  { value: 'PHONE', label: 'Phone' },
+  { value: 'ONSITE', label: 'Onsite' },
 ]
 
-const TODAY = 4
+const STATUS_OPTIONS = [
+  { value: 'SCHEDULED', label: 'Scheduled' },
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+]
 
-function InterviewCard({
-  interview,
-  onClick,
-  isDragging = false,
-}: {
-  interview: Interview
-  onClick: () => void
-  isDragging?: boolean
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging: isSortable } = useSortable({
+function getInitials(firstName?: string, lastName?: string) {
+  return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase()
+}
+
+function formatTime(scheduledAt: string) {
+  return new Date(scheduledAt).toLocaleTimeString('en-US', {
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  })
+}
+
+function formatDayLabel(scheduledAt: string) {
+  const d = new Date(scheduledAt)
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(today.getDate() + 1)
+  if (d.toDateString() === today.toDateString()) return 'Today'
+  if (d.toDateString() === tomorrow.toDateString()) return 'Tomorrow'
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+}
+
+function groupByDay(interviews: Interview[]) {
+  const groups: Record<string, Interview[]> = {}
+  const sorted = [...interviews].sort(
+    (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+  )
+  sorted.forEach(iv => {
+    const key = new Date(iv.scheduledAt).toDateString()
+    if (!groups[key]) groups[key] = []
+    groups[key].push(iv)
+  })
+  return groups
+}
+
+function openGoogleCalendar(interview: Interview) {
+  const start = new Date(interview.scheduledAt)
+  const end = new Date(start.getTime() + (interview.duration || 60) * 60000)
+  const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+  const name = `${interview.candidate?.firstName} ${interview.candidate?.lastName}`
+  const url = new URL('https://calendar.google.com/calendar/render')
+  url.searchParams.set('action', 'TEMPLATE')
+  url.searchParams.set('text', `Interview: ${name}`)
+  url.searchParams.set('dates', `${fmt(start)}/${fmt(end)}`)
+  url.searchParams.set('details', `${interview.type} interview · ${interview.notes || ''}`)
+  if (interview.meetLink) url.searchParams.set('location', interview.meetLink)
+  window.open(url.toString(), '_blank')
+}
+
+function InterviewCard({ interview, onClick }: { interview: Interview; onClick: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: interview.id,
-    data: { day: interview.dayLabel },
+    data: { day: new Date(interview.scheduledAt).toDateString() },
   })
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isSortable ? 0 : 1,
-  }
-
   return (
-    <div ref={setNodeRef} style={style}>
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0 : 1 }}
+    >
       <InterviewCardContent
         interview={interview}
         onClick={onClick}
-        isDragging={isDragging}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
     </div>
@@ -113,10 +103,7 @@ function InterviewCard({
 }
 
 function InterviewCardContent({
-  interview,
-  onClick,
-  isDragging = false,
-  dragHandleProps = {},
+  interview, onClick, isDragging = false, dragHandleProps = {},
 }: {
   interview: Interview
   onClick: () => void
@@ -124,6 +111,7 @@ function InterviewCardContent({
   dragHandleProps?: object
 }) {
   const accentColor = interview.type === 'VIDEO' ? 'var(--c-accent)' : 'var(--c-orange)'
+  const initials = getInitials(interview.candidate?.firstName, interview.candidate?.lastName)
 
   return (
     <div
@@ -136,73 +124,75 @@ function InterviewCardContent({
           <DotsSixVertical size={14} weight="bold" />
         </div>
         <div className={styles.cTime}>
-          <span className={styles.cDay}>{interview.dayLabel}</span>
-          <span className={styles.cHour}>{interview.timeLabel}</span>
+          <span className={styles.cDay}>{formatDayLabel(interview.scheduledAt)}</span>
+          <span className={styles.cHour}>{formatTime(interview.scheduledAt)}</span>
         </div>
-        <div className={styles.cAvatar}>{interview.candidateInitials}</div>
+        <div className={styles.cAvatar}>{initials}</div>
         <div className={styles.cInfo}>
-          <div className={styles.cName}>{interview.candidateName}</div>
-          <div className={styles.cSub}>{interview.candidateRole} · {interview.jobTitle}</div>
+          <div className={styles.cName}>
+            {interview.candidate?.firstName} {interview.candidate?.lastName}
+          </div>
+          <div className={styles.cSub}>
+            {interview.notes || 'No notes'} · {interview.duration || 60}min
+          </div>
         </div>
         <div className={styles.cRight}>
           <span className={`${styles.cBadge} ${
             interview.type === 'VIDEO' ? styles.badgeVideo :
-            interview.type === 'PHONE' ? styles.badgePhone :
-            styles.badgeOnsite
+            interview.type === 'PHONE' ? styles.badgePhone : styles.badgeOnsite
           }`}>
             {interview.type === 'VIDEO' ? <VideoCamera size={10} weight="fill" /> :
              interview.type === 'PHONE' ? <Phone size={10} weight="fill" /> :
              <Buildings size={10} weight="fill" />}
-            {' '}{interview.type.charAt(0) + interview.type.slice(1).toLowerCase()}
+            {' '}{interview.type?.charAt(0) + interview.type?.slice(1).toLowerCase()}
           </span>
           <span className={`${styles.cBadge} ${
             interview.status === 'SCHEDULED' ? styles.statusScheduled :
             interview.status === 'COMPLETED' ? styles.statusCompleted :
             styles.statusCancelled
           }`}>
-            {interview.status.charAt(0) + interview.status.slice(1).toLowerCase()}
+            {interview.status?.charAt(0) + interview.status?.slice(1).toLowerCase()}
           </span>
-          <span className={styles.cDur}>{interview.duration} min</span>
+          <button
+            className={styles.gcalBtn}
+            onClick={e => { e.stopPropagation(); openGoogleCalendar(interview) }}
+          >
+            <GoogleLogo size={11} weight="fill" />
+            Add
+          </button>
         </div>
       </div>
     </div>
   )
 }
 
-function DayGroup({
-  day,
-  interviews,
-  onCardClick,
-}: {
-  day: string
+function DayGroup({ dayKey, interviews, onCardClick }: {
+  dayKey: string
   interviews: Interview[]
   onCardClick: (iv: Interview) => void
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: day })
+  const { setNodeRef, isOver } = useDroppable({ id: dayKey })
+  const label = formatDayLabel(interviews[0]?.scheduledAt || dayKey)
+  const isToday = new Date().toDateString() === dayKey
 
   return (
     <div className={styles.dayGroup}>
       <div className={styles.dayHeader}>
-        <span className={styles.dayLabel}>{day}</span>
-        <span className={styles.dayCount}>{interviews.length} interviews</span>
+        <span className={`${styles.dayLabel} ${isToday ? styles.dayLabelToday : ''}`}>
+          {label}
+        </span>
+        <span className={styles.dayCount}>
+          {interviews.length} interview{interviews.length !== 1 ? 's' : ''}
+        </span>
         <div className={styles.dayDivider} />
       </div>
-
       <div
         ref={setNodeRef}
         className={`${styles.dayItems} ${isOver ? styles.dayItemsOver : ''}`}
-        style={{ minHeight: 60 }}
       >
-        <SortableContext
-          items={interviews.map(iv => iv.id)}
-          strategy={verticalListSortingStrategy}
-        >
+        <SortableContext items={interviews.map(iv => iv.id)} strategy={verticalListSortingStrategy}>
           {interviews.map(iv => (
-            <InterviewCard
-              key={iv.id}
-              interview={iv}
-              onClick={() => onCardClick(iv)}
-            />
+            <InterviewCard key={iv.id} interview={iv} onClick={() => onCardClick(iv)} />
           ))}
         </SortableContext>
       </div>
@@ -210,143 +200,359 @@ function DayGroup({
   )
 }
 
-function EditModal({
-    interview,
-    onClose,
-    onSave,
-  }: {
-    interview: Interview
-    onClose: () => void
-    onSave: (updated: Interview) => void
-  }) {
-    const [form, setForm] = useState({ ...interview })
-  
-    const handleChange = (field: keyof Interview, value: string | number) => {
-      setForm(prev => ({ ...prev, [field]: value }))
-    }
-  
-    return (
-      <div className={styles.modal}>
-        <div className={styles.modalOverlay} onClick={onClose} />
-        <div className={styles.modalBox}>
-          <div className={styles.modalHeader}>
-            <div className={styles.cAvatar}>{interview.candidateInitials}</div>
-            <div>
-              <div className={styles.modalName}>{interview.candidateName}</div>
-              <div className={styles.modalRole}>{interview.candidateRole}</div>
+function InterviewModal({ interview, onClose, onSave, onDelete }: {
+  interview: Interview
+  onClose: () => void
+  onSave: (data: Partial<Interview>) => void
+  onDelete: (id: string) => void
+}) {
+  const d = new Date(interview.scheduledAt)
+  const [form, setForm] = useState({
+    date: d.toISOString().split('T')[0],
+    time: d.toTimeString().slice(0, 5),
+    duration: String(interview.duration || 60),
+    type: interview.type || 'VIDEO',
+    status: interview.status || 'SCHEDULED',
+    notes: interview.notes || '',
+    meetLink: interview.meetLink || '',
+  })
+
+  const handleSave = () => {
+    const scheduledAt = new Date(`${form.date}T${form.time}`).toISOString()
+    onSave({
+      scheduledAt,
+      duration: Number(form.duration),
+      type: form.type as Interview['type'],
+      status: form.status as Interview['status'],
+      notes: form.notes,
+      meetLink: form.meetLink || undefined,
+    })
+    onClose()
+  }
+
+  const initials = getInitials(interview.candidate?.firstName, interview.candidate?.lastName)
+
+  return (
+    <div className={styles.modal}>
+      <div className={styles.modalOverlay} onClick={onClose} />
+      <div className={styles.modalBox}>
+        <div className={styles.modalHeader}>
+          <div className={styles.modalAvatar}>{initials}</div>
+          <div>
+            <div className={styles.modalName}>
+              {interview.candidate?.firstName} {interview.candidate?.lastName}
             </div>
+            <div className={styles.modalRole}>{interview.candidate?.email}</div>
+          </div>
+          <div className={styles.modalActions}>
+            <button className={styles.gcalActionBtn} onClick={() => openGoogleCalendar(interview)}>
+              <GoogleLogo size={14} weight="fill" />
+              Add to Google Calendar
+            </button>
             <button className={styles.modalCloseBtn} onClick={onClose}>
               <X size={16} weight="bold" />
             </button>
           </div>
-  
-          <div className={styles.modalBody}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Day</label>
-              <Select
-                value={form.dayLabel}
-                onChange={v => handleChange('dayLabel', v)}
-                options={DAYS.map(d => ({ value: d, label: d }))}
-              />
-            </div>
-  
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Time</label>
-              <input
-                className={styles.formInput}
-                value={form.timeLabel}
-                onChange={e => handleChange('timeLabel', e.target.value)}
-                placeholder="2:00 PM"
-              />
-            </div>
-  
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Duration (min)</label>
-              <input
-                className={styles.formInput}
-                type="number"
-                value={form.duration}
-                onChange={e => handleChange('duration', parseInt(e.target.value))}
-              />
-            </div>
-  
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Type</label>
-              <Select
-                value={form.type}
-                onChange={v => handleChange('type', v)}
-                options={[
-                  { value: 'VIDEO', label: 'Video' },
-                  { value: 'PHONE', label: 'Phone' },
-                  { value: 'ONSITE', label: 'Onsite' },
-                ]}
-              />
-            </div>
-  
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Status</label>
-              <Select
-                value={form.status}
-                onChange={v => handleChange('status', v)}
-                options={[
-                  { value: 'SCHEDULED', label: 'Scheduled' },
-                  { value: 'COMPLETED', label: 'Completed' },
-                  { value: 'CANCELLED', label: 'Cancelled' },
-                ]}
-              />
-            </div>
-  
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Job title</label>
-              <input
-                className={styles.formInput}
-                value={form.jobTitle}
-                onChange={e => handleChange('jobTitle', e.target.value)}
-              />
+        </div>
+
+        <div className={styles.modalBody}>
+          <div className={styles.twoCol}>
+            <FormInput label="Date" type="date" value={form.date} onChange={v => setForm(p => ({ ...p, date: v }))} />
+            <FormInput label="Time" type="time" value={form.time} onChange={v => setForm(p => ({ ...p, time: v }))} />
+          </div>
+
+          <div className={styles.twoCol}>
+            <FormInput label="Duration (min)" type="number" value={form.duration} onChange={v => setForm(p => ({ ...p, duration: v }))} placeholder="60" />
+            <div className={styles.modalSection}>
+              <div className={styles.modalSectionLabel}>Type</div>
+              <Select fullWidth value={form.type} onChange={v => setForm(p => ({ ...p, type: v }))} options={TYPE_OPTIONS} />
             </div>
           </div>
-  
-          <div className={styles.modalFooter}>
-            <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-            <button className={styles.saveBtn} onClick={() => { onSave(form); onClose() }}>
-              Save changes
-            </button>
+
+          <div className={styles.modalSection}>
+            <div className={styles.modalSectionLabel}>Status</div>
+            <Select fullWidth value={form.status} onChange={v => setForm(p => ({ ...p, status: v }))} options={STATUS_OPTIONS} />
           </div>
+
+          <FormInput label="Meet link" value={form.meetLink} onChange={v => setForm(p => ({ ...p, meetLink: v }))} placeholder="https://meet.google.com/..." />
+          <FormInput label="Notes" value={form.notes} onChange={v => setForm(p => ({ ...p, notes: v }))} placeholder="Add notes about this interview..." />
+        </div>
+
+        <div className={styles.modalFooter}>
+          <button className={styles.deleteBtn} onClick={() => { onDelete(interview.id); onClose() }}>
+            <Trash size={14} weight="fill" />
+            Delete
+          </button>
+          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+          <button className={styles.saveBtn} onClick={handleSave}>Save changes</button>
         </div>
       </div>
-    )
+    </div>
+  )
+}
+
+function ScheduleModal({ onClose, onSave, candidates, jobs }: {
+  onClose: () => void
+  onSave: (data: Partial<Interview>) => void
+  candidates: { id: string; firstName?: string; lastName?: string }[]
+  jobs: { id: string; title: string }[]
+}) {
+  const today = new Date()
+  const [form, setForm] = useState({
+    candidateId: '',
+    jobId: '',
+    date: today.toISOString().split('T')[0],
+    time: '10:00',
+    duration: '60',
+    type: 'VIDEO',
+    meetLink: '',
+    notes: '',
+  })
+
+  const handleSave = () => {
+    if (!form.candidateId || !form.jobId) return
+    const scheduledAt = new Date(`${form.date}T${form.time}`).toISOString()
+    onSave({
+      candidateId: form.candidateId,
+      jobId: form.jobId,
+      scheduledAt,
+      duration: Number(form.duration),
+      type: form.type as Interview['type'],
+      status: 'SCHEDULED',
+      meetLink: form.meetLink || undefined,
+      notes: form.notes || undefined,
+    })
+    onClose()
   }
 
+  const candidateOptions = candidates.map(c => ({
+    value: c.id,
+    label: `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.id,
+  }))
+
+  const jobOptions = jobs.map(j => ({ value: j.id, label: j.title }))
+
+  return (
+    <div className={styles.modal}>
+      <div className={styles.modalOverlay} onClick={onClose} />
+      <div className={styles.modalBox}>
+        <div className={styles.modalHeader}>
+          <div>
+            <div className={styles.modalName}>Schedule interview</div>
+            <div className={styles.modalRole}>Set up a new interview</div>
+          </div>
+          <button className={styles.modalCloseBtn} onClick={onClose}>
+            <X size={16} weight="bold" />
+          </button>
+        </div>
+
+        <div className={styles.modalBody}>
+          <div className={styles.modalSection}>
+            <div className={styles.modalSectionLabel}>Candidate *</div>
+            <Select
+              fullWidth
+              value={form.candidateId}
+              onChange={v => setForm(p => ({ ...p, candidateId: v }))}
+              options={[{ value: '', label: 'Select candidate...' }, ...candidateOptions]}
+            />
+          </div>
+
+          <div className={styles.modalSection}>
+            <div className={styles.modalSectionLabel}>Job position *</div>
+            <Select
+              fullWidth
+              value={form.jobId}
+              onChange={v => setForm(p => ({ ...p, jobId: v }))}
+              options={[{ value: '', label: 'Select job...' }, ...jobOptions]}
+            />
+          </div>
+
+          <div className={styles.twoCol}>
+            <FormInput label="Date" type="date" value={form.date} onChange={v => setForm(p => ({ ...p, date: v }))} />
+            <FormInput label="Time" type="time" value={form.time} onChange={v => setForm(p => ({ ...p, time: v }))} />
+          </div>
+
+          <div className={styles.twoCol}>
+            <FormInput label="Duration (min)" type="number" value={form.duration} onChange={v => setForm(p => ({ ...p, duration: v }))} placeholder="60" />
+            <div className={styles.modalSection}>
+              <div className={styles.modalSectionLabel}>Type</div>
+              <Select fullWidth value={form.type} onChange={v => setForm(p => ({ ...p, type: v }))} options={TYPE_OPTIONS} />
+            </div>
+          </div>
+
+          <FormInput label="Meet link (optional)" value={form.meetLink} onChange={v => setForm(p => ({ ...p, meetLink: v }))} placeholder="https://meet.google.com/..." />
+          <FormInput label="Notes (optional)" value={form.notes} onChange={v => setForm(p => ({ ...p, notes: v }))} placeholder="Add notes..." />
+        </div>
+
+        <div className={styles.modalFooter}>
+          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+          <button className={styles.saveBtn} onClick={handleSave}>Schedule</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Calendar({ currentMonth, onMonthChange, interviews, selectedDate, onDateSelect }: {
+  currentMonth: Date
+  onMonthChange: (d: Date) => void
+  interviews: Interview[]
+  selectedDate: string | null
+  onDateSelect: (date: string) => void
+}) {
+  const year = currentMonth.getFullYear()
+  const month = currentMonth.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const lastDay = new Date(year, month + 1, 0)
+  const startDow = (firstDay.getDay() + 6) % 7
+  const today = new Date().toDateString()
+
+  const eventDays = new Set(interviews.map(iv => new Date(iv.scheduledAt).toDateString()))
+
+  const days: (number | null)[] = []
+  for (let i = 0; i < startDow; i++) days.push(null)
+  for (let i = 1; i <= lastDay.getDate(); i++) days.push(i)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className={styles.calendarHeader}>
+        <button className={styles.calNavBtn} onClick={() => onMonthChange(new Date(year, month - 1, 1))}>‹</button>
+        <div className={styles.sideTitle}>
+          {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        </div>
+        <button className={styles.calNavBtn} onClick={() => onMonthChange(new Date(year, month + 1, 1))}>›</button>
+      </div>
+
+      <div className={styles.calendarGrid}>
+        {CALENDAR_DAYS.map(d => (
+          <div key={d} className={styles.calendarDayHeader}>{d}</div>
+        ))}
+        {days.map((day, i) => {
+          if (!day) return <div key={`e-${i}`} />
+          const dateStr = new Date(year, month, day).toDateString()
+          const isToday = dateStr === today
+          const hasEvent = eventDays.has(dateStr)
+          const isSelected = selectedDate === dateStr
+
+          return (
+            <div
+              key={day}
+              className={[
+                styles.calendarDay,
+                isToday ? styles.calendarDayActive : '',
+                isSelected && !isToday ? styles.calendarDaySelected : '',
+                hasEvent && !isToday ? styles.calendarDayHasEvent : '',
+              ].join(' ')}
+              onClick={() => onDateSelect(isSelected ? '' : dateStr)}
+            >
+              {day}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function InterviewsPage() {
-  const [interviews, setInterviews] = useState<Interview[]>(INITIAL_INTERVIEWS)
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('All')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string>('')
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
 
-  const activeInterview = interviews.find(iv => iv.id === activeId)
+  const { data: interviewsData } = useQuery({
+    queryKey: ['interviews'],
+    queryFn: () => interviewsApi.getAll(),
+  })
 
-  const filtered = useMemo(() => {
-    return interviews.filter(iv => {
-      const matchSearch = search === '' ||
-        iv.candidateName.toLowerCase().includes(search.toLowerCase()) ||
-        iv.jobTitle.toLowerCase().includes(search.toLowerCase())
-      const matchType = typeFilter === 'All' || iv.type === typeFilter
-      const matchStatus = statusFilter === 'All' || iv.status === statusFilter
-      return matchSearch && matchType && matchStatus
-    })
-  }, [interviews, search, typeFilter, statusFilter])
+  const { data: candidatesData } = useQuery({
+    queryKey: ['candidates-all'],
+    queryFn: () => candidatesApi.getAll({ limit: 500 }),
+  })
 
-  const getByDay = (day: string) => filtered.filter(iv => iv.dayLabel === day)
+  const { data: jobsData } = useQuery({
+    queryKey: ['jobs'],
+    queryFn: () => jobsApi.getAll(),
+  })
+
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<Interview>) => interviewsApi.create(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['interviews'] }),
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Interview> }) =>
+      interviewsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interviews'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => interviewsApi.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['interviews'] }),
+  })
+
+  const allInterviews = interviewsData?.interviews || []
+
+  const filtered = useMemo(() => allInterviews.filter(iv => {
+    const matchSearch = search === '' ||
+      `${iv.candidate?.firstName} ${iv.candidate?.lastName}`.toLowerCase().includes(search.toLowerCase())
+    const matchType = typeFilter === 'All' || iv.type === typeFilter
+    const matchStatus = statusFilter === 'All' || iv.status === statusFilter
+    const matchDate = !selectedDate || new Date(iv.scheduledAt).toDateString() === selectedDate
+    return matchSearch && matchType && matchStatus && matchDate
+  }), [allInterviews, search, typeFilter, statusFilter, selectedDate])
+
+  const grouped = useMemo(() => groupByDay(filtered), [filtered])
+
+  const stats = useMemo(() => {
+    const now = new Date()
+    const weekStart = new Date(now)
+    weekStart.setDate(now.getDate() - now.getDay())
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekStart.getDate() + 7)
+    return {
+      thisWeek: allInterviews.filter(iv => { const d = new Date(iv.scheduledAt); return d >= weekStart && d <= weekEnd }).length,
+      scheduled: allInterviews.filter(iv => iv.status === 'SCHEDULED').length,
+      completed: allInterviews.filter(iv => iv.status === 'COMPLETED').length,
+      avgDuration: allInterviews.length
+        ? Math.round(allInterviews.reduce((acc, iv) => acc + (iv.duration || 60), 0) / allInterviews.length)
+        : 0,
+    }
+  }, [allInterviews])
+
+  const STATS = [
+    { label: 'This week', value: String(stats.thisWeek), icon: CalendarBlank, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
+    { label: 'Scheduled', value: String(stats.scheduled), icon: Clock, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
+    { label: 'Completed', value: String(stats.completed), icon: Users, iconBg: 'rgba(0,153,255,0.1)', iconColor: 'var(--c-accent)' },
+    { label: 'Avg duration', value: `${stats.avgDuration}m`, icon: Clock, iconBg: 'rgba(0,153,255,0.1)', iconColor: 'var(--c-accent)' },
+  ]
+
+  const upcoming = useMemo(() =>
+    allInterviews
+      .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= new Date())
+      .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+      .slice(0, 5),
+    [allInterviews]
+  )
+
+  const activeInterview = allInterviews.find(iv => iv.id === activeId)
 
   const findDay = (id: string) => {
-    if (DAYS.includes(id)) return id
-    return interviews.find(iv => iv.id === id)?.dayLabel
+    if (Object.keys(grouped).includes(id)) return id
+    const iv = allInterviews.find(iv => iv.id === id)
+    return iv ? new Date(iv.scheduledAt).toDateString() : undefined
   }
 
   const handleDragStart = ({ active }: { active: { id: string | number } }) => {
@@ -355,34 +561,50 @@ export default function InterviewsPage() {
 
   const handleDragOver = ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) => {
     if (!over) return
-    const from = findDay(active.id as string)
-    const to = findDay(over.id as string)
-    if (!from || !to || from === to) return
-    setInterviews(prev =>
-      prev.map(iv => iv.id === active.id ? { ...iv, dayLabel: to } : iv)
-    )
+    const fromIv = allInterviews.find(iv => iv.id === active.id)
+    if (!fromIv) return
+    const toDay = findDay(over.id as string)
+    if (!toDay) return
+    const fromDay = new Date(fromIv.scheduledAt).toDateString()
+    if (fromDay === toDay) return
+    const newDate = new Date(fromIv.scheduledAt)
+    const toDate = new Date(toDay)
+    newDate.setFullYear(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
+    queryClient.setQueryData(['interviews'], (old: { interviews: Interview[] } | undefined) => {
+      if (!old) return old
+      return { ...old, interviews: old.interviews.map(iv => iv.id === active.id ? { ...iv, scheduledAt: newDate.toISOString() } : iv) }
+    })
   }
 
   const handleDragEnd = ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) => {
     setActiveId(null)
     if (!over || active.id === over.id) return
-    const from = findDay(active.id as string)
-    const to = findDay(over.id as string)
-    if (!from || !to || from !== to) return
-    setInterviews(prev => {
-      const inDay = prev.filter(iv => iv.dayLabel === from)
-      const rest = prev.filter(iv => iv.dayLabel !== from)
-      const oldIdx = inDay.findIndex(iv => iv.id === active.id)
-      const newIdx = inDay.findIndex(iv => iv.id === over.id)
-      return [...rest, ...arrayMove(inDay, oldIdx, newIdx)]
-    })
+    const fromIv = allInterviews.find(iv => iv.id === active.id)
+    if (!fromIv) return
+    const toDay = findDay(over.id as string)
+    const fromDay = new Date(fromIv.scheduledAt).toDateString()
+    if (toDay && fromDay !== toDay) {
+      const newDate = new Date(fromIv.scheduledAt)
+      const toDate = new Date(toDay)
+      newDate.setFullYear(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
+      updateMutation.mutate({ id: active.id as string, data: { scheduledAt: newDate.toISOString() } })
+      return
+    }
+    if (fromDay === toDay) {
+      queryClient.setQueryData(['interviews'], (old: { interviews: Interview[] } | undefined) => {
+        if (!old) return old
+        const inDay = old.interviews.filter(iv => new Date(iv.scheduledAt).toDateString() === fromDay)
+        const rest = old.interviews.filter(iv => new Date(iv.scheduledAt).toDateString() !== fromDay)
+        const oldIdx = inDay.findIndex(iv => iv.id === active.id)
+        const newIdx = inDay.findIndex(iv => iv.id === over.id)
+        return { ...old, interviews: [...rest, ...arrayMove(inDay, oldIdx, newIdx)] }
+      })
+    }
   }
 
-  const handleSave = (updated: Interview) => {
-    setInterviews(prev => prev.map(iv => iv.id === updated.id ? updated : iv))
-  }
-
-  const upcoming = interviews.filter(iv => iv.status === 'SCHEDULED').slice(0, 4)
+  const sideListInterviews = selectedDate
+    ? allInterviews.filter(iv => new Date(iv.scheduledAt).toDateString() === selectedDate)
+    : upcoming
 
   return (
     <AppLayout title="Interviews">
@@ -412,29 +634,16 @@ export default function InterviewsPage() {
             />
           </div>
 
-          <Select
-  value={typeFilter}
-  onChange={setTypeFilter}
-  options={[
-    { value: 'All', label: 'All types' },
-    { value: 'VIDEO', label: 'Video' },
-    { value: 'PHONE', label: 'Phone' },
-    { value: 'ONSITE', label: 'Onsite' },
-  ]}
-/>
+          <Select value={typeFilter} onChange={setTypeFilter} options={[{ value: 'All', label: 'All types' }, ...TYPE_OPTIONS]} />
+          <Select value={statusFilter} onChange={setStatusFilter} options={[{ value: 'All', label: 'All statuses' }, ...STATUS_OPTIONS]} />
 
-<Select
-  value={statusFilter}
-  onChange={setStatusFilter}
-  options={[
-    { value: 'All', label: 'All statuses' },
-    { value: 'SCHEDULED', label: 'Scheduled' },
-    { value: 'COMPLETED', label: 'Completed' },
-    { value: 'CANCELLED', label: 'Cancelled' },
-  ]}
-/>
+          {selectedDate && (
+            <button className={styles.cancelBtn} onClick={() => setSelectedDate('')} style={{ marginLeft: 0 }}>
+              Clear filter
+            </button>
+          )}
 
-          <button className={styles.addBtn}>
+          <button className={styles.addBtn} onClick={() => setShowScheduleModal(true)}>
             <Plus size={14} weight="bold" />
             Schedule interview
           </button>
@@ -449,57 +658,58 @@ export default function InterviewsPage() {
             onDragEnd={handleDragEnd}
           >
             <div className={styles.listCard}>
-              {DAYS.map(day => (
-                getByDay(day).length > 0 || true ? (
-                  <DayGroup
-                    key={day}
-                    day={day}
-                    interviews={getByDay(day)}
-                    onCardClick={setSelectedInterview}
-                  />
-                ) : null
-              ))}
+              {Object.keys(grouped).length === 0 ? (
+                <div className={styles.empty}>
+                  <CalendarBlank size={40} weight="thin" />
+                  <div className={styles.emptyTitle}>
+                    {selectedDate ? 'No interviews on this day' : 'No interviews found'}
+                  </div>
+                </div>
+              ) : (
+                Object.entries(grouped).map(([dayKey, ivs]) => (
+                  <DayGroup key={dayKey} dayKey={dayKey} interviews={ivs} onCardClick={setSelectedInterview} />
+                ))
+              )}
             </div>
 
             <DragOverlay>
               {activeInterview && (
-                <InterviewCardContent
-                  interview={activeInterview}
-                  onClick={() => {}}
-                  isDragging
-                />
+                <InterviewCardContent interview={activeInterview} onClick={() => {}} isDragging />
               )}
             </DragOverlay>
           </DndContext>
 
           <div className={styles.sideCard}>
-            <div className={styles.sideTitle}>June 2026</div>
-            <div className={styles.calendarGrid}>
-              {CALENDAR_DAYS.map(d => (
-                <div key={d} className={styles.calendarDayHeader}>{d}</div>
-              ))}
-              {CALENDAR_DATES.map(({ day, hasEvent }) => (
-                <div
-                  key={day}
-                  className={`${styles.calendarDay} ${day === TODAY ? styles.calendarDayActive : ''} ${hasEvent && day !== TODAY ? styles.calendarDayHasEvent : ''}`}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
+            <Calendar
+              currentMonth={currentMonth}
+              onMonthChange={setCurrentMonth}
+              interviews={allInterviews}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+            />
+
             <div>
-              <div className={styles.sideTitle} style={{ marginBottom: 12 }}>Upcoming</div>
+              <div className={styles.sideTitle} style={{ marginBottom: 10 }}>
+                {selectedDate
+                  ? `${new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                  : 'Upcoming'}
+              </div>
               <div className={styles.upcomingList}>
-                {upcoming.map(iv => (
-                  <div key={iv.id} className={styles.upcomingItem}>
-                    <div
-                      className={styles.upcomingDot}
-                      style={{ background: iv.type === 'VIDEO' ? 'var(--c-accent)' : 'var(--c-orange)' }}
-                    />
-                    <div className={styles.upcomingName}>{iv.candidateName}</div>
-                    <div className={styles.upcomingTime}>{iv.timeLabel}</div>
+                {sideListInterviews.length === 0 ? (
+                  <div style={{ fontSize: '0.8125rem', color: 'var(--c-ink-muted)', textAlign: 'center', padding: '12px 0' }}>
+                    No interviews
                   </div>
-                ))}
+                ) : (
+                  sideListInterviews.map(iv => (
+                    <div key={iv.id} className={styles.upcomingItem} onClick={() => setSelectedInterview(iv)}>
+                      <div className={styles.upcomingDot} style={{ background: iv.type === 'VIDEO' ? 'var(--c-accent)' : 'var(--c-orange)' }} />
+                      <div className={styles.upcomingName}>
+                        {iv.candidate?.firstName} {iv.candidate?.lastName}
+                      </div>
+                      <div className={styles.upcomingTime}>{formatTime(iv.scheduledAt)}</div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -507,10 +717,20 @@ export default function InterviewsPage() {
       </div>
 
       {selectedInterview && (
-        <EditModal
+        <InterviewModal
           interview={selectedInterview}
           onClose={() => setSelectedInterview(null)}
-          onSave={handleSave}
+          onSave={data => updateMutation.mutate({ id: selectedInterview.id, data })}
+          onDelete={id => deleteMutation.mutate(id)}
+        />
+      )}
+
+      {showScheduleModal && (
+        <ScheduleModal
+          onClose={() => setShowScheduleModal(false)}
+          onSave={data => createMutation.mutate(data)}
+          candidates={candidatesData?.candidates || []}
+          jobs={jobsData?.jobs || []}
         />
       )}
     </AppLayout>
