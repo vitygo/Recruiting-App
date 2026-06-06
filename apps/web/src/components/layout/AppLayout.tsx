@@ -136,7 +136,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
             RecruitApex
           </div>
 
-          <div className={styles.topbarSearch}>
+          {/* <div className={styles.topbarSearch}>
             <i className="ti ti-search" style={{ fontSize: '0.875rem', flexShrink: 0 }} />
             <input
               placeholder="Search..."
@@ -150,7 +150,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
                 fontFamily: 'var(--f-body)',
               }}
             />
-          </div>
+          </div> */}
 
           <div className={styles.topbarActions}>
             <button className={styles.iconBtn} onClick={createRipple}>
