@@ -11,6 +11,7 @@ import {
   Buildings,
 } from '@phosphor-icons/react'
 import styles from './JobsPage.module.css'
+import { Select } from '../components/ui/Select'
 
 interface Job {
   id: string
@@ -93,28 +94,28 @@ export default function JobsPage() {
             />
           </div>
 
-          <select
-            className={styles.filterSelect}
+          <Select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-          >
-            <option value="All">All statuses</option>
-            <option value="OPEN">Open</option>
-            <option value="PAUSED">Paused</option>
-            <option value="CLOSED">Closed</option>
-          </select>
+            onChange={setStatusFilter}
+            options={[
+                { value: 'All', label: 'All statuses' },
+                { value: 'OPEN', label: 'Open' },
+                { value: 'PAUSED', label: 'Paused' },
+                { value: 'CLOSED', label: 'Closed' },
+            ]}
+            />
 
-          <select
-            className={styles.filterSelect}
+            <Select
             value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
-          >
-            <option value="All">All types</option>
-            <option value="FULL_TIME">Full-time</option>
-            <option value="PART_TIME">Part-time</option>
-            <option value="CONTRACT">Contract</option>
-            <option value="REMOTE">Remote</option>
-          </select>
+            onChange={setTypeFilter}
+            options={[
+                { value: 'All', label: 'All types' },
+                { value: 'FULL_TIME', label: 'Full-time' },
+                { value: 'PART_TIME', label: 'Part-time' },
+                { value: 'CONTRACT', label: 'Contract' },
+                { value: 'REMOTE', label: 'Remote' },
+            ]}
+            />
 
           <button className={styles.addBtn}>
             <Plus size={14} weight="bold" />

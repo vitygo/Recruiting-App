@@ -29,6 +29,8 @@ import {
   DotsSixVertical,
 } from '@phosphor-icons/react'
 import styles from './InterviewsPage.module.css'
+import { Select } from '../components/ui/Select'
+
 
 interface Interview {
   id: string
@@ -209,113 +211,111 @@ function DayGroup({
 }
 
 function EditModal({
-  interview,
-  onClose,
-  onSave,
-}: {
-  interview: Interview
-  onClose: () => void
-  onSave: (updated: Interview) => void
-}) {
-  const [form, setForm] = useState({ ...interview })
-
-  const handleChange = (field: keyof Interview, value: string | number) => {
-    setForm(prev => ({ ...prev, [field]: value }))
-  }
-
-  return (
-    <div className={styles.modal}>
-      <div className={styles.modalOverlay} onClick={onClose} />
-      <div className={styles.modalBox}>
-        <div className={styles.modalHeader}>
-          <div className={styles.cAvatar}>{interview.candidateInitials}</div>
-          <div>
-            <div className={styles.modalName}>{interview.candidateName}</div>
-            <div className={styles.modalRole}>{interview.candidateRole}</div>
+    interview,
+    onClose,
+    onSave,
+  }: {
+    interview: Interview
+    onClose: () => void
+    onSave: (updated: Interview) => void
+  }) {
+    const [form, setForm] = useState({ ...interview })
+  
+    const handleChange = (field: keyof Interview, value: string | number) => {
+      setForm(prev => ({ ...prev, [field]: value }))
+    }
+  
+    return (
+      <div className={styles.modal}>
+        <div className={styles.modalOverlay} onClick={onClose} />
+        <div className={styles.modalBox}>
+          <div className={styles.modalHeader}>
+            <div className={styles.cAvatar}>{interview.candidateInitials}</div>
+            <div>
+              <div className={styles.modalName}>{interview.candidateName}</div>
+              <div className={styles.modalRole}>{interview.candidateRole}</div>
+            </div>
+            <button className={styles.modalCloseBtn} onClick={onClose}>
+              <X size={16} weight="bold" />
+            </button>
           </div>
-          <button className={styles.modalCloseBtn} onClick={onClose}>
-            <X size={16} weight="bold" />
-          </button>
-        </div>
-
-        <div className={styles.modalBody}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Day</label>
-            <select
-              className={styles.formSelect}
-              value={form.dayLabel}
-              onChange={e => handleChange('dayLabel', e.target.value)}
-            >
-              {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
+  
+          <div className={styles.modalBody}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Day</label>
+              <Select
+                value={form.dayLabel}
+                onChange={v => handleChange('dayLabel', v)}
+                options={DAYS.map(d => ({ value: d, label: d }))}
+              />
+            </div>
+  
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Time</label>
+              <input
+                className={styles.formInput}
+                value={form.timeLabel}
+                onChange={e => handleChange('timeLabel', e.target.value)}
+                placeholder="2:00 PM"
+              />
+            </div>
+  
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Duration (min)</label>
+              <input
+                className={styles.formInput}
+                type="number"
+                value={form.duration}
+                onChange={e => handleChange('duration', parseInt(e.target.value))}
+              />
+            </div>
+  
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Type</label>
+              <Select
+                value={form.type}
+                onChange={v => handleChange('type', v)}
+                options={[
+                  { value: 'VIDEO', label: 'Video' },
+                  { value: 'PHONE', label: 'Phone' },
+                  { value: 'ONSITE', label: 'Onsite' },
+                ]}
+              />
+            </div>
+  
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Status</label>
+              <Select
+                value={form.status}
+                onChange={v => handleChange('status', v)}
+                options={[
+                  { value: 'SCHEDULED', label: 'Scheduled' },
+                  { value: 'COMPLETED', label: 'Completed' },
+                  { value: 'CANCELLED', label: 'Cancelled' },
+                ]}
+              />
+            </div>
+  
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Job title</label>
+              <input
+                className={styles.formInput}
+                value={form.jobTitle}
+                onChange={e => handleChange('jobTitle', e.target.value)}
+              />
+            </div>
           </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Time</label>
-            <input
-              className={styles.formInput}
-              value={form.timeLabel}
-              onChange={e => handleChange('timeLabel', e.target.value)}
-              placeholder="2:00 PM"
-            />
+  
+          <div className={styles.modalFooter}>
+            <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+            <button className={styles.saveBtn} onClick={() => { onSave(form); onClose() }}>
+              Save changes
+            </button>
           </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Duration (min)</label>
-            <input
-              className={styles.formInput}
-              type="number"
-              value={form.duration}
-              onChange={e => handleChange('duration', parseInt(e.target.value))}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Type</label>
-            <select
-              className={styles.formSelect}
-              value={form.type}
-              onChange={e => handleChange('type', e.target.value)}
-            >
-              <option value="VIDEO">Video</option>
-              <option value="PHONE">Phone</option>
-              <option value="ONSITE">Onsite</option>
-            </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Status</label>
-            <select
-              className={styles.formSelect}
-              value={form.status}
-              onChange={e => handleChange('status', e.target.value)}
-            >
-              <option value="SCHEDULED">Scheduled</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Job title</label>
-            <input
-              className={styles.formInput}
-              value={form.jobTitle}
-              onChange={e => handleChange('jobTitle', e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className={styles.modalFooter}>
-          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-          <button className={styles.saveBtn} onClick={() => { onSave(form); onClose() }}>
-            Save changes
-          </button>
         </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
 
 export default function InterviewsPage() {
   const [interviews, setInterviews] = useState<Interview[]>(INITIAL_INTERVIEWS)
@@ -412,19 +412,27 @@ export default function InterviewsPage() {
             />
           </div>
 
-          <select className={styles.filterSelect} value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
-            <option value="All">All types</option>
-            <option value="VIDEO">Video</option>
-            <option value="PHONE">Phone</option>
-            <option value="ONSITE">Onsite</option>
-          </select>
+          <Select
+  value={typeFilter}
+  onChange={setTypeFilter}
+  options={[
+    { value: 'All', label: 'All types' },
+    { value: 'VIDEO', label: 'Video' },
+    { value: 'PHONE', label: 'Phone' },
+    { value: 'ONSITE', label: 'Onsite' },
+  ]}
+/>
 
-          <select className={styles.filterSelect} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="All">All statuses</option>
-            <option value="SCHEDULED">Scheduled</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
+<Select
+  value={statusFilter}
+  onChange={setStatusFilter}
+  options={[
+    { value: 'All', label: 'All statuses' },
+    { value: 'SCHEDULED', label: 'Scheduled' },
+    { value: 'COMPLETED', label: 'Completed' },
+    { value: 'CANCELLED', label: 'Cancelled' },
+  ]}
+/>
 
           <button className={styles.addBtn}>
             <Plus size={14} weight="bold" />

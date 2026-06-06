@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   DndContext,
   DragOverlay,
@@ -16,51 +17,40 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AppLayout } from '../components/layout/AppLayout'
-import { MagnifyingGlass, Plus, X, Envelope, CalendarBlank, Sparkle } from '@phosphor-icons/react'
+import { MagnifyingGlass, Plus, X, Envelope, CalendarBlank, Sparkle, DotsSixVertical } from '@phosphor-icons/react'
+import { pipelineApi } from '../api/pipeline'
+import { jobsApi } from '../api/jobs'
+import { candidatesApi } from '../api/candidates'
+import type { CandidateJob, PipelineStage } from '../types'
 import styles from './PipelinePage.module.css'
+import { Select } from '../components/ui/Select'
+import { FormInput } from '../components/ui/FormInput'
 
-const STAGES = [
+
+const STAGES: { id: PipelineStage; label: string; color: string }[] = [
   { id: 'APPLIED', label: 'Applied', color: '#9ca3af' },
-  { id: 'SCREENING', label: 'Screening', color: '#6b7280' },
-  { id: 'INTERVIEW', label: 'Interview', color: '#fb923c' },
+  { id: 'SCREENING', label: 'Screening', color: 'var(--c-accent)' },
+  { id: 'INTERVIEW', label: 'Interview', color: 'var(--c-orange)' },
   { id: 'OFFER', label: 'Offer', color: '#f97316' },
-  { id: 'HIRED', label: 'Hired', color: '#22c55e' },
+  { id: 'HIRED', label: 'Hired', color: 'var(--c-success)' },
 ]
 
 const SOURCE_COLORS: Record<string, { bg: string; color: string }> = {
-  LinkedIn: { bg: 'rgba(0,119,181,0.12)', color: '#0077b5' },
-  Indeed: { bg: 'rgba(255,122,61,0.12)', color: '#ff7a3d' },
-  Referral: { bg: 'rgba(34,197,94,0.12)', color: '#22c55e' },
-  Manual: { bg: 'rgba(156,163,175,0.12)', color: '#9ca3af' },
+  LINKEDIN: { bg: 'rgba(0,119,181,0.12)', color: '#0077b5' },
+  INDEED: { bg: 'rgba(255,122,61,0.12)', color: '#ff7a3d' },
+  REFERRAL: { bg: 'rgba(34,197,94,0.12)', color: '#22c55e' },
+  MANUAL: { bg: 'rgba(156,163,175,0.12)', color: '#9ca3af' },
+  OTHER: { bg: 'rgba(156,163,175,0.12)', color: '#9ca3af' },
 }
 
-interface Candidate {
-  id: string
-  name: string
-  role: string
-  initials: string
-  color?: string
-  score: number
-  source: string
-  email: string
-  location: string
-  stage: string
-  notes: string
+function getInitials(firstName?: string, lastName?: string) {
+  return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase()
 }
 
-const INITIAL_CANDIDATES: Candidate[] = [
-  { id: '1', name: 'Alex Johnson', role: 'Senior Engineer', initials: 'AJ', score: 92, source: 'LinkedIn', email: 'alex@email.com', location: 'Kyiv, Ukraine', stage: 'APPLIED', notes: 'Strong system design skills. 5+ years experience.' },
-  { id: '2', name: 'Maria Kim', role: 'Product Designer', initials: 'MK', score: 87, source: 'Referral', email: 'maria@email.com', location: 'Warsaw, Poland', stage: 'APPLIED', notes: 'Great portfolio. Worked at top agencies.' },
-  { id: '3', name: 'Ryan Smith', role: 'Frontend Dev', initials: 'RS', score: 78, source: 'Indeed', email: 'ryan@email.com', location: 'Remote', stage: 'SCREENING', notes: 'Solid React skills. Needs assessment.' },
-  { id: '4', name: 'Priya Lal', role: 'Data Scientist', initials: 'PL', score: 94, source: 'LinkedIn', email: 'priya@email.com', location: 'Berlin, Germany', stage: 'SCREENING', notes: 'PhD in ML. Excellent match.' },
-  { id: '5', name: 'Tom Walker', role: 'Backend Dev', initials: 'TW', score: 81, source: 'Manual', email: 'tom@email.com', location: 'Lviv, Ukraine', stage: 'INTERVIEW', notes: 'Good Go/Rust skills. Culture fit TBD.' },
-  { id: '6', name: 'Sarah Chen', role: 'UX Researcher', initials: 'SC', score: 89, source: 'LinkedIn', email: 'sarah@email.com', location: 'Remote', stage: 'OFFER', notes: 'Exceptional research skills. Top pick.' },
-]
-
-function Column({ stage, candidates, onCardClick }: {
+function Column({ stage, items, onCardClick }: {
   stage: typeof STAGES[0]
-  candidates: Candidate[]
-  onCardClick: (c: Candidate) => void
+  items: CandidateJob[]
+  onCardClick: (item: CandidateJob) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id })
 
@@ -69,27 +59,18 @@ function Column({ stage, candidates, onCardClick }: {
       <div className={styles.columnHeader}>
         <div className={styles.columnDot} style={{ background: stage.color }} />
         <span className={styles.columnTitle}>{stage.label}</span>
-        <span className={styles.columnCount}>{candidates.length}</span>
+        <span className={styles.columnCount}>{items.length}</span>
       </div>
-
       <div
         ref={setNodeRef}
         className={`${styles.columnCards} ${isOver ? styles.columnDropzoneActive : ''}`}
         style={{ minHeight: 80 }}
       >
-        <SortableContext
-          items={candidates.map(c => c.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {candidates.map(candidate => (
-            <SortableCard
-              key={candidate.id}
-              candidate={candidate}
-              onClick={() => onCardClick(candidate)}
-            />
+        <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+          {items.map(item => (
+            <SortableCard key={item.id} item={item} onClick={() => onCardClick(item)} />
           ))}
         </SortableContext>
-
         <button className={styles.addCardBtn}>
           <Plus size={13} weight="bold" />
           Add candidate
@@ -99,10 +80,10 @@ function Column({ stage, candidates, onCardClick }: {
   )
 }
 
-function SortableCard({ candidate, onClick }: { candidate: Candidate; onClick: () => void }) {
+function SortableCard({ item, onClick }: { item: CandidateJob; onClick: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: candidate.id,
-    data: { stage: candidate.stage },
+    id: item.id,
+    data: { stage: item.stage },
   })
 
   const style = {
@@ -113,35 +94,31 @@ function SortableCard({ candidate, onClick }: { candidate: Candidate; onClick: (
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <CardContent candidate={candidate} onClick={onClick} />
+      <CardContent item={item} onClick={onClick} />
     </div>
   )
 }
 
-function CardContent({ candidate, onClick, isDragging = false }: {
-  candidate: Candidate
+function CardContent({ item, onClick, isDragging = false }: {
+  item: CandidateJob
   onClick: () => void
   isDragging?: boolean
 }) {
-  const src = SOURCE_COLORS[candidate.source] || SOURCE_COLORS.Manual
+  const src = SOURCE_COLORS[item.candidate?.source || 'MANUAL'] || SOURCE_COLORS.MANUAL
+  const initials = getInitials(item.candidate?.firstName, item.candidate?.lastName)
 
   return (
-    <div
-      className={`${styles.card} ${isDragging ? styles.cardDragging : ''}`}
-      onClick={onClick}
-    >
-        <div className={styles.dragHandle}>
-  {Array.from({ length: 8 }).map((_, i) => (
-    <div key={i} className={styles.dragDot} />
-  ))}
-</div>
+    <div className={`${styles.card} ${isDragging ? styles.cardDragging : ''}`} onClick={onClick}>
+      <div className={styles.dragHandle}>
+        <DotsSixVertical size={14} weight="bold" />
+      </div>
       <div className={styles.cardTop}>
-        <div className={styles.cardAvatar} style={{ background: candidate.color }}>
-          {candidate.initials}
-        </div>
+        <div className={styles.cardAvatar}>{initials}</div>
         <div>
-          <div className={styles.cardName}>{candidate.name}</div>
-          <div className={styles.cardRole}>{candidate.role}</div>
+          <div className={styles.cardName}>
+            {item.candidate?.firstName} {item.candidate?.lastName}
+          </div>
+          <div className={styles.cardRole}>{item.candidate?.email}</div>
         </div>
       </div>
       <div className={styles.cardBottom}>
@@ -149,37 +126,40 @@ function CardContent({ candidate, onClick, isDragging = false }: {
           <div className={styles.scoreBar}>
             <div
               className={styles.scoreFill}
-              style={{ width: `${candidate.score}%`, background: candidate.color }}
+              style={{ width: `${item.aiScore || 0}%`, background: 'var(--c-accent)' }}
             />
           </div>
-          <span className={styles.scoreVal}>{candidate.score}%</span>
+          <span className={styles.scoreVal}>{item.aiScore ? `${item.aiScore}%` : '—'}</span>
         </div>
         <span className={styles.sourceTag} style={{ background: src.bg, color: src.color }}>
-          {candidate.source}
+          {item.candidate?.source || 'Manual'}
         </span>
       </div>
     </div>
   )
 }
 
-function CandidateModal({ candidate, onClose, onStageChange }: {
-  candidate: Candidate
+function CandidateModal({ item, onClose, onStageChange }: {
+  item: CandidateJob
   onClose: () => void
-  onStageChange: (stage: string) => void
+  onStageChange: (stage: PipelineStage) => void
 }) {
-  const currentStageIdx = STAGES.findIndex(s => s.id === candidate.stage)
+  const currentStageIdx = STAGES.findIndex(s => s.id === item.stage)
+  const initials = getInitials(item.candidate?.firstName, item.candidate?.lastName)
 
   return (
     <div className={styles.modal}>
       <div className={styles.modalOverlay} onClick={onClose} />
       <div className={styles.modalBox}>
         <div className={styles.modalHeader}>
-          <div className={styles.modalAvatar} style={{ background: candidate.color }}>
-            {candidate.initials}
-          </div>
+          <div className={styles.modalAvatar}>{initials}</div>
           <div>
-            <div className={styles.modalName}>{candidate.name}</div>
-            <div className={styles.modalRole}>{candidate.role} · {candidate.location}</div>
+            <div className={styles.modalName}>
+              {item.candidate?.firstName} {item.candidate?.lastName}
+            </div>
+            <div className={styles.modalRole}>
+              {item.candidate?.location || 'No location'} · {item.candidate?.source}
+            </div>
           </div>
           <div className={styles.modalActions}>
             <button className={styles.modalActionBtn}><Envelope size={16} weight="fill" /></button>
@@ -195,7 +175,7 @@ function CandidateModal({ candidate, onClose, onStageChange }: {
               {STAGES.map((stage, idx) => (
                 <button
                   key={stage.id}
-                  className={`${styles.stagePill} ${stage.id === candidate.stage ? styles.stagePillActive : ''} ${idx < currentStageIdx ? styles.stagePillDone : ''}`}
+                  className={`${styles.stagePill} ${stage.id === item.stage ? styles.stagePillActive : ''} ${idx < currentStageIdx ? styles.stagePillDone : ''}`}
                   onClick={() => onStageChange(stage.id)}
                 >
                   {stage.label}
@@ -209,12 +189,14 @@ function CandidateModal({ candidate, onClose, onStageChange }: {
               <div className={styles.modalSectionLabel}>Contact</div>
               <div className={styles.infoRow}>
                 <Envelope size={14} weight="fill" className={styles.infoIcon} />
-                {candidate.email}
+                {item.candidate?.email || '—'}
               </div>
-              <div className={styles.infoRow}>
-                <Sparkle size={14} weight="fill" className={styles.infoIcon} />
-                {candidate.source}
-              </div>
+              {item.candidate?.phone && (
+                <div className={styles.infoRow}>
+                  <Sparkle size={14} weight="fill" className={styles.infoIcon} />
+                  {item.candidate.phone}
+                </div>
+              )}
             </div>
 
             <div className={styles.modalSection}>
@@ -222,26 +204,21 @@ function CandidateModal({ candidate, onClose, onStageChange }: {
               <div className={styles.aiScoreBox}>
                 <div className={styles.aiScoreTop}>
                   <div>
-                    <div className={styles.aiScoreVal}>{candidate.score}%</div>
+                    <div className={styles.aiScoreVal}>{item.aiScore ? `${item.aiScore}%` : '—'}</div>
                     <div className={styles.aiScoreLabel}>match score</div>
                   </div>
                   <Sparkle size={20} weight="fill" color="var(--c-orange)" />
                 </div>
                 <div className={styles.aiBarWrap}>
-                  <div className={styles.aiBar} style={{ width: `${candidate.score}%` }} />
+                  <div className={styles.aiBar} style={{ width: `${item.aiScore || 0}%` }} />
                 </div>
-                <div className={styles.aiTags}>
-                  <span className={styles.aiTag}>Skills match</span>
-                  <span className={styles.aiTag}>Senior fit</span>
-                  <span className={styles.aiTag}>Salary ok</span>
-                </div>
+                {item.aiReason && (
+                  <div className={styles.aiTags}>
+                    <span className={styles.aiTag}>{item.aiReason}</span>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-
-          <div className={styles.modalSection}>
-            <div className={styles.modalSectionLabel}>Notes</div>
-            <textarea className={styles.notesArea} defaultValue={candidate.notes} />
           </div>
         </div>
       </div>
@@ -249,66 +226,248 @@ function CandidateModal({ candidate, onClose, onStageChange }: {
   )
 }
 
+function AddCandidateModal({ onClose, onAdd }: {
+  onClose: () => void
+  onAdd: (data: {
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    location: string
+    source: string
+  }) => void
+}) {
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    location: '',
+    source: 'MANUAL',
+  })
+
+  const handleSubmit = () => {
+    if (!form.firstName || !form.email) return
+    onAdd(form)
+    onClose()
+  }
+
+  const sourceOptions = [
+    { value: 'MANUAL', label: 'Manual' },
+    { value: 'LINKEDIN', label: 'LinkedIn' },
+    { value: 'INDEED', label: 'Indeed' },
+    { value: 'REFERRAL', label: 'Referral' },
+    { value: 'CAREERS_PAGE', label: 'Careers Page' },
+    { value: 'OTHER', label: 'Other' },
+  ]
+
+  return (
+    <div className={styles.modal}>
+      <div className={styles.modalOverlay} onClick={onClose} />
+      <div className={styles.modalBox}>
+        <div className={styles.modalHeader}>
+          <div>
+            <div className={styles.modalName}>Add candidate</div>
+            <div className={styles.modalRole}>Fill in the candidate details</div>
+          </div>
+          <button className={styles.modalCloseBtn} onClick={onClose}>
+            <X size={16} weight="bold" />
+          </button>
+        </div>
+
+        <div className={styles.modalBody}>
+          <div className={styles.twoCol}>
+            <FormInput
+              label="First name"
+              required
+              value={form.firstName}
+              onChange={v => setForm(p => ({ ...p, firstName: v }))}
+              placeholder="Alex"
+            />
+            <FormInput
+              label="Last name"
+              value={form.lastName}
+              onChange={v => setForm(p => ({ ...p, lastName: v }))}
+              placeholder="Johnson"
+            />
+          </div>
+
+          <FormInput
+            label="Email"
+            required
+            type="email"
+            value={form.email}
+            onChange={v => setForm(p => ({ ...p, email: v }))}
+            placeholder="alex@email.com"
+          />
+
+          <div className={styles.twoCol}>
+            <FormInput
+              label="Phone"
+              value={form.phone}
+              onChange={v => setForm(p => ({ ...p, phone: v }))}
+              placeholder="+380 50 123 4567"
+            />
+            <FormInput
+              label="Location"
+              value={form.location}
+              onChange={v => setForm(p => ({ ...p, location: v }))}
+              placeholder="Kyiv, Ukraine"
+            />
+          </div>
+
+          <div className={styles.modalSection}>
+            <div className={styles.modalSectionLabel}>Source</div>
+            <Select
+              value={form.source}
+              onChange={v => setForm(p => ({ ...p, source: v }))}
+              options={sourceOptions}
+            />
+          </div>
+        </div>
+
+        <div className={styles.modalFooter}>
+          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+          <button className={styles.saveBtn} onClick={handleSubmit}>Add candidate</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function PipelinePage() {
-  const [candidates, setCandidates] = useState<Candidate[]>(INITIAL_CANDIDATES)
+  const queryClient = useQueryClient()
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
+  const [selectedItem, setSelectedItem] = useState<CandidateJob | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
   const [search, setSearch] = useState('')
+  const [jobFilter, setJobFilter] = useState('all')
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 1 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 3 } })
   )
 
-  const activeCandidate = candidates.find(c => c.id === activeId)
+  const { data: pipelineData } = useQuery({
+    queryKey: ['pipeline', jobFilter],
+    queryFn: () => pipelineApi.getAll(jobFilter !== 'all' ? { jobId: jobFilter } : {}),
+  })
+
+  const { data: jobsData } = useQuery({
+    queryKey: ['jobs'],
+    queryFn: () => jobsApi.getAll(),
+  })
+
+  const updateStageMutation = useMutation({
+    mutationFn: ({ id, stage }: { id: string; stage: PipelineStage }) =>
+      pipelineApi.updateStage(id, stage),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pipeline'] }),
+  })
+
+  const addCandidateMutation = useMutation({
+    mutationFn: async (data: {
+      firstName: string
+      lastName: string
+      email: string
+      phone: string
+      location: string
+      source: string
+    }) => {
+      const res = await candidatesApi.create(data)
+      if (jobFilter !== 'all') {
+        await pipelineApi.addCandidate({
+          candidateId: res.candidate.id,
+          jobId: jobFilter,
+          stage: 'APPLIED',
+        })
+      }
+      return res
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] })
+      queryClient.invalidateQueries({ queryKey: ['candidates'] })
+    },
+  })
+
+  const items = pipelineData?.pipeline || []
 
   const getByStage = useCallback(
-    (stageId: string) => candidates.filter(c =>
-      c.stage === stageId &&
+    (stageId: string) => items.filter(item =>
+      item.stage === stageId &&
       (search === '' ||
-        c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.role.toLowerCase().includes(search.toLowerCase()))
+        `${item.candidate?.firstName} ${item.candidate?.lastName}`
+          .toLowerCase()
+          .includes(search.toLowerCase()))
     ),
-    [candidates, search]
+    [items, search]
   )
 
+  const activeItem = items.find(i => i.id === activeId)
+
   const findStage = (id: string) => {
-    if (STAGES.find(s => s.id === id)) return id
-    return candidates.find(c => c.id === id)?.stage
+    if (STAGES.find(s => s.id === id)) return id as PipelineStage
+    return items.find(i => i.id === id)?.stage
   }
 
   const handleDragStart = ({ active }: { active: { id: string | number } }) => {
     setActiveId(active.id as string)
   }
 
-  const handleDragOver = ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) => {
+  const handleDragOver = ({ active, over }: {
+    active: { id: string | number }
+    over: { id: string | number } | null
+  }) => {
     if (!over) return
     const from = findStage(active.id as string)
     const to = findStage(over.id as string)
     if (!from || !to || from === to) return
-    setCandidates(prev =>
-      prev.map(c => c.id === active.id ? { ...c, stage: to } : c)
+    queryClient.setQueryData(
+      ['pipeline', jobFilter],
+      (old: { pipeline: CandidateJob[] } | undefined) => {
+        if (!old) return old
+        return {
+          ...old,
+          pipeline: old.pipeline.map(i =>
+            i.id === active.id ? { ...i, stage: to } : i
+          ),
+        }
+      }
     )
   }
 
-  const handleDragEnd = ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) => {
+  const handleDragEnd = ({ active, over }: {
+    active: { id: string | number }
+    over: { id: string | number } | null
+  }) => {
     setActiveId(null)
     if (!over || active.id === over.id) return
+
     const from = findStage(active.id as string)
     const to = findStage(over.id as string)
-    if (!from || !to || from !== to) return
-    setCandidates(prev => {
-      const inStage = prev.filter(c => c.stage === from)
-      const rest = prev.filter(c => c.stage !== from)
-      const oldIdx = inStage.findIndex(c => c.id === active.id)
-      const newIdx = inStage.findIndex(c => c.id === over.id)
-      return [...rest, ...arrayMove(inStage, oldIdx, newIdx)]
-    })
+
+    if (from && to && from !== to) {
+      updateStageMutation.mutate({ id: active.id as string, stage: to })
+      return
+    }
+
+    if (from && to && from === to) {
+      queryClient.setQueryData(
+        ['pipeline', jobFilter],
+        (old: { pipeline: CandidateJob[] } | undefined) => {
+          if (!old) return old
+          const inStage = old.pipeline.filter(i => i.stage === from)
+          const rest = old.pipeline.filter(i => i.stage !== from)
+          const oldIdx = inStage.findIndex(i => i.id === active.id)
+          const newIdx = inStage.findIndex(i => i.id === over.id)
+          return { ...old, pipeline: [...rest, ...arrayMove(inStage, oldIdx, newIdx)] }
+        }
+      )
+    }
   }
 
-  const handleStageChange = (stage: string) => {
-    if (!selectedCandidate) return
-    setCandidates(prev => prev.map(c => c.id === selectedCandidate.id ? { ...c, stage } : c))
-    setSelectedCandidate(prev => prev ? { ...prev, stage } : null)
+  const handleStageChange = (stage: PipelineStage) => {
+    if (!selectedItem) return
+    updateStageMutation.mutate({ id: selectedItem.id, stage })
+    setSelectedItem(prev => prev ? { ...prev, stage } : null)
   }
 
   return (
@@ -325,14 +484,16 @@ export default function PipelinePage() {
             />
           </div>
 
-          <select className={styles.filterSelect}>
-            <option>All jobs</option>
-            <option>Senior Full-Stack Engineer</option>
-            <option>Product Designer</option>
-            <option>DevOps Engineer</option>
-          </select>
+          <Select
+            value={jobFilter}
+            onChange={setJobFilter}
+            options={[
+        { value: 'all', label: 'All jobs' },
+        ...(jobsData?.jobs.map(job => ({ value: job.id, label: job.title })) || []),
+                    ]}
+/>
 
-          <button className={styles.addBtn}>
+          <button className={styles.addBtn} onClick={() => setShowAddModal(true)}>
             <Plus size={14} weight="bold" />
             Add candidate
           </button>
@@ -350,25 +511,32 @@ export default function PipelinePage() {
               <Column
                 key={stage.id}
                 stage={stage}
-                candidates={getByStage(stage.id)}
-                onCardClick={setSelectedCandidate}
+                items={getByStage(stage.id)}
+                onCardClick={setSelectedItem}
               />
             ))}
           </div>
 
           <DragOverlay>
-            {activeCandidate && (
-              <CardContent candidate={activeCandidate} onClick={() => {}} isDragging />
+            {activeItem && (
+              <CardContent item={activeItem} onClick={() => {}} isDragging />
             )}
           </DragOverlay>
         </DndContext>
       </div>
 
-      {selectedCandidate && (
+      {selectedItem && (
         <CandidateModal
-          candidate={selectedCandidate}
-          onClose={() => setSelectedCandidate(null)}
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
           onStageChange={handleStageChange}
+        />
+      )}
+
+      {showAddModal && (
+        <AddCandidateModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={data => addCandidateMutation.mutate(data)}
         />
       )}
     </AppLayout>

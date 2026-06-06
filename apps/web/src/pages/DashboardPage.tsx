@@ -1,64 +1,20 @@
-import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { AppLayout } from '../components/layout/AppLayout'
 import { useAuthStore } from '../store/authStore'
+import { candidatesApi } from '../api/candidates'
+import { jobsApi } from '../api/jobs'
+import { pipelineApi } from '../api/pipeline'
+import { interviewsApi } from '../api/interviews'
+import { ChartBar } from '@phosphor-icons/react/ChartBar'
+import { Briefcase } from '@phosphor-icons/react/Briefcase'
+import { CaretUp } from '@phosphor-icons/react/CaretUp'
+import { CaretDown } from '@phosphor-icons/react/CaretDown'
+import { MapPin } from '@phosphor-icons/react/MapPin'
+import { Plus } from '@phosphor-icons/react/Plus'
+import { ArrowRight } from '@phosphor-icons/react/ArrowRight'
 import styles from './DashboardPage.module.css'
+import { useState } from 'react'
 
-import { ChartBar } from "@phosphor-icons/react/ChartBar"
-import { Briefcase } from "@phosphor-icons/react/Briefcase"
-import { CaretUp } from "@phosphor-icons/react/CaretUp"
-import { CaretDown } from "@phosphor-icons/react/CaretDown"
-import { MapPin } from "@phosphor-icons/react/MapPin"
-import { Plus } from "@phosphor-icons/react/Plus"
-import { ArrowRight } from "@phosphor-icons/react/ArrowRight"
-
-const PIPELINE_DATA = [
-  { label: 'Applied', short: 'A', count: 42, max: 42, color: 'var(--c-ink-muted)' },
-  { label: 'Screening', short: 'S', count: 27, max: 42, color: 'var(--c-ink)' },
-  { label: 'Interview', short: 'I', count: 17, max: 42, color: 'var(--c-orange)' },
-  { label: 'Offer', short: 'O', count: 7, max: 42, color: '#f97316' },
-  { label: 'Hired', short: 'H', count: 4, max: 42, color: 'var(--c-accent, #3b82f6)' },
-]
-
-const JOBS_DATA = [
-  {
-    id: 1,
-    title: 'Senior Full-Stack Engineer',
-    status: 'Active',
-    type: 'Remote',
-    schedule: 'Full-time',
-    candidates: '42 candidates',
-    location: 'Ukraine',
-    time: '2h ago',
-    open: true,
-  },
-  {
-    id: 2,
-    title: 'Product Designer',
-    status: 'Draft',
-    type: 'Hybrid',
-    schedule: 'Part-time',
-    candidates: '0 candidates',
-    location: 'Poland',
-    time: '1d ago',
-    open: false,
-  },
-  {
-    id: 3,
-    title: 'DevOps Engineer',
-    status: 'Active',
-    type: 'Remote',
-    schedule: 'Full-time',
-    candidates: '17 candidates',
-    location: 'Remote',
-    time: '3d ago',
-    open: false,
-  },
-]
-
-const QUICK_CONTACTS = [
-  { name: 'Alex Johnson', role: 'Senior Full-Stack Engineer', level: 'Senior', initials: 'AJ'},
-  { name: 'Maria Kim', role: 'Product Designer', level: 'Middle', initials: 'MK'},
-]
 
 const SIZE = 220
 const CX = SIZE / 2
@@ -66,12 +22,17 @@ const CY = SIZE / 2
 const STROKE = 8
 const RADII = [96, 80, 64, 48, 32]
 
+const STAGE_COLORS: Record<string, string> = {
+  APPLIED: 'var(--c-ink-muted)',
+  SCREENING: 'var(--c-accent)',
+  INTERVIEW: 'var(--c-orange)',
+  OFFER: '#f97316',
+  HIRED: 'var(--c-success)',
+}
+
 function polarToXY(cx: number, cy: number, r: number, angle: number) {
   const rad = (angle - 90) * (Math.PI / 180)
-  return {
-    x: cx + r * Math.cos(rad),
-    y: cy + r * Math.sin(rad),
-  }
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) }
 }
 
 function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
@@ -81,19 +42,88 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`
 }
 
+const STAGE_ORDER = ['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER', 'HIRED']
+const STAGE_SHORT: Record<string, string> = {
+  APPLIED: 'A', SCREENING: 'S', INTERVIEW: 'I', OFFER: 'O', HIRED: 'H'
+}
+
 export default function DashboardPage() {
   const { user } = useAuthStore()
-  const [activeStage, setActiveStage] = useState('Screening')
+  const firstName = user?.name?.split(' ')[0] || 'there'
 
-  const totalCandidates = PIPELINE_DATA.reduce((acc, curr) => acc + curr.count, 0)
-  const activeStageData = PIPELINE_DATA.find(r => r.label === activeStage)
+  const { data: candidatesData } = useQuery({
+    queryKey: ['candidates'],
+    queryFn: () => candidatesApi.getAll({ limit: 100 }),
+  })
+
+  const { data: jobsData } = useQuery({
+    queryKey: ['jobs'],
+    queryFn: () => jobsApi.getAll(),
+  })
+
+  const { data: pipelineData } = useQuery({
+    queryKey: ['pipeline'],
+    queryFn: () => pipelineApi.getAll(),
+  })
+
+  const { data: interviewsData } = useQuery({
+    queryKey: ['interviews'],
+    queryFn: () => interviewsApi.getAll(),
+  })
+
+  const totalCandidates = candidatesData?.total || 0
+  const activeJobs = jobsData?.jobs.filter(j => j.status === 'OPEN').length || 0
+
+  const now = new Date()
+  const weekStart = new Date(now)
+  weekStart.setDate(now.getDate() - now.getDay())
+  const weekEnd = new Date(weekStart)
+  weekEnd.setDate(weekStart.getDate() + 7)
+
+  const interviewsThisWeek = interviewsData?.interviews.filter(iv => {
+    const d = new Date(iv.scheduledAt)
+    return d >= weekStart && d <= weekEnd
+  }).length || 0
+
+  const pipeline = pipelineData?.pipeline || []
+  const pipelineByStage = STAGE_ORDER.map(stage => ({
+    label: stage,
+    short: STAGE_SHORT[stage],
+    count: pipeline.filter(p => p.stage === stage).length,
+    max: Math.max(pipeline.length, 1),
+    color: STAGE_COLORS[stage],
+  }))
+
+  const upcomingInterviews = (interviewsData?.interviews || [])
+    .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
+    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+    .slice(0, 4)
+
+  const recentJobs = jobsData?.jobs.slice(0, 3) || []
+
+  const [activeStage, setActiveStage] = useState('SCREENING')
+  const activeStageData = pipelineByStage.find(s => s.label === activeStage)
+
+  const formatInterviewTime = (scheduledAt: string) => {
+    const d = new Date(scheduledAt)
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    const isToday = d.toDateString() === today.toDateString()
+    const isTomorrow = d.toDateString() === tomorrow.toDateString()
+
+    const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+
+    if (isToday) return `Today ${time}`
+    if (isTomorrow) return `Tomorrow ${time}`
+    return d.toLocaleDateString('en-US', { weekday: 'short' }) + ' ' + time
+  }
 
   return (
     <AppLayout title="Dashboard">
       <div className={styles.dashboardContainer}>
-
         <div className={styles.topSection}>
-
           <div className={styles.trackerCard}>
             <div className={styles.trackerHeaderRow}>
               <div className={styles.iconWrapper}>
@@ -108,20 +138,14 @@ export default function DashboardPage() {
             <div className={styles.trackerContent}>
               <div className={styles.radialWrap}>
                 <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
-                  {PIPELINE_DATA.map((stage, i) => {
+                  {pipelineByStage.map((stage, i) => {
                     const r = RADII[i]
-                    const pct = stage.count / stage.max
+                    const pct = stage.max > 0 ? stage.count / stage.max : 0
                     const angle = pct * 340
                     const isActive = activeStage === stage.label
-
                     return (
                       <g key={stage.label}>
-                        <circle
-                          cx={CX} cy={CY} r={r}
-                          fill="none"
-                          stroke="var(--c-hairline-soft)"
-                          strokeWidth={STROKE}
-                        />
+                        <circle cx={CX} cy={CY} r={r} fill="none" stroke="var(--c-hairline-soft)" strokeWidth={STROKE} />
                         {angle > 0 && (
                           <path
                             d={describeArc(CX, CY, r, 0, angle)}
@@ -129,7 +153,7 @@ export default function DashboardPage() {
                             stroke={stage.color}
                             strokeWidth={isActive ? STROKE + 3 : STROKE}
                             strokeLinecap="round"
-                            style={{ transition: 'stroke-width 0.15s ease, stroke 0.2s' }}
+                            style={{ transition: 'stroke-width 0.15s ease' }}
                             onMouseEnter={() => setActiveStage(stage.label)}
                             cursor="pointer"
                           />
@@ -137,33 +161,17 @@ export default function DashboardPage() {
                       </g>
                     )
                   })}
-
-                  <text
-                    x={CX} y={CY - 4}
-                    textAnchor="middle"
-                    fill="var(--c-ink)"
-                    fontSize="24"
-                    fontWeight="700"
-                    fontFamily="var(--f-body)"
-                  >
-                    {activeStageData ? activeStageData.count : totalCandidates}
+                  <text x={CX} y={CY - 4} textAnchor="middle" fill="var(--c-ink)" fontSize="24" fontWeight="700" fontFamily="var(--f-body)">
+                    {activeStageData?.count || 0}
                   </text>
-                  <text
-                    x={CX} y={CY + 14}
-                    textAnchor="middle"
-                    fill="var(--c-ink-muted)"
-                    fontSize="9"
-                    fontWeight="600"
-                    fontFamily="var(--f-body)"
-                    letterSpacing="0.5"
-                  >
-                    {activeStageData ? activeStageData.label.toUpperCase() : 'TOTAL CAND.'}
+                  <text x={CX} y={CY + 14} textAnchor="middle" fill="var(--c-ink-muted)" fontSize="9" fontWeight="600" fontFamily="var(--f-body)" letterSpacing="0.5">
+                    {activeStageData?.label || 'TOTAL'}
                   </text>
                 </svg>
               </div>
 
               <div className={styles.legendList}>
-                {PIPELINE_DATA.map((stage) => (
+                {pipelineByStage.map(stage => (
                   <div
                     key={stage.label}
                     className={`${styles.legendItem} ${activeStage === stage.label ? styles.legendItemHovered : ''}`}
@@ -171,7 +179,7 @@ export default function DashboardPage() {
                   >
                     <div className={styles.legendDot} style={{ background: stage.color }} />
                     <div className={styles.legendInfo}>
-                      <span className={styles.legendName}>{stage.label}</span>
+                      <span className={styles.legendName}>{stage.label.charAt(0) + stage.label.slice(1).toLowerCase()}</span>
                       <span className={styles.legendCount}>{stage.count} candidates</span>
                     </div>
                     <div className={styles.legendBadge}>{stage.short}</div>
@@ -181,96 +189,67 @@ export default function DashboardPage() {
             </div>
 
             <div className={styles.metricFooter}>
-              <div className={styles.metricValue}>+20%</div>
-              <p className={styles.metricDesc}>This week's hiring velocity is higher than last week's</p>
+              <div className={styles.metricValue}>{totalCandidates}</div>
+              <p className={styles.metricDesc}>Total candidates across all pipeline stages</p>
             </div>
           </div>
 
           <div className={styles.jobsCard}>
             <div className={styles.sectionHeader}>
-              <h4 className={styles.sectionTitle}>Your Active Jobs</h4>
+              <h4 className={styles.sectionTitle}>Active Jobs</h4>
               <span className={styles.seeAllLink}>See all jobs</span>
             </div>
 
             <div className={styles.jobsList}>
-              {JOBS_DATA.map((job) => (
-                <div key={job.id} className={`${styles.jobItem} ${job.open ? styles.jobItemExpanded : ''}`}>
-                  <div className={styles.jobMainRow}>
-                    <div className={styles.jobIcon}>
-                      <Briefcase size={20} weight="fill" />
-                    </div>
-                    <div className={styles.jobMeta}>
-                      <div className={styles.jobTitleWrap}>
-                        <h5>{job.title}</h5>
-                        <span className={`${styles.badge} ${job.status === 'Active' ? styles.badgeSuccess : styles.badgeDraft}`}>
-                          {job.status}
-                        </span>
+              {recentJobs.length === 0 ? (
+                <p className={styles.cardSubtitle}>No jobs yet</p>
+              ) : (
+                recentJobs.map(job => (
+                  <div key={job.id} className={styles.jobItem}>
+                    <div className={styles.jobMainRow}>
+                      <div className={styles.jobIcon}>
+                        <Briefcase size={20} weight="fill" />
                       </div>
-                      <p className={styles.jobSubText}>{job.candidates}</p>
+                      <div className={styles.jobMeta}>
+                        <div className={styles.jobTitleWrap}>
+                          <h5>{job.title}</h5>
+                          <span className={`${styles.badge} ${job.status === 'OPEN' ? styles.badgeSuccess : styles.badgeDraft}`}>
+                            {job.status.charAt(0) + job.status.slice(1).toLowerCase()}
+                          </span>
+                        </div>
+                        <p className={styles.jobSubText}>{job._count?.candidates || 0} candidates</p>
+                      </div>
                     </div>
-                    <button className={styles.expandBtn}>
-                      {job.open ? <CaretUp size={16} weight="fill" /> : <CaretDown size={16} weight="fill" />}
-                    </button>
                   </div>
-
-                  {job.open && (
-                    <div className={styles.jobDetailsArea}>
-                      <div className={styles.tagRow}>
-                        <span className={styles.filterTag}>{job.type}</span>
-                        <span className={styles.filterTag}>{job.schedule}</span>
-                      </div>
-                      <p className={styles.jobDescriptionSnippet}>
-                        This role involves building scalable features, conducting code reviews, and collaborating with product and design teams.
-                      </p>
-                      <div className={styles.jobFooterInfo}>
-                        <span>
-                          <MapPin size={14} weight="fill" style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                          {job.location}
-                        </span>
-                        <span>{job.time}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
-
         </div>
 
         <div className={styles.bottomSection}>
-
           <div className={styles.connectCard}>
             <div className={styles.sectionHeader}>
-              <h4 className={styles.sectionTitle}>Recent Candidates</h4>
+              <h4 className={styles.sectionTitle}>Upcoming Interviews</h4>
               <span className={styles.seeAllLink}>See all</span>
             </div>
             <div className={styles.connectList}>
-              {QUICK_CONTACTS.map((person, idx) => (
-                <div key={idx} className={styles.connectItem}>
-                  <div
-                    className={styles.avatar}
-                    style={{
-                      background: person.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#fff',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {person.initials}
+              {upcomingInterviews.length === 0 ? (
+                <p className={styles.cardSubtitle}>No upcoming interviews</p>
+              ) : (
+                upcomingInterviews.map(iv => (
+                  <div key={iv.id} className={styles.connectItem}>
+                    <div className={styles.avatar}>
+                      {iv.candidate?.firstName?.[0]}{iv.candidate?.lastName?.[0]}
+                    </div>
+                    <div className={styles.connectInfo}>
+                      <h6>{iv.candidate?.firstName} {iv.candidate?.lastName}</h6>
+                      <p>{formatInterviewTime(iv.scheduledAt)}</p>
+                    </div>
+                    <span className={styles.levelLabel}>{iv.type}</span>
                   </div>
-                  <div className={styles.connectInfo}>
-                    <h6>{person.name} <span className={styles.levelLabel}>{person.level}</span></h6>
-                    <p>{person.role}</p>
-                  </div>
-                  <button className={styles.addBtn}>
-                    <Plus size={14} weight="fill" />
-                  </button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -285,26 +264,21 @@ export default function DashboardPage() {
           <div className={styles.progressCard}>
             <div className={styles.sectionHeader}>
               <h4 className={styles.sectionTitle}>Hiring Progress</h4>
-              <span className={styles.dateSelector}>
-                June, 2026 <CaretDown size={12} weight="bold" style={{ marginLeft: '4px' }} />
-              </span>
             </div>
-
             <div className={styles.progressGrid}>
               <div className={styles.progressMetric}>
-                <span>Reviewed</span>
-                <strong>64</strong>
+                <span>Candidates</span>
+                <strong>{totalCandidates}</strong>
               </div>
               <div className={styles.progressMetric} style={{ borderColor: 'var(--c-orange)' }}>
                 <span>Interviews</span>
-                <strong style={{ color: 'var(--c-orange)' }}>12</strong>
+                <strong style={{ color: 'var(--c-orange)' }}>{interviewsThisWeek}</strong>
               </div>
               <div className={styles.progressMetric}>
-                <span>Hired</span>
-                <strong>10</strong>
+                <span>Open jobs</span>
+                <strong>{activeJobs}</strong>
               </div>
             </div>
-
             <div className={styles.combChart}>
               {Array.from({ length: 30 }).map((_, i) => {
                 let barColor = 'var(--c-hairline)'
@@ -314,9 +288,7 @@ export default function DashboardPage() {
               })}
             </div>
           </div>
-
         </div>
-
       </div>
     </AppLayout>
   )

@@ -1,0 +1,111 @@
+.wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  .wrapFull {
+    width: 100%;
+  }
+  
+  .trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: var(--c-surface-1);
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--c-ink);
+    font-family: var(--f-body);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.15s;
+    white-space: nowrap;
+    width: 100%;
+  }
+  
+  .wrapFull .trigger {
+    background: var(--c-surface-2);
+    border-radius: 10px;
+    box-shadow: none;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+  
+  [data-theme="dark"] .trigger {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .trigger:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  
+  .triggerValue {
+    color: var(--c-ink);
+  }
+  
+  .triggerPlaceholder {
+    color: var(--c-ink-muted);
+  }
+  
+  .caret {
+    color: var(--c-ink-muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  
+  .caretOpen {
+    transform: rotate(180deg);
+  }
+  
+  .dropdown {
+    position: fixed;
+    min-width: 200px;
+    background: var(--c-surface-1);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    overflow: hidden;
+    padding: 4px;
+  }
+  
+  [data-theme="dark"] .dropdown {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+  
+  .option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    font-size: 0.8125rem;
+    color: var(--c-ink);
+    font-family: var(--f-body);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s;
+    white-space: nowrap;
+  }
+  
+  .option:hover {
+    background: var(--c-surface-2);
+  }
+  
+  .optionActive {
+    color: var(--c-orange);
+    font-weight: 500;
+  }
+  
+  .check {
+    color: var(--c-orange);
+    flex-shrink: 0;
+  }

@@ -329,6 +329,7 @@
   .modalHeader {
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 14px;
     padding: 24px 24px 20px;
     border-bottom: 1px solid var(--c-hairline-soft);
@@ -588,4 +589,46 @@
   
   .card:hover .dragHandle {
     opacity: 1;
+  }
+
+  .modalFooter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--c-hairline-soft);
+  }
+  
+  .cancelBtn {
+    padding: 8px 18px;
+    border-radius: var(--r-pill);
+    background: var(--c-surface-2);
+    border: none;
+    color: var(--c-ink-muted);
+    font-size: 0.875rem;
+    font-family: var(--f-body);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  
+  .cancelBtn:hover {
+    opacity: 0.8;
+  }
+  
+  .saveBtn {
+    padding: 8px 18px;
+    border-radius: var(--r-pill);
+    background: var(--c-orange);
+    border: none;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--f-body);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  
+  .saveBtn:hover {
+    opacity: 0.88;
   }

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { AppLayout } from '../components/layout/AppLayout'
 import { MagnifyingGlass, Plus, MapPin, Users, LinkedinLogo, GraduationCap, Sparkle } from '@phosphor-icons/react'
 import styles from './CandidatesPage.module.css'
+import { Select } from '../components/ui/Select'
 
 const SOURCE_COLORS: Record<string, { bg: string; color: string }> = {
   LinkedIn: { bg: 'rgba(0,119,181,0.12)', color: '#0077b5' },
@@ -100,31 +101,31 @@ export default function CandidatesPage() {
             />
           </div>
 
-          <select
-            className={styles.filterSelect}
+          <Select
             value={sourceFilter}
-            onChange={e => setSourceFilter(e.target.value)}
-          >
-            <option value="All">All sources</option>
-            <option value="LinkedIn">LinkedIn</option>
-            <option value="Indeed">Indeed</option>
-            <option value="Referral">Referral</option>
-            <option value="Manual">Manual</option>
-          </select>
+            onChange={setSourceFilter}
+            options={[
+                { value: 'All', label: 'All sources' },
+                { value: 'LinkedIn', label: 'LinkedIn' },
+                { value: 'Indeed', label: 'Indeed' },
+                { value: 'Referral', label: 'Referral' },
+                { value: 'Manual', label: 'Manual' },
+            ]}
+            />
 
-          <select
-            className={styles.filterSelect}
+            <Select
             value={stageFilter}
-            onChange={e => setStageFilter(e.target.value)}
-          >
-            <option value="All">All stages</option>
-            <option value="APPLIED">Applied</option>
-            <option value="SCREENING">Screening</option>
-            <option value="INTERVIEW">Interview</option>
-            <option value="OFFER">Offer</option>
-            <option value="HIRED">Hired</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
+            onChange={setStageFilter}
+            options={[
+                { value: 'All', label: 'All stages' },
+                { value: 'APPLIED', label: 'Applied' },
+                { value: 'SCREENING', label: 'Screening' },
+                { value: 'INTERVIEW', label: 'Interview' },
+                { value: 'OFFER', label: 'Offer' },
+                { value: 'HIRED', label: 'Hired' },
+                { value: 'REJECTED', label: 'Rejected' },
+            ]}
+/>
 
           <button className={styles.addBtn}>
             <Plus size={14} weight="bold" />
