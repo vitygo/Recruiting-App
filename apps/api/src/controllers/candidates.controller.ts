@@ -3,6 +3,27 @@ import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth.middleware'
 import { CreateCandidateInput, UpdateCandidateInput } from '../schemas/candidate.schema'
 
+const GENERAL_JOB_TITLE = 'General Application'
+
+async function findOrCreateGeneralJob(userId: string) {
+  const existing = await prisma.job.findFirst({
+    where: { userId, title: GENERAL_JOB_TITLE },
+  })
+  if (existing) return existing
+
+  return prisma.job.create({
+    data: {
+      title: GENERAL_JOB_TITLE,
+      department: 'General',
+      location: 'Remote',
+      type: 'FULL_TIME',
+      description: 'Catch-all pipeline for candidates not yet tied to a specific role.',
+      status: 'OPEN',
+      userId,
+    },
+  })
+}
+
 export async function getCandidates(req: AuthRequest, res: Response): Promise<void> {
   try {
     const { search, source, page = '1', limit = '20' } = req.query
@@ -20,7 +41,7 @@ export async function getCandidates(req: AuthRequest, res: Response): Promise<vo
 
     const skip = (parseInt(page as string) - 1) * parseInt(limit as string)
 
-    const [candidates, total] = await Promise.all([
+    const [rawCandidates, total] = await Promise.all([
       prisma.candidate.findMany({
         where,
         skip,
@@ -31,6 +52,9 @@ export async function getCandidates(req: AuthRequest, res: Response): Promise<vo
       prisma.candidate.count({ where }),
     ])
 
+    // Expose the relation as `candidateJobs` to match the frontend contract
+    const candidates = rawCandidates.map(({ jobs, ...rest }) => ({ ...rest, candidateJobs: jobs }))
+
     res.json({ candidates, total, page: parseInt(page as string) })
   } catch {
     res.status(500).json({ error: 'Internal server error' })
@@ -39,7 +63,7 @@ export async function getCandidates(req: AuthRequest, res: Response): Promise<vo
 
 export async function getCandidate(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const candidate = await prisma.candidate.findFirst({
+    const raw = await prisma.candidate.findFirst({
       where: { id: req.params.id, userId: req.userId },
       include: {
         jobs: { include: { job: true } },
@@ -48,10 +72,13 @@ export async function getCandidate(req: AuthRequest, res: Response): Promise<voi
       },
     })
 
-    if (!candidate) {
+    if (!raw) {
       res.status(404).json({ error: 'Candidate not found' })
       return
     }
+
+    const { jobs, ...rest } = raw
+    const candidate = { ...rest, candidateJobs: jobs }
 
     res.json({ candidate })
   } catch {
@@ -62,9 +89,15 @@ export async function getCandidate(req: AuthRequest, res: Response): Promise<voi
 export async function createCandidate(req: AuthRequest, res: Response): Promise<void> {
   try {
     const data = req.body as CreateCandidateInput
+    const userId = req.userId!
 
-    const candidate = await prisma.candidate.create({
-      data: { ...data, userId: req.userId! },
+    const [candidate, generalJob] = await Promise.all([
+      prisma.candidate.create({ data: { ...data, userId } }),
+      findOrCreateGeneralJob(userId),
+    ])
+
+    await prisma.candidateJob.create({
+      data: { candidateId: candidate.id, jobId: generalJob.id, stage: 'APPLIED' },
     })
 
     res.status(201).json({ candidate })
