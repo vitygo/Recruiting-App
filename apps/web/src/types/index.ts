@@ -35,6 +35,7 @@ export interface User {
     createdAt: string
     userId: string
     jobs?: CandidateJob[]
+    candidateJobs?: CandidateJob[]
   }
   
   export interface CandidateJob {

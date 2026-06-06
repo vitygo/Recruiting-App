@@ -1,0 +1,132 @@
+.card {
+  background: var(--c-surface-1);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+[data-theme="dark"] .card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  background: rgb(107, 107, 128);
+}
+
+[data-theme="light"] .avatar {
+  background: #64748b;
+  color: #ffffff;
+}
+
+.cardName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  letter-spacing: -0.3px;
+}
+
+.cardRole {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  letter-spacing: -0.13px;
+  margin-top: 2px;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--c-ink-muted);
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--c-hairline-soft);
+}
+
+.scoreWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scoreBar {
+  width: 64px;
+  height: 4px;
+  background: var(--c-surface-2);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.scoreFill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--c-accent);
+}
+
+.scoreVal {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--c-ink);
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+}
+
+.sourceBadge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+}
+
+.stageBadge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  letter-spacing: -0.1px;
+}
