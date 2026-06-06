@@ -1,0 +1,317 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .searchWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--c-surface-1);
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    flex: 1;
+    max-width: 320px;
+  }
+  
+  [data-theme="dark"] .searchWrap {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .searchInput {
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 0.8125rem;
+    color: var(--c-ink);
+    font-family: var(--f-body);
+    width: 100%;
+  }
+  
+  .searchInput::placeholder {
+    color: var(--c-ink-muted);
+  }
+  
+  .filterSelect {
+    background: var(--c-surface-1);
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 8px 32px 8px 16px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--c-ink);
+    font-family: var(--f-body);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  
+  .addBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--c-orange);
+    color: #fff;
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 8px 18px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: var(--f-body);
+    cursor: pointer;
+    margin-left: auto;
+    transition: opacity 0.15s;
+  }
+  
+  .addBtn:hover {
+    opacity: 0.88;
+  }
+  
+  .statsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  
+  .statCard {
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  
+  [data-theme="dark"] .statCard {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .statIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .statInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .statValue {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--c-ink);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  
+  .statLabel {
+    font-size: 0.75rem;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.12px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .card {
+    background: var(--c-surface-1);
+    border-radius: 16px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  
+  [data-theme="dark"] .card {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-theme="dark"] .card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  .cardTop {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  
+  .jobIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 122, 61, 0.1);
+    color: var(--c-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .cardTitleWrap {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .cardTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--c-ink);
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+  
+  .cardDept {
+    font-size: 0.8125rem;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.13px;
+  }
+  
+  .statusBadge {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    flex-shrink: 0;
+  }
+  
+  .statusOpen {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--c-success);
+  }
+  
+  .statusPaused {
+    background: rgba(255, 122, 61, 0.1);
+    color: var(--c-orange);
+  }
+  
+  .statusClosed {
+    background: rgba(153, 153, 153, 0.1);
+    color: var(--c-ink-muted);
+  }
+  
+  .cardMeta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .metaItem {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8125rem;
+    color: var(--c-ink-muted);
+    letter-spacing: -0.13px;
+  }
+  
+  .cardFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--c-hairline-soft);
+  }
+  
+  .candidatesWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .candidatesCount {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--c-ink);
+    letter-spacing: -0.14px;
+  }
+  
+  .candidatesLabel {
+    font-size: 0.8125rem;
+    color: var(--c-ink-muted);
+  }
+  
+  .typeBadge {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: rgba(0, 153, 255, 0.1);
+    color: var(--c-accent);
+  }
+  
+  .salaryWrap {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--c-ink-muted);
+  }
+  
+  .empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px;
+    color: var(--c-ink-muted);
+    gap: 8px;
+  }
+  
+  .emptyTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--c-ink);
+  }
+  
+  .emptyDesc {
+    font-size: 0.875rem;
+    color: var(--c-ink-muted);
+  }
+  
+  @media (max-width: 1100px) {
+    .statsRow {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .statsRow {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }

@@ -9,6 +9,9 @@ const LoginPage = lazy(() => import('./pages/LoginPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const PipelinePage = lazy(() => import('./pages/PipelinePage'))
 const CandidatesPage = lazy(() => import('./pages/CandidatesPage'))
+const JobsPage = lazy(() => import('./pages/JobsPage'))
+const InterviewsPage = lazy(() => import('./pages/InterviewsPage'))
+
 
 
 const Spinner = () => (
@@ -58,6 +61,8 @@ export default function App() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/pipeline" element={<ProtectedRoute><PipelinePage /></ProtectedRoute>} />
           <Route path="/candidates" element={<ProtectedRoute><CandidatesPage /></ProtectedRoute>} />
+          <Route path="/jobs" element={<ProtectedRoute><JobsPage /></ProtectedRoute>} />
+          <Route path="/interviews" element={<ProtectedRoute><InterviewsPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
