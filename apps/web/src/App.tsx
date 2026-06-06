@@ -7,7 +7,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
-const PipelinePage = lazy(() => import('./pages/PipelinePage'))
+const PipelinePage = lazy(() => import('./pages/PipelinePage'));
 const CandidatesPage = lazy(() => import('./pages/CandidatesPage'))
 const JobsPage = lazy(() => import('./pages/JobsPage'))
 const InterviewsPage = lazy(() => import('./pages/InterviewsPage'))

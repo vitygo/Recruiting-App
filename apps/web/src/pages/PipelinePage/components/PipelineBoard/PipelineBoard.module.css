@@ -1,0 +1,13 @@
+.board {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  flex: 1;
+  padding-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .board {
+    padding-bottom: 80px;
+  }
+}
