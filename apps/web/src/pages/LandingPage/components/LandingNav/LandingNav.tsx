@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useThemeStore } from '../../store/themeStore'
-import { useRipple } from '../../hooks/useRipple'
+import { useThemeStore } from '../../../../store/themeStore'
+import { useRipple } from '../../../../hooks/useRipple'
 import styles from './LandingNav.module.css'
-import { useScrambleText } from '../../hooks/useScrambleText'
+import { useScrambleText } from '../../../../hooks/useScrambleText'
 
 export function LandingNav() {
   const { theme, toggle } = useThemeStore()
@@ -37,10 +37,10 @@ export function LandingNav() {
   return (
     <>
       <nav className={styles.nav}>
-      <Link to="/" className={styles.logo} onClick={(e) => {
-    e.preventDefault()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }}>
+        <Link to="/" className={styles.logo} onClick={(e) => {
+          e.preventDefault()
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }}>
           <span ref={scrambleRef as React.RefObject<HTMLSpanElement>} className={styles.logoText}>
             RecruitApex
           </span>
@@ -59,8 +59,6 @@ export function LandingNav() {
         </div>
 
         <div className={styles.actions}>
-         
-
           <Link to="/login" className={styles.signIn}>
             Sign in
           </Link>

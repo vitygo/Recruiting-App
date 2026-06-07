@@ -1,23 +1,6 @@
 import { useEffect, useState } from 'react'
 import styles from './AnimatedPipeline.module.css'
-
-const STAGES = ['Applied', 'Screening', 'Interview', 'Offer']
-
-const INITIAL_CARDS = [
-  { id: 1, initials: 'AJ', name: 'Alex Johnson', role: 'Senior Engineer', score: 92, color: '#ff7a3d', stage: 0 },
-  { id: 2, initials: 'MK', name: 'Maria Kim', role: 'Product Designer', score: 87, color: '#ff7a3d', stage: 0 },
-  { id: 3, initials: 'RS', name: 'Ryan Smith', role: 'Frontend Dev', score: 78, color: '#ff7a3d', stage: 1 },
-  { id: 4, initials: 'PL', name: 'Priya Lal', role: 'Data Scientist', score: 94, color: '#ff7a3d', stage: 1 },
-  { id: 5, initials: 'TW', name: 'Tom Walker', role: 'Backend Dev', score: 81, color: '#ff7a3d', stage: 2 },
-  { id: 6, initials: 'SC', name: 'Sarah Chen', role: 'UX Researcher', score: 89, color: '#ff7a3d', stage: 3 },
-]
-
-const STAGE_COLORS = [
-  'var(--c-ink-muted)',
-  'var(--c-accent)',
-  'var(--c-violet)',
-  'var(--c-success)',
-]
+import { PIPELINE_STAGES, PIPELINE_STAGE_COLORS, PIPELINE_INITIAL_CARDS } from '../../constants'
 
 interface Card {
   id: number
@@ -31,13 +14,13 @@ interface Card {
 }
 
 export function AnimatedPipeline() {
-  const [cards, setCards] = useState<Card[]>(INITIAL_CARDS)
+  const [cards, setCards] = useState<Card[]>(PIPELINE_INITIAL_CARDS)
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCards((prev) => {
         const movable = prev.filter((c) => c.stage < 3 && !c.moving)
-        if (movable.length === 0) return INITIAL_CARDS
+        if (movable.length === 0) return PIPELINE_INITIAL_CARDS
 
         const pick = movable[Math.floor(Math.random() * movable.length)]
 
@@ -62,10 +45,10 @@ export function AnimatedPipeline() {
 
   return (
     <div className={styles.pipeline}>
-      {STAGES.map((stage, si) => (
+      {PIPELINE_STAGES.map((stage, si) => (
         <div key={stage} className={styles.column}>
           <div className={styles.columnHeader}>
-            <div className={styles.columnDot} style={{ background: STAGE_COLORS[si] }} />
+            <div className={styles.columnDot} style={{ background: PIPELINE_STAGE_COLORS[si] }} />
             <span className={styles.columnLabel}>{stage}</span>
             <span className={styles.columnCount}>
               {cards.filter((c) => c.stage === si).length}

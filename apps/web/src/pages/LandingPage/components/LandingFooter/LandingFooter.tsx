@@ -1,26 +1,6 @@
 import { Link } from 'react-router-dom'
 import styles from './LandingFooter.module.css'
-
-const LINKS = {
-  Product: [
-    { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'Changelog', href: '#' },
-    { label: 'Roadmap', href: '#' },
-  ],
-  Company: [
-    { label: 'About', href: '#' },
-    { label: 'Blog', href: '#' },
-    { label: 'Careers', href: '#' },
-    { label: 'Contact', href: 'mailto:hello@recruitapex.com' },
-  ],
-  Legal: [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
-    { label: 'Cookie Policy', href: '#' },
-    { label: 'Security', href: '#' },
-  ],
-}
+import { FOOTER_LINKS } from '../../constants'
 
 export function LandingFooter() {
   return (
@@ -57,7 +37,7 @@ export function LandingFooter() {
             </div>
           </div>
 
-          {Object.entries(LINKS).map(([title, links]) => (
+          {Object.entries(FOOTER_LINKS).map(([title, links]) => (
             <div key={title} className={styles.col}>
               <p className={styles.colTitle}>{title}</p>
               <div className={styles.colLinks}>

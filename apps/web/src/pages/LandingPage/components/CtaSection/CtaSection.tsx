@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useRipple } from '../../hooks/useRipple'
+import { useRipple } from '../../../../hooks/useRipple'
 import styles from './CtaSection.module.css'
 
 export function CtaSection() {
@@ -17,22 +17,22 @@ export function CtaSection() {
           </h2>
 
           <p className={`t-body-lg ${styles.sub}`}>
-          Built for recruiters who are tired of spreadsheets.
+            Built for recruiters who are tired of spreadsheets.
           </p>
 
           <div className={styles.btns}>
             <Link
               to="/register"
-              className={`${"btn"} ${styles.btnPrimary}`}
+              className={`${'btn'} ${styles.btnPrimary}`}
               onClick={createRipple}
               style={{ padding: '12px 32px', fontSize: 15 }}
             >
-                <i className="ti ti-arrow-right"></i> 
+              <i className="ti ti-arrow-right"></i>
               Start for free
             </Link>
             <a
               href="mailto:hello@recruitapex.com"
-              className={`${"btn btn-secondary"} ${styles.btnSecondary}`}
+              className={`${'btn btn-secondary'} ${styles.btnSecondary}`}
               onClick={createRipple}
               style={{ padding: '12px 32px', fontSize: 15 }}
             >

@@ -1,37 +1,16 @@
 import styles from './BentoSection.module.css'
-import { useTilt } from '../../hooks/useTilt'
+import { useTilt } from '../../../../hooks/useTilt'
 import { useRef } from 'react'
-
-const BARS = [
-  { h: 45, active: false, delay: 0.05 },
-  { h: 70, active: false, delay: 0.1 },
-  { h: 100, active: true, delay: 0.15 },
-  { h: 58, active: false, delay: 0.2 },
-  { h: 82, active: false, delay: 0.25 },
-  { h: 48, active: true, delay: 0.3 },
-  { h: 62, active: false, delay: 0.35 },
-  { h: 90, active: false, delay: 0.4 },
-  { h: 38, active: false, delay: 0.45 },
-]
-
-const INTEGRATIONS = [
-  { icon: 'ti-brand-linkedin', label: 'LinkedIn' },
-  { icon: 'ti-brand-slack', label: 'Slack' },
-  { icon: 'ti-brand-google', label: 'Google' },
-  { icon: 'ti-mail', label: 'Outlook' },
-  { icon: 'ti-brand-github', label: 'GitHub' },
-  { icon: 'ti-video', label: 'Zoom' },
-  { icon: 'ti-plus', label: '34 more' },
-]
+import { BARS, INTEGRATIONS } from '../../constants'
 
 function TiltCard({ className, children }: { className: string; children: React.ReactNode }) {
-    const ref = useTilt<HTMLDivElement>({ max: 6, scale: 1.02, speed: 500 })
-    return (
-      <div ref={ref} className={className}>
-        {children}
-      </div>
-    )
-  }
+  const ref = useTilt<HTMLDivElement>({ max: 6, scale: 1.02, speed: 500 })
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  )
+}
 
 export function BentoSection() {
   return (
@@ -75,7 +54,6 @@ export function BentoSection() {
             </div>
           </TiltCard>
 
-
           <TiltCard className={`${styles.bc} ${styles.g4} reveal`}>
             <div className={styles.bcStat}>
               18<span className={styles.bcStatUnit}>d</span>
@@ -101,7 +79,6 @@ export function BentoSection() {
             </div>
           </TiltCard>
 
-
           <TiltCard className={`${styles.bc} ${styles.bcOrange} ${styles.onGrad} ${styles.g4} reveal`}>
             <div className={styles.bcIcon}><i className="ti ti-chart-dots" /></div>
             <div className={styles.bcTitle}>Hiring Analytics</div>
@@ -110,7 +87,7 @@ export function BentoSection() {
             </div>
           </TiltCard>
 
-         <TiltCard className={`${styles.bc} ${styles.g8} ${styles.rowStart} reveal reveal-delay-1`}>
+          <TiltCard className={`${styles.bc} ${styles.g8} ${styles.rowStart} reveal reveal-delay-1`}>
             <div className={styles.bcIcon}><i className="ti ti-plug-connected" /></div>
             <div className={styles.bcTitle}>40+ Integrations</div>
             <div className={styles.bcBody}>

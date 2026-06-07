@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useRipple } from '../../hooks/useRipple'
+import { useRipple } from '../../../../hooks/useRipple'
 import styles from './BackToTop.module.css'
 
 export function BackToTop() {

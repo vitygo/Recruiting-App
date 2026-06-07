@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap');
+
+/* ============================================================
+   1. DESIGN TOKENS (Variables)
+   ============================================================ */
+
 :root {
+  /* Colors */
   --c-canvas:        #090909;
   --c-surface-1:     #141414;
   --c-surface-2:     #1c1c1c;
@@ -14,18 +20,20 @@
   --c-violet:        #6a4cf5;
   --c-orange:        #ff7a3d;
   --c-orange-light:  #ff7a3d46;
+  --c-orange2:       #ff7a3d1f;
   --c-coral:         #ff5577;
-  --main-gradient: linear-gradient(135deg, #ff7a3d 0%, #FF6B2C 55%, #0057FF 100%);
+
+  /* Gradients */
+  --main-gradient:             linear-gradient(135deg, #ff7a3d 0%, #FF6B2C 55%, #0057FF 100%);
   --main-transparent-gradient: linear-gradient(135deg, #ff7a3d1e 0%, #ff6b2c37 55%, #0055ff20 100%);
-  --main-light-blue: #0055ff65;
-  --main-blue:  #0057FF;
+  --main-light-blue:           #0055ff65;
+  --main-blue:                 #0057FF;
 
-
-  --main-blue: #0057FF ;
-
+  /* Typography */
   --f-display: 'Inter', system-ui, sans-serif;
   --f-body:    'Inter', system-ui, sans-serif;
 
+  /* Radius */
   --r-xs:   4px;
   --r-sm:   6px;
   --r-md:   10px;
@@ -35,37 +43,20 @@
   --r-pill: 100px;
   --r-full: 9999px;
 
-  --sp-xxs: 4px;
-  --sp-xs:  8px;
-  --sp-sm:  12px;
-  --sp-md:  15px;
-  --sp-lg:  20px;
-  --sp-xl:  30px;
-  --sp-xxl: 40px;
+  /* Spacing */
+  --sp-xxs:     4px;
+  --sp-xs:      8px;
+  --sp-sm:      12px;
+  --sp-md:      15px;
+  --sp-lg:      20px;
+  --sp-xl:      30px;
+  --sp-xxl:     40px;
   --sp-section: 96px;
 
+  /* Fluid / Responsive */
   --sp-section-fluid: clamp(48px, 8vw, 96px);
   --container-pad:    clamp(16px, 4vw, 32px);
-  --container-pad2:    clamp(16px, 7vw, 32px);
-}
-
-:root {
-  --c-canvas:        #090909;
-  --c-surface-1:     #141414;
-  --c-surface-2:     #1c1c1c;
-  --c-hairline:      #262626;
-  --c-hairline-soft: #1a1a1a;
-  --c-ink:           #ffffff;
-  --c-ink-muted:     #999999;
-  --c-accent:        #0099ff;
-  --c-success:       #22c55e;
-  --c-magenta:       #d44df0;
-  --c-violet:        #6a4cf5;
-  --c-orange:        #ff7a3d;
-  --c-orange2:       #ff7a3d1f;
-  --c-coral:         #ff7a3d;
-
-
+  --container-pad2:   clamp(16px, 7vw, 32px);
 }
 
 [data-theme="light"] {
@@ -76,40 +67,15 @@
   --c-hairline-soft: #eeeeee;
   --c-ink:           #0a0a0a;
   --c-ink-muted:     #6b6b80;
-  --c: rgba(4,3,10,0.55);
-  --b: rgba(4,3,10,0.05);
-  --d: rgba(4,3,10,0.05);
-  --r: rgba(4,3,10,0.65);
+  --c:               rgba(4, 3, 10, 0.55);
+  --b:               rgba(4, 3, 10, 0.05);
+  --d:               rgba(4, 3, 10, 0.05);
+  --r:               rgba(4, 3, 10, 0.65);
 }
-/* [data-theme="light"] {
-  --c-canvas:        #f5f5f5;
-  --c-surface-1:     #ffffff;
-  --c-surface-2:     #eeeeee;
-  --c-hairline:      #dedede;
-  --c-hairline-soft: #e8e8e8;
-  --c-ink:           #0a0a0a;
-  --c-ink-muted:     #666666;
-} */
 
-/* [data-theme="light"] {
-  --c-canvas:        #f0f0f5;
-  --c-surface-1:     #ffffff;
-  --c-surface-2:     #f5f5f8;
-  --c-hairline:      #e4e4e8;
-  --c-hairline-soft: #eeeeee;
-  --c-ink:           #0a0a0a;
-  --c-ink-muted:     #6b6b80;
-} */
-/* 
-[data-theme="light"] {
-  --c-canvas: #eaeaf2;
-  --c-surface-1: #ffffff;
-  --c-surface-2: #f0f0f5;
-  --c-hairline: #e4e4e8;
-  --c-hairline-soft: #eeeeee;
-  --c-ink: #0a0a0a;
-  --c-ink-muted: #6b6b80;
-} */
+/* ============================================================
+   2. BASE RESET
+   ============================================================ */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -132,56 +98,52 @@ body {
 }
 
 /* Custom Scrollbar */
- ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: var(--c-orange);
-    border-radius: var(--r-pill);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-    backdrop-filter: blur(4px);
-    
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--c-orange);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-  
-  ::-webkit-scrollbar-thumb:active {
-    background: var(--c-orange);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-  
-  ::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-  
-  [data-theme="light"] ::-webkit-scrollbar-thumb {
-    background: var(--c-orange-light);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-  
-  [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
-    background: var(--c-orange);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-/* Typography */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-orange);
+  border-radius: var(--r-pill);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background: var(--c-orange);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--c-orange-light);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--c-orange);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* ============================================================
+   3. TYPOGRAPHY UTILITIES
+   ============================================================ */
+
 .t-display-xxl {
   font-family: var(--f-display);
-  font-size: clamp(52px, 9.5vw, 110px);
+  font-size: clamp(3.25rem, 9.5vw, 6.875rem);
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: -3px;
@@ -189,7 +151,7 @@ body {
 
 .t-display-xl {
   font-family: var(--f-display);
-  font-size: clamp(40px, 7vw, 85px);
+  font-size: clamp(2.5rem, 7vw, 5.3125rem);
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: -2px;
@@ -197,7 +159,7 @@ body {
 
 .t-display-lg {
   font-family: var(--f-display);
-  font-size: clamp(32px, 5vw, 62px);
+  font-size: clamp(2rem, 5vw, 3.875rem);
   font-weight: 700;
   line-height: 1.0;
   letter-spacing: -1.5px;
@@ -205,7 +167,7 @@ body {
 
 .t-display-md {
   font-family: var(--f-display);
-  font-size: clamp(24px, 3vw, 32px);
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
   line-height: 1.13;
   letter-spacing: -0.5px;
@@ -221,7 +183,7 @@ body {
 
 .t-body-lg {
   font-family: var(--f-body);
-  font-size: clamp(16px, 2vw, 18px);
+  font-size: clamp(1rem, 2vw, 1.125rem);
   font-weight: 400;
   line-height: 1.6;
 }
@@ -247,6 +209,10 @@ body {
   line-height: 1.2;
 }
 
+/* ============================================================
+   4. GLOBAL COMPONENTS (Buttons, Inputs, Cards)
+   ============================================================ */
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -267,13 +233,8 @@ body {
   overflow: hidden;
 }
 
-.btn:hover {
-  opacity: 0.88;
-}
-
-.btn:active {
-  transform: scale(0.97);
-}
+.btn:hover  { opacity: 0.88; }
+.btn:active { transform: scale(0.97); }
 
 .btn-primary {
   background: var(--c-ink);
@@ -292,6 +253,73 @@ body {
   border: 1px solid var(--c-hairline);
 }
 
+/* Input */
+.input {
+  background: var(--c-surface-1);
+  color: var(--c-ink);
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-hairline);
+  font-size: 0.9375rem;
+  font-family: var(--f-body);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.15);
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+/* Cards */
+.card {
+  background: var(--c-surface-1);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--c-hairline);
+  padding: 24px;
+}
+
+.card-featured {
+  background: var(--c-surface-2);
+  border-color: rgba(106, 76, 245, 0.38);
+}
+
+/* Back to Top */
+.back-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 999;
+}
+
+.back-to-top.visible { opacity: 1; transform: translateY(0); }
+.back-to-top:hover   { background: var(--c-surface-2); }
+
+/* ============================================================
+   5. ANIMATIONS & EFFECTS (Ripple, Reveal)
+   ============================================================ */
+
 /* Ripple Effect */
 .ripple {
   position: absolute;
@@ -303,7 +331,7 @@ body {
 }
 
 [data-theme="light"] .ripple {
-  background: rgba(239, 0, 0, 0.1);
+  background: rgba(0, 153, 255, 0.1);
 }
 
 @keyframes ripple-anim {
@@ -329,72 +357,3 @@ body {
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
 .reveal-delay-4 { transition-delay: 0.4s; }
-
-/* Cards */
-.card {
-  background: var(--c-surface-1);
-  border-radius: var(--r-xl);
-  border: 1px solid var(--c-hairline);
-  padding: 24px;
-}
-
-.card-featured {
-  background: var(--c-surface-2);
-  border-color: rgba(106, 76, 245, 0.38);
-}
-
-/* Input */
-.input {
-  background: var(--c-surface-1);
-  color: var(--c-ink);
-  padding: 10px 14px;
-  border-radius: var(--r-md);
-  border: 1px solid var(--c-hairline);
-  font-size: 0.9375rem;
-  font-family: var(--f-body);
-  width: 100%;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.input:focus {
-  border-color: var(--c-accent);
-  box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.15);
-}
-
-/*Container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--container-pad);
-}
-
-/* Back to Top */
-.back-to-top {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--r-full);
-  background: var(--c-surface-1);
-  border: 1px solid var(--c-hairline);
-  color: var(--c-ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.3s, transform 0.3s;
-  z-index: 999;
-}
-
-.back-to-top.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.back-to-top:hover {
-  background: var(--c-surface-2);
-}
