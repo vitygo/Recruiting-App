@@ -9,7 +9,11 @@ import styles from './EditJobModal.module.css'
 export type EditJobData = {
   title: string
   department: string
+  location: string
   status: Job['status']
+  salaryMin: number
+  salaryMax: number
+  description: string
 }
 
 type Props = {
@@ -19,15 +23,27 @@ type Props = {
 }
 
 export function EditJobModal({ job, onClose, onSave }: Props) {
-  const [form, setForm] = useState<EditJobData>({
+  const [form, setForm] = useState({
     title: job.title,
     department: job.department,
+    location: job.location ?? '',
     status: job.status,
+    salaryMin: job.salaryMin?.toString() ?? '',
+    salaryMax: job.salaryMax?.toString() ?? '',
+    description: job.description ?? '',
   })
 
   const handleSubmit = () => {
     if (!form.title || !form.department) return
-    onSave(form)
+    onSave({
+      title: form.title,
+      department: form.department,
+      location: form.location,
+      status: form.status as Job['status'],
+      salaryMin: Number(form.salaryMin) || 0,
+      salaryMax: Number(form.salaryMax) || 0,
+      description: form.description,
+    })
     onClose()
   }
 
@@ -54,13 +70,21 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
             placeholder="Senior Full-Stack Engineer"
           />
 
-          <FormInput
-            label="Department"
-            required
-            value={form.department}
-            onChange={v => setForm(p => ({ ...p, department: v }))}
-            placeholder="Engineering"
-          />
+          <div className={styles.twoCol}>
+            <FormInput
+              label="Department"
+              required
+              value={form.department}
+              onChange={v => setForm(p => ({ ...p, department: v }))}
+              placeholder="Engineering"
+            />
+            <FormInput
+              label="Location"
+              value={form.location}
+              onChange={v => setForm(p => ({ ...p, location: v }))}
+              placeholder="Kyiv, Ukraine"
+            />
+          </div>
 
           <div className={styles.modalSection}>
             <div className={styles.modalSectionLabel}>Status</div>
@@ -69,6 +93,34 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
               value={form.status}
               onChange={v => setForm(p => ({ ...p, status: v as Job['status'] }))}
               options={JOB_STATUS_EDIT_OPTIONS}
+            />
+          </div>
+
+          <div className={styles.twoCol}>
+            <FormInput
+              label="Salary min ($)"
+              value={form.salaryMin}
+              onChange={v => setForm(p => ({ ...p, salaryMin: v }))}
+              placeholder="3000"
+              type="number"
+            />
+            <FormInput
+              label="Salary max ($)"
+              value={form.salaryMax}
+              onChange={v => setForm(p => ({ ...p, salaryMax: v }))}
+              placeholder="6000"
+              type="number"
+            />
+          </div>
+
+          <div className={styles.modalSection}>
+            <div className={styles.modalSectionLabel}>Description</div>
+            <textarea
+              className={styles.textarea}
+              value={form.description}
+              onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+              placeholder="Describe the role, responsibilities and requirements..."
+              rows={4}
             />
           </div>
         </div>

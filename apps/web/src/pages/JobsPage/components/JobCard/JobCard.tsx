@@ -1,4 +1,5 @@
-import { Briefcase, MapPin, CurrencyDollar, ArrowRight, PencilSimple } from '@phosphor-icons/react'
+import { useState } from 'react'
+import { Briefcase, MapPin, CurrencyDollar, ArrowRight, PencilSimple, CaretDown } from '@phosphor-icons/react'
 import type { Job } from '../../../../types'
 import { TYPE_LABELS } from '../../constants'
 import styles from './JobCard.module.css'
@@ -26,6 +27,8 @@ type Props = {
 }
 
 export function JobCard({ job, metrics, onViewPipeline, onEdit }: Props) {
+  const [descExpanded, setDescExpanded] = useState(false)
+
   const statusClass =
     job.status === 'OPEN' ? styles.statusOpen :
     job.status === 'ACTIVE' ? styles.statusActive :
@@ -75,6 +78,26 @@ export function JobCard({ job, metrics, onViewPipeline, onEdit }: Props) {
           </span>
         )}
       </div>
+
+      {job.description && (
+        <div className={styles.descSection}>
+          <button
+            className={styles.descToggle}
+            onClick={e => { e.stopPropagation(); setDescExpanded(v => !v) }}
+            aria-expanded={descExpanded}
+          >
+            <span>Description</span>
+            <CaretDown
+              size={12}
+              weight="bold"
+              className={descExpanded ? styles.caretOpen : styles.caretClosed}
+            />
+          </button>
+          {descExpanded && (
+            <p className={styles.descText}>{job.description}</p>
+          )}
+        </div>
+      )}
 
       <div className={styles.metricsRow}>
         <div className={styles.metricChip}>

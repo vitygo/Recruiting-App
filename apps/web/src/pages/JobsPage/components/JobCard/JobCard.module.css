@@ -141,6 +141,56 @@
   letter-spacing: -0.13px;
 }
 
+/* ── Description accordion ────────────────────────────────── */
+
+.descSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.descToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 100%;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--c-ink-muted);
+  font-family: var(--f-body);
+  transition: color 0.15s;
+}
+
+.descToggle:hover {
+  color: var(--c-ink);
+}
+
+.caretClosed {
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+}
+
+.caretOpen {
+  transition: transform 0.2s ease;
+  transform: rotate(180deg);
+}
+
+.descText {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--c-canvas);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+}
+
 /* ── Metrics strip ─────────────────────────────────────────── */
 
 .metricsRow {
