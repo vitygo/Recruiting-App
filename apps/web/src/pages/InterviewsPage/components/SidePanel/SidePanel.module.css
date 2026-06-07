@@ -1,0 +1,66 @@
+.sideCard {
+  background: var(--c-surface-1);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+[data-theme="dark"] .sideCard {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sideTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  letter-spacing: -0.3px;
+}
+
+.upcomingList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upcomingItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--c-surface-2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.upcomingItem:hover {
+  opacity: 0.8;
+}
+
+.upcomingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.upcomingName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--c-ink);
+  letter-spacing: -0.13px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcomingTime {
+  font-size: 0.75rem;
+  color: var(--c-ink-muted);
+  flex-shrink: 0;
+}

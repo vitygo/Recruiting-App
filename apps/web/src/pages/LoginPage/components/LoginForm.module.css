@@ -1,0 +1,155 @@
+.formTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--c-ink);
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.formSub {
+  font-size: 0.875rem;
+  color: var(--c-ink-muted);
+  margin-bottom: 28px;
+}
+
+.formSub a {
+  color: var(--c-orange);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.formSub a:hover {
+  text-decoration: underline;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  margin-bottom: 6px;
+}
+
+.formInput {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--c-ink);
+  font-size: 0.9375rem;
+  font-family: var(--f-body);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+[data-theme="light"] .formInput {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(106, 76, 245, 0.15);
+}
+
+.formInput::placeholder {
+  color: var(--c-ink-muted);
+  opacity: 0.5;
+}
+
+.formInput:focus {
+  border-color: rgba(106, 76, 245, 0.6);
+  box-shadow: 0 0 0 3px rgba(106, 76, 245, 0.15);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 100px;
+  background: var(--c-ink);
+  color: var(--c-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: var(--f-body);
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.submitBtn:hover {
+  opacity: 0.88;
+}
+
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .dividerLine {
+  background: rgba(106, 76, 245, 0.1);
+}
+
+.dividerText {
+  font-size: 0.75rem;
+  color: var(--c-ink-muted);
+  opacity: 0.6;
+}
+
+.googleBtn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--c-ink);
+  font-size: 0.875rem;
+  font-family: var(--f-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.googleBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .googleBtn {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(106, 76, 245, 0.12);
+}
+
+.formFooter {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+}
+
+.formFooter a {
+  color: var(--c-orange);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.formFooter a:hover {
+  text-decoration: underline;
+}

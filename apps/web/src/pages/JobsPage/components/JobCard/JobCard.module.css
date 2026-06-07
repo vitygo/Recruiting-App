@@ -1,0 +1,135 @@
+.card {
+  background: var(--c-surface-1);
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+[data-theme="dark"] .card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.jobIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 122, 61, 0.1);
+  color: var(--c-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardTitleWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+
+.cardDept {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  letter-spacing: -0.13px;
+}
+
+.statusBadge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  flex-shrink: 0;
+}
+
+.statusOpen {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--c-success);
+}
+
+.statusPaused {
+  background: rgba(255, 122, 61, 0.1);
+  color: var(--c-orange);
+}
+
+.statusClosed {
+  background: rgba(153, 153, 153, 0.1);
+  color: var(--c-ink-muted);
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  letter-spacing: -0.13px;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-hairline-soft);
+}
+
+.candidatesWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.candidatesCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  letter-spacing: -0.14px;
+}
+
+.candidatesLabel {
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+}
+
+.typeBadge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: rgba(0, 153, 255, 0.1);
+  color: var(--c-accent);
+}

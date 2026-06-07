@@ -1,0 +1,56 @@
+.dayGroup {
+  margin-bottom: 20px;
+}
+
+.dayGroup:last-child {
+  margin-bottom: 0;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.dayLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--c-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.dayLabelToday {
+  color: var(--c-orange);
+}
+
+.dayCount {
+  font-size: 0.6875rem;
+  color: var(--c-ink-muted);
+  background: var(--c-surface-2);
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+
+.dayDivider {
+  flex: 1;
+  height: 1px;
+  background: var(--c-hairline-soft);
+}
+
+.dayItems {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: 10px;
+  transition: background 0.2s;
+  min-height: 48px;
+}
+
+.dayItemsOver {
+  background: rgba(255, 122, 61, 0.04);
+  border-radius: 10px;
+}
