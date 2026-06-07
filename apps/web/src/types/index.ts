@@ -16,7 +16,7 @@ export interface User {
     salaryMin?: number
     salaryMax?: number
     description: string
-    status: 'OPEN' | 'PAUSED' | 'CLOSED'
+    status: 'OPEN' | 'ACTIVE' | 'REVIEWING' | 'ENDED' | 'PAUSED' | 'CLOSED'
     createdAt: string
     userId: string
     _count?: { candidates: number }
@@ -71,6 +71,8 @@ export interface User {
     meetLink?: string
     status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW'
     scorecard?: string
+    notes?: string
+    interviewerName?: string
     createdAt: string
     candidate?: Candidate
   }

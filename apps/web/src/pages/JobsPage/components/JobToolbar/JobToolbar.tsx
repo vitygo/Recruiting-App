@@ -1,13 +1,11 @@
 import { MagnifyingGlass, Plus } from '@phosphor-icons/react'
 import { Select } from '../../../../components/ui/Select'
-import { STATUS_OPTIONS, TYPE_OPTIONS } from '../../constants'
+import { TYPE_OPTIONS } from '../../constants'
 import styles from './JobToolbar.module.css'
 
 type Props = {
   search: string
   onSearchChange: (v: string) => void
-  statusFilter: string
-  onStatusFilterChange: (v: string) => void
   typeFilter: string
   onTypeFilterChange: (v: string) => void
   onAddClick: () => void
@@ -16,8 +14,6 @@ type Props = {
 export function JobToolbar({
   search,
   onSearchChange,
-  statusFilter,
-  onStatusFilterChange,
   typeFilter,
   onTypeFilterChange,
   onAddClick,
@@ -33,12 +29,6 @@ export function JobToolbar({
           onChange={e => onSearchChange(e.target.value)}
         />
       </div>
-
-      <Select
-        value={statusFilter}
-        onChange={onStatusFilterChange}
-        options={STATUS_OPTIONS}
-      />
 
       <Select
         value={typeFilter}

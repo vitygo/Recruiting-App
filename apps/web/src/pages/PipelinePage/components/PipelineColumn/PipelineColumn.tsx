@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Plus } from '@phosphor-icons/react'
 import { SortableCard } from '../PipelineCard/PipelineCard'
-import type { CandidateJob, PipelineStage } from '../../../../types'
+import type { CandidateJob } from '../../../../types'
 import type { STAGES } from '../../constants'
 import styles from './PipelineColumn.module.css'
 
@@ -10,31 +10,36 @@ interface PipelineColumnProps {
   stage: typeof STAGES[0]
   items: CandidateJob[]
   onCardClick: (item: CandidateJob) => void
-  onAddClick: (stage: PipelineStage) => void
+  onDeleteItem?: (itemId: string) => void
+  onAddClick: () => void
 }
 
-export function PipelineColumn({ stage, items, onCardClick, onAddClick }: PipelineColumnProps) {
+export function PipelineColumn({ stage, items, onCardClick, onDeleteItem, onAddClick }: PipelineColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id })
 
   return (
     <div className={styles.column}>
       <div className={styles.columnHeader}>
-        <div className={styles.columnDot} style={{ background: stage.color }} />
+        <div className={styles.columnDot} style={{ background: stage.color }} aria-hidden="true" />
         <span className={styles.columnTitle}>{stage.label}</span>
-        <span className={styles.columnCount}>{items.length}</span>
+        <span className={styles.columnCount} aria-label={`${items.length} candidates`}>{items.length}</span>
       </div>
       <div
         ref={setNodeRef}
         className={`${styles.columnCards} ${isOver ? styles.columnDropzoneActive : ''}`}
-        style={{ minHeight: 80 }}
       >
         <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
           {items.map(item => (
-            <SortableCard key={item.id} item={item} onClick={() => onCardClick(item)} />
+            <SortableCard key={item.id} item={item} onClick={() => onCardClick(item)} onDelete={onDeleteItem} />
           ))}
         </SortableContext>
-        <button className={styles.addCardBtn} onClick={() => onAddClick(stage.id)}>
-          <Plus size={13} weight="bold" />
+        <button
+          type="button"
+          className={styles.addCardBtn}
+          onClick={onAddClick}
+          aria-label={`Add candidate to ${stage.label}`}
+        >
+          <Plus size={13} weight="bold" aria-hidden="true" />
           Add candidate
         </button>
       </div>

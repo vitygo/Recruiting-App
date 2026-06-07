@@ -7,9 +7,10 @@ interface CandidateGridProps {
   candidates: Candidate[]
   isLoading: boolean
   onCandidateClick: (candidate: Candidate) => void
+  onDelete?: (id: string) => void
 }
 
-export function CandidateGrid({ candidates, isLoading, onCandidateClick }: CandidateGridProps) {
+export function CandidateGrid({ candidates, isLoading, onCandidateClick, onDelete }: CandidateGridProps) {
   return (
     <div className={styles.grid}>
       {isLoading ? (
@@ -24,7 +25,12 @@ export function CandidateGrid({ candidates, isLoading, onCandidateClick }: Candi
         </div>
       ) : (
         candidates.map(candidate => (
-          <CandidateCard key={candidate.id} candidate={candidate} onClick={onCandidateClick} />
+          <CandidateCard
+            key={candidate.id}
+            candidate={candidate}
+            onClick={onCandidateClick}
+            onDelete={onDelete}
+          />
         ))
       )}
     </div>

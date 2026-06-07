@@ -5,11 +5,27 @@ import { AppLayout } from '../../components/layout/AppLayout'
 import { candidatesApi } from '../../api/candidates'
 import { useDebounce } from '../../hooks/useDebounce'
 import type { Candidate } from '../../types'
+import { loadDemoPipeline, deleteCandidateFromDemo } from '../../lib/demoStorage'
 import { CandidateStats } from './components/CandidateStats/CandidateStats'
 import { CandidateToolbar } from './components/CandidateToolbar/CandidateToolbar'
 import { CandidateGrid } from './components/CandidateGrid/CandidateGrid'
 import { CandidateFormModal } from './components/CandidateFormModal/CandidateFormModal'
 import styles from './index.module.css'
+
+function buildDemoCandidates(): Candidate[] {
+  const pipeline = loadDemoPipeline()
+  const seen = new Set<string>()
+  const result: Candidate[] = []
+  for (const cj of pipeline) {
+    if (!cj.candidate || seen.has(cj.candidate.id)) continue
+    seen.add(cj.candidate.id)
+    result.push({
+      ...cj.candidate,
+      candidateJobs: pipeline.filter(x => x.candidateId === cj.candidate!.id),
+    })
+  }
+  return result
+}
 
 export default function CandidatesPage() {
   const queryClient = useQueryClient()
@@ -18,6 +34,8 @@ export default function CandidatesPage() {
   const [stageFilter, setStageFilter] = useState('All')
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
+  const [demoCandidates, setDemoCandidates] = useState<Candidate[]>(() => buildDemoCandidates())
+  const [toast, setToast] = useState<string | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
 
@@ -41,17 +59,37 @@ export default function CandidatesPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidates'] }),
   })
 
-  const candidates = data?.candidates || []
-  const total = data?.total || 0
+  const apiCandidates = data?.candidates ?? []
+  const isDemoMode = !isLoading && apiCandidates.length === 0
+
+  const candidates = isDemoMode ? demoCandidates : apiCandidates
+  const total = isDemoMode ? demoCandidates.length : (data?.total ?? 0)
 
   const filtered = useMemo(() => {
-    if (stageFilter === 'All') return candidates
-    return candidates.filter(c => c.candidateJobs?.some(cj => cj.stage === stageFilter))
-  }, [candidates, stageFilter])
+    let list = candidates
+    if (isDemoMode) {
+      if (debouncedSearch) {
+        const q = debouncedSearch.toLowerCase()
+        list = list.filter(c =>
+          `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
+          c.email.toLowerCase().includes(q),
+        )
+      }
+      if (sourceFilter !== 'All') {
+        list = list.filter(c => c.source === sourceFilter)
+      }
+    }
+    if (stageFilter !== 'All') {
+      list = list.filter(c => c.candidateJobs?.some(cj => cj.stage === stageFilter))
+    }
+    return list
+  }, [candidates, isDemoMode, debouncedSearch, sourceFilter, stageFilter])
 
   const stats = useMemo(() => ({
     hired: candidates.filter(c => c.candidateJobs?.some(cj => cj.stage === 'HIRED')).length,
-    inPipeline: candidates.filter(c => c.candidateJobs?.some(cj => !['HIRED', 'REJECTED'].includes(cj.stage))).length,
+    inPipeline: candidates.filter(c =>
+      c.candidateJobs?.some(cj => !['HIRED', 'REJECTED'].includes(cj.stage)),
+    ).length,
   }), [candidates])
 
   const STATS = [
@@ -61,9 +99,24 @@ export default function CandidatesPage() {
     { label: 'Hired this month', icon: UserCheck, iconBg: 'rgba(0,153,255,0.1)', iconColor: 'var(--c-accent)', value: stats.hired.toString() },
   ]
 
+  const handleDeleteCandidate = (id: string) => {
+    const c = demoCandidates.find(x => x.id === id)
+    setDemoCandidates(prev => prev.filter(x => x.id !== id))
+    deleteCandidateFromDemo(id)
+    const name = c ? `${c.firstName} ${c.lastName}` : 'Candidate'
+    setToast(`${name} removed`)
+    setTimeout(() => setToast(null), 3000)
+  }
+
   return (
     <AppLayout title="Candidates">
       <div className={styles.page}>
+        {isDemoMode && (
+          <div className={styles.demoBanner}>
+            Demo mode — showing sample candidates. Add real data to replace this view.
+          </div>
+        )}
+
         <CandidateStats stats={STATS} isLoading={isLoading} />
 
         <CandidateToolbar
@@ -80,8 +133,15 @@ export default function CandidatesPage() {
           candidates={filtered}
           isLoading={isLoading}
           onCandidateClick={setSelectedCandidate}
+          onDelete={isDemoMode ? handleDeleteCandidate : undefined}
         />
       </div>
+
+      {toast && (
+        <div className={styles.toast} role="status" aria-live="polite">
+          {toast}
+        </div>
+      )}
 
       {showAddModal && (
         <CandidateFormModal

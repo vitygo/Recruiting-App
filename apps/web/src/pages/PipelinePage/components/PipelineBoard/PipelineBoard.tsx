@@ -1,15 +1,16 @@
 import { PipelineColumn } from '../PipelineColumn/PipelineColumn'
 import { STAGES } from '../../constants'
-import type { CandidateJob, PipelineStage } from '../../../../types'
+import type { CandidateJob } from '../../../../types'
 import styles from './PipelineBoard.module.css'
 
 interface PipelineBoardProps {
   getByStage: (stageId: string) => CandidateJob[]
   onCardClick: (item: CandidateJob) => void
-  onAddClick: (stage: PipelineStage) => void
+  onDeleteItem?: (itemId: string) => void
+  onAddClick: () => void
 }
 
-export function PipelineBoard({ getByStage, onCardClick, onAddClick }: PipelineBoardProps) {
+export function PipelineBoard({ getByStage, onCardClick, onDeleteItem, onAddClick }: PipelineBoardProps) {
   return (
     <div className={styles.board}>
       {STAGES.map(stage => (
@@ -18,6 +19,7 @@ export function PipelineBoard({ getByStage, onCardClick, onAddClick }: PipelineB
           stage={stage}
           items={getByStage(stage.id)}
           onCardClick={onCardClick}
+          onDeleteItem={onDeleteItem}
           onAddClick={onAddClick}
         />
       ))}

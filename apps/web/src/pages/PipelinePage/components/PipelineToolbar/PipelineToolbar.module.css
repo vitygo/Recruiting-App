@@ -1,21 +1,64 @@
 .toolbar {
   display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+/* ── Job tab strip ─────────────────────────────────────────────────────────── */
+
+.jobTabs {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.jobTab {
+  padding: 0.375rem 0.875rem;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--c-hairline);
+  background: var(--c-surface-1);
+  color: var(--c-ink-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: var(--f-body);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.jobTab:hover {
+  border-color: var(--c-orange);
+  color: var(--c-orange);
+}
+
+.jobTabActive {
+  background: rgba(255, 122, 61, 0.1);
+  border-color: var(--c-orange);
+  color: var(--c-orange);
+  font-weight: 600;
+}
+
+/* ── Search + Add row ──────────────────────────────────────────────────────── */
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
 .searchWrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   background: var(--c-surface-1);
   border: none;
   border-radius: var(--r-pill);
-  padding: 8px 16px;
+  padding: 0.5rem 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   flex: 1;
-  max-width: 280px;
+  max-width: 17.5rem;
 }
 
 [data-theme="dark"] .searchWrap {
@@ -39,12 +82,12 @@
 .addBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   background: var(--c-orange);
   color: #fff;
   border: none;
   border-radius: var(--r-pill);
-  padding: 8px 18px;
+  padding: 0.5rem 1.125rem;
   font-size: 0.8125rem;
   font-weight: 600;
   font-family: var(--f-body);

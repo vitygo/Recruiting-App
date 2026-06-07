@@ -4,6 +4,7 @@ import { candidatesApi } from '../../api/candidates'
 import { jobsApi } from '../../api/jobs'
 import { pipelineApi } from '../../api/pipeline'
 import { interviewsApi } from '../../api/interviews'
+import { DEMO_PIPELINE, DEMO_JOBS, DEMO_INTERVIEWS } from '../PipelinePage/constants'
 import { PipelineTracker } from './components/PipelineTracker/PipelineTracker'
 import { ActiveJobs } from './components/ActiveJobs/ActiveJobs'
 import { UpcomingInterviews } from './components/UpcomingInterviews/UpcomingInterviews'
@@ -23,6 +24,8 @@ const STAGE_COLORS: Record<string, string> = {
   HIRED: 'var(--c-success)',
 }
 
+const DEMO_TOTAL_CANDIDATES = new Set(DEMO_PIPELINE.map(cj => cj.candidateId)).size
+
 export default function DashboardPage() {
   const { data: candidatesData } = useQuery({
     queryKey: ['candidates'],
@@ -34,7 +37,7 @@ export default function DashboardPage() {
     queryFn: () => jobsApi.getAll(),
   })
 
-  const { data: pipelineData } = useQuery({
+  const { data: pipelineData, isLoading: pipelineLoading } = useQuery({
     queryKey: ['pipeline'],
     queryFn: () => pipelineApi.getAll(),
   })
@@ -44,8 +47,8 @@ export default function DashboardPage() {
     queryFn: () => interviewsApi.getAll(),
   })
 
-  const totalCandidates = candidatesData?.total || 0
-  const activeJobs = jobsData?.jobs.filter(j => j.status === 'OPEN').length || 0
+  const pipeline = pipelineData?.pipeline || []
+  const isDemoMode = !pipelineLoading && pipeline.length === 0
 
   const now = new Date()
   const weekStart = new Date(now)
@@ -53,26 +56,53 @@ export default function DashboardPage() {
   const weekEnd = new Date(weekStart)
   weekEnd.setDate(weekStart.getDate() + 7)
 
-  const interviewsThisWeek = interviewsData?.interviews.filter(iv => {
-    const d = new Date(iv.scheduledAt)
-    return d >= weekStart && d <= weekEnd
-  }).length || 0
+  const totalCandidates = isDemoMode
+    ? DEMO_TOTAL_CANDIDATES
+    : (candidatesData?.total || 0)
 
-  const pipeline = pipelineData?.pipeline || []
-  const pipelineByStage = STAGE_ORDER.map(stage => ({
-    label: stage,
-    short: STAGE_SHORT[stage],
-    count: pipeline.filter(p => p.stage === stage).length,
-    max: Math.max(pipeline.length, 1),
-    color: STAGE_COLORS[stage],
-  }))
+  const activeJobs = isDemoMode
+    ? DEMO_JOBS.filter(j => j.status === 'OPEN').length
+    : (jobsData?.jobs.filter(j => j.status === 'OPEN').length || 0)
 
-  const upcomingInterviews = (interviewsData?.interviews || [])
-    .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
-    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
-    .slice(0, 4)
+  const interviewsThisWeek = isDemoMode
+    ? DEMO_INTERVIEWS.filter(iv => {
+        const d = new Date(iv.scheduledAt)
+        return d >= weekStart && d <= weekEnd
+      }).length
+    : (interviewsData?.interviews.filter(iv => {
+        const d = new Date(iv.scheduledAt)
+        return d >= weekStart && d <= weekEnd
+      }).length || 0)
 
-  const recentJobs = jobsData?.jobs.slice(0, 3) || []
+  const pipelineByStage = isDemoMode
+    ? STAGE_ORDER.map(stage => ({
+        label: stage,
+        short: STAGE_SHORT[stage],
+        count: DEMO_PIPELINE.filter(p => p.stage === stage).length,
+        max: Math.max(DEMO_PIPELINE.length, 1),
+        color: STAGE_COLORS[stage],
+      }))
+    : STAGE_ORDER.map(stage => ({
+        label: stage,
+        short: STAGE_SHORT[stage],
+        count: pipeline.filter(p => p.stage === stage).length,
+        max: Math.max(pipeline.length, 1),
+        color: STAGE_COLORS[stage],
+      }))
+
+  const upcomingInterviews = isDemoMode
+    ? DEMO_INTERVIEWS
+        .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
+        .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+        .slice(0, 2)
+    : (interviewsData?.interviews || [])
+        .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
+        .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+        .slice(0, 4)
+
+  const recentJobs = isDemoMode
+    ? DEMO_JOBS.slice(0, 3)
+    : (jobsData?.jobs.slice(0, 3) || [])
 
   return (
     <AppLayout title="Dashboard">

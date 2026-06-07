@@ -1,10 +1,10 @@
 .card {
   background: var(--c-surface-1);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 1rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0.875rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
@@ -26,12 +26,48 @@
 .cardTop {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
+}
+
+.cardIdentity {
+  flex: 1;
+  min-width: 0;
+}
+
+.deleteBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--c-ink-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.card:hover .deleteBtn {
+  opacity: 1;
+}
+
+.deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.deleteBtn:focus-visible {
+  outline: 2px solid #ef4444;
+  outline-offset: 1px;
+  opacity: 1;
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -59,41 +95,50 @@
   font-size: 0.8125rem;
   color: var(--c-ink-muted);
   letter-spacing: -0.13px;
-  margin-top: 2px;
+  margin-top: 0.125rem;
 }
 
 .cardMeta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   flex-wrap: wrap;
 }
 
 .metaItem {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.25rem;
   font-size: 0.75rem;
   color: var(--c-ink-muted);
+}
+
+.generalPoolBadge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.1875rem 0.625rem;
+  border-radius: var(--r-pill);
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
 }
 
 .cardFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 12px;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--c-hairline-soft);
 }
 
 .scoreWrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .scoreBar {
-  width: 64px;
-  height: 4px;
+  width: 4rem;
+  height: 0.25rem;
   background: var(--c-surface-2);
   border-radius: var(--r-pill);
   overflow: hidden;
@@ -113,20 +158,20 @@
 
 .badges {
   display: flex;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .sourceBadge {
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 10px;
+  padding: 0.1875rem 0.625rem;
   border-radius: var(--r-pill);
 }
 
 .stageBadge {
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 10px;
+  padding: 0.1875rem 0.625rem;
   border-radius: var(--r-pill);
   letter-spacing: -0.1px;
 }

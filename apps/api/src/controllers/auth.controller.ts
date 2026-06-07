@@ -106,17 +106,25 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       return
     }
 
-    await prisma.refreshToken.deleteMany({ where: { token } })
-
     const newRefreshToken = generateRefreshToken(payload.userId)
     const newAccessToken  = generateAccessToken(payload.userId)
 
+    // Create the new token before expiring the old one so concurrent requests
+    // that race to refresh simultaneously don't land in an unauthenticated state.
     await prisma.refreshToken.create({
       data: {
         token:     newRefreshToken,
         userId:    payload.userId,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
+    })
+
+    // Give the old token a 10-second grace window instead of deleting instantly.
+    // Any concurrent request that still carries the old cookie can complete its
+    // refresh without hitting a 401 before the browser adopts the new cookie.
+    await prisma.refreshToken.update({
+      where: { token },
+      data:  { expiresAt: new Date(Date.now() + 10_000) },
     })
 
     res.cookie('refreshToken', newRefreshToken, {

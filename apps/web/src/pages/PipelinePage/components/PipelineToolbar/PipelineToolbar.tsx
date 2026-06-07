@@ -1,5 +1,4 @@
 import { MagnifyingGlass, Plus } from '@phosphor-icons/react'
-import { Select } from '../../../../components/ui/Select'
 import styles from './PipelineToolbar.module.css'
 
 interface Job {
@@ -26,29 +25,49 @@ export function PipelineToolbar({
 }: PipelineToolbarProps) {
   return (
     <div className={styles.toolbar}>
-      <div className={styles.searchWrap}>
-        <MagnifyingGlass size={14} weight="bold" color="var(--c-ink-muted)" />
-        <input
-          className={styles.searchInput}
-          placeholder="Search candidates..."
-          value={search}
-          onChange={e => onSearchChange(e.target.value)}
-        />
+      {jobs.length > 0 && (
+        <div className={styles.jobTabs} role="tablist" aria-label="Filter by job">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={jobFilter === 'all'}
+            className={`${styles.jobTab} ${jobFilter === 'all' ? styles.jobTabActive : ''}`}
+            onClick={() => onJobFilterChange('all')}
+          >
+            All jobs
+          </button>
+          {jobs.map(j => (
+            <button
+              key={j.id}
+              type="button"
+              role="tab"
+              aria-selected={jobFilter === j.id}
+              className={`${styles.jobTab} ${jobFilter === j.id ? styles.jobTabActive : ''}`}
+              onClick={() => onJobFilterChange(j.id)}
+            >
+              {j.title}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className={styles.controls}>
+        <div className={styles.searchWrap}>
+          <MagnifyingGlass size={14} weight="bold" color="var(--c-ink-muted)" aria-hidden="true" />
+          <input
+            className={styles.searchInput}
+            placeholder="Search candidates…"
+            value={search}
+            onChange={e => onSearchChange(e.target.value)}
+            aria-label="Search candidates"
+          />
+        </div>
+
+        <button type="button" className={styles.addBtn} onClick={onAddClick}>
+          <Plus size={14} weight="bold" aria-hidden="true" />
+          Add candidate
+        </button>
       </div>
-
-      <Select
-        value={jobFilter}
-        onChange={onJobFilterChange}
-        options={[
-          { value: 'all', label: 'All jobs' },
-          ...jobs.map(j => ({ value: j.id, label: j.title })),
-        ]}
-      />
-
-      <button className={styles.addBtn} onClick={onAddClick}>
-        <Plus size={14} weight="bold" />
-        Add candidate
-      </button>
     </div>
   )
 }

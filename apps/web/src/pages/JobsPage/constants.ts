@@ -8,9 +8,19 @@ export const TYPE_LABELS: Record<string, string> = {
 export const STATUS_OPTIONS = [
   { value: 'All', label: 'All statuses' },
   { value: 'OPEN', label: 'Open' },
-  { value: 'PAUSED', label: 'Paused' },
-  { value: 'CLOSED', label: 'Closed' },
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'REVIEWING', label: 'Reviewing' },
+  { value: 'ENDED', label: 'Ended' },
 ]
+
+export const JOB_STATUS_EDIT_OPTIONS = [
+  { value: 'OPEN', label: 'Open' },
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'REVIEWING', label: 'Reviewing' },
+  { value: 'ENDED', label: 'Ended (Archived)' },
+]
+
+export const ACTIVE_STATUSES = new Set(['OPEN', 'ACTIVE', 'REVIEWING'])
 
 export const TYPE_OPTIONS = [
   { value: 'All', label: 'All types' },

@@ -27,7 +27,7 @@ app.use(cookieParser())
 
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: process.env.NODE_ENV !== 'production' ? 1000 : 500,
   message: 'Too many requests',
 }))
 

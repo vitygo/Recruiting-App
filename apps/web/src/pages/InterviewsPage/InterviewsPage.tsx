@@ -11,6 +11,7 @@ import { interviewsApi } from '../../api/interviews'
 import { candidatesApi } from '../../api/candidates'
 import { jobsApi } from '../../api/jobs'
 import type { Interview } from '../../types'
+import { DEMO_INTERVIEWS } from '../PipelinePage/constants'
 import { DayGroup } from './components/DayGroup/DayGroup'
 import { InterviewCardContent } from './components/InterviewCard/InterviewCard'
 import { InterviewModal } from './components/InterviewModal/InterviewModal'
@@ -30,12 +31,13 @@ export default function InterviewsPage() {
   const [selectedDate, setSelectedDate] = useState<string>('')
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [demoInterviews, setDemoInterviews] = useState<Interview[]>(DEMO_INTERVIEWS)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
 
-  const { data: interviewsData } = useQuery({
+  const { data: interviewsData, isLoading: interviewsLoading } = useQuery({
     queryKey: ['interviews'],
     queryFn: () => interviewsApi.getAll(),
   })
@@ -69,7 +71,9 @@ export default function InterviewsPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['interviews'] }),
   })
 
-  const allInterviews = interviewsData?.interviews || []
+  const apiInterviews = interviewsData?.interviews || []
+  const isDemoMode = !interviewsLoading && apiInterviews.length === 0
+  const allInterviews = isDemoMode ? demoInterviews : apiInterviews
 
   const filtered = useMemo(() => allInterviews.filter(iv => {
     const matchSearch = search === '' ||
@@ -134,15 +138,21 @@ export default function InterviewsPage() {
     const newDate = new Date(fromIv.scheduledAt)
     const toDate = new Date(toDay)
     newDate.setFullYear(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
-    queryClient.setQueryData(['interviews'], (old: { interviews: Interview[] } | undefined) => {
-      if (!old) return old
-      return {
-        ...old,
-        interviews: old.interviews.map(iv =>
-          iv.id === active.id ? { ...iv, scheduledAt: newDate.toISOString() } : iv
-        ),
-      }
-    })
+    if (isDemoMode) {
+      setDemoInterviews(prev => prev.map(iv =>
+        iv.id === active.id ? { ...iv, scheduledAt: newDate.toISOString() } : iv
+      ))
+    } else {
+      queryClient.setQueryData(['interviews'], (old: { interviews: Interview[] } | undefined) => {
+        if (!old) return old
+        return {
+          ...old,
+          interviews: old.interviews.map(iv =>
+            iv.id === active.id ? { ...iv, scheduledAt: newDate.toISOString() } : iv
+          ),
+        }
+      })
+    }
   }
 
   const handleDragEnd = ({ active, over }: {
@@ -156,27 +166,45 @@ export default function InterviewsPage() {
     const toDay = findDay(over.id as string)
     const fromDay = new Date(fromIv.scheduledAt).toDateString()
     if (toDay && fromDay !== toDay) {
-      const newDate = new Date(fromIv.scheduledAt)
-      const toDate = new Date(toDay)
-      newDate.setFullYear(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
-      updateMutation.mutate({ id: active.id as string, data: { scheduledAt: newDate.toISOString() } })
+      if (!isDemoMode) {
+        const newDate = new Date(fromIv.scheduledAt)
+        const toDate = new Date(toDay)
+        newDate.setFullYear(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
+        updateMutation.mutate({ id: active.id as string, data: { scheduledAt: newDate.toISOString() } })
+      }
       return
     }
     if (fromDay === toDay) {
-      queryClient.setQueryData(['interviews'], (old: { interviews: Interview[] } | undefined) => {
-        if (!old) return old
-        const inDay = old.interviews.filter(iv => new Date(iv.scheduledAt).toDateString() === fromDay)
-        const rest = old.interviews.filter(iv => new Date(iv.scheduledAt).toDateString() !== fromDay)
-        const oldIdx = inDay.findIndex(iv => iv.id === active.id)
-        const newIdx = inDay.findIndex(iv => iv.id === over.id)
-        return { ...old, interviews: [...rest, ...arrayMove(inDay, oldIdx, newIdx)] }
-      })
+      if (isDemoMode) {
+        setDemoInterviews(prev => {
+          const inDay = prev.filter(iv => new Date(iv.scheduledAt).toDateString() === fromDay)
+          const rest = prev.filter(iv => new Date(iv.scheduledAt).toDateString() !== fromDay)
+          const oldIdx = inDay.findIndex(iv => iv.id === active.id)
+          const newIdx = inDay.findIndex(iv => iv.id === over.id)
+          return [...rest, ...arrayMove(inDay, oldIdx, newIdx)]
+        })
+      } else {
+        queryClient.setQueryData(['interviews'], (old: { interviews: Interview[] } | undefined) => {
+          if (!old) return old
+          const inDay = old.interviews.filter(iv => new Date(iv.scheduledAt).toDateString() === fromDay)
+          const rest = old.interviews.filter(iv => new Date(iv.scheduledAt).toDateString() !== fromDay)
+          const oldIdx = inDay.findIndex(iv => iv.id === active.id)
+          const newIdx = inDay.findIndex(iv => iv.id === over.id)
+          return { ...old, interviews: [...rest, ...arrayMove(inDay, oldIdx, newIdx)] }
+        })
+      }
     }
   }
 
   return (
     <AppLayout title="Interviews">
       <div className={styles.page}>
+        {isDemoMode && (
+          <div className={styles.demoBanner}>
+            Demo mode — showing sample interviews. Add real data to replace this view.
+          </div>
+        )}
+
         <div className={styles.statsRow}>
           {STATS.map((stat, i) => (
             <div key={i} className={styles.statCard}>
@@ -199,6 +227,7 @@ export default function InterviewsPage() {
               placeholder="Search interviews..."
               value={search}
               onChange={e => setSearch(e.target.value)}
+              aria-label="Search interviews"
             />
           </div>
 
@@ -211,7 +240,11 @@ export default function InterviewsPage() {
             </button>
           )}
 
-          <button className={styles.addBtn} onClick={() => setShowScheduleModal(true)}>
+          <button
+            className={styles.addBtn}
+            onClick={() => setShowScheduleModal(true)}
+            aria-label="Schedule a new interview"
+          >
             <Plus size={14} weight="bold" />
             Schedule interview
           </button>
@@ -262,8 +295,24 @@ export default function InterviewsPage() {
         <InterviewModal
           interview={selectedInterview}
           onClose={() => setSelectedInterview(null)}
-          onSave={data => updateMutation.mutate({ id: selectedInterview.id, data })}
-          onDelete={id => deleteMutation.mutate(id)}
+          onSave={data => {
+            if (isDemoMode) {
+              setDemoInterviews(prev => prev.map(iv =>
+                iv.id === selectedInterview.id ? { ...iv, ...data } : iv
+              ))
+              setSelectedInterview(null)
+            } else {
+              updateMutation.mutate({ id: selectedInterview.id, data })
+            }
+          }}
+          onDelete={id => {
+            if (isDemoMode) {
+              setDemoInterviews(prev => prev.filter(iv => iv.id !== id))
+              setSelectedInterview(null)
+            } else {
+              deleteMutation.mutate(id)
+            }
+          }}
         />
       )}
 
