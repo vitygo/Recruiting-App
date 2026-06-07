@@ -135,7 +135,7 @@ export default function DashboardPage() {
     <AppLayout title="Dashboard">
       <div className={styles.dashboardContainer}>
         <div className={styles.topSection}>
-          <PipelineTracker pipelineByStage={pipelineByStage} totalCandidates={totalCandidates} />
+          <PipelineTracker pipelineByStage={pipelineByStage} totalCandidates={totalCandidates} pipeline={pipelineSource} />
           <ActiveJobs jobs={recentJobs} onSeeAll={() => navigate('/jobs')} />
         </div>
 

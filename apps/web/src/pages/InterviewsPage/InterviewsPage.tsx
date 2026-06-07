@@ -199,12 +199,6 @@ export default function InterviewsPage() {
   return (
     <AppLayout title="Interviews">
       <div className={styles.page}>
-        {isDemoMode && (
-          <div className={styles.demoBanner}>
-            Demo mode — showing sample interviews. Add real data to replace this view.
-          </div>
-        )}
-
         <div className={styles.statsRow}>
           {STATS.map((stat, i) => (
             <div key={i} className={styles.statCard}>

@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { X } from '@phosphor-icons/react'
 import { Select } from '../../../../components/ui/Select'
 import { FormInput } from '../../../../components/ui/FormInput'
-import { JOB_TYPE_OPTIONS } from '../../constants'
+import { TechMultiSelect } from '../../../../components/ui/TechMultiSelect'
+import { JOB_TYPE_OPTIONS, TECHNOLOGIES_LIST } from '../../constants'
 import styles from './AddJobModal.module.css'
 
 export type AddJobData = {
@@ -13,6 +14,7 @@ export type AddJobData = {
   salaryMin: number
   salaryMax: number
   description: string
+  technologies: string[]
 }
 
 type Props = {
@@ -29,6 +31,7 @@ export function AddJobModal({ onClose, onAdd }: Props) {
     salaryMin: '',
     salaryMax: '',
     description: '',
+    technologies: [] as string[],
   })
 
   const handleSubmit = () => {
@@ -50,8 +53,8 @@ export function AddJobModal({ onClose, onAdd }: Props) {
             <div className={styles.modalName}>Post a job</div>
             <div className={styles.modalRole}>Fill in the job details</div>
           </div>
-          <button className={styles.modalCloseBtn} onClick={onClose}>
-            <X size={16} weight="bold" />
+          <button type="button" className={styles.modalCloseBtn} onClick={onClose} aria-label="Close modal">
+            <X size={16} weight="bold" aria-hidden="true" />
           </button>
         </div>
 
@@ -107,6 +110,14 @@ export function AddJobModal({ onClose, onAdd }: Props) {
             />
           </div>
 
+          <TechMultiSelect
+            label="Tech stack"
+            selected={form.technologies}
+            options={TECHNOLOGIES_LIST}
+            onChange={v => setForm(p => ({ ...p, technologies: v }))}
+            placeholder="Search technologies…"
+          />
+
           <div className={styles.modalSection}>
             <div className={styles.modalSectionLabel}>Description</div>
             <textarea
@@ -115,13 +126,14 @@ export function AddJobModal({ onClose, onAdd }: Props) {
               onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
               placeholder="Describe the role, responsibilities and requirements..."
               rows={4}
+              aria-label="Job description"
             />
           </div>
         </div>
 
         <div className={styles.modalFooter}>
-          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-          <button className={styles.saveBtn} onClick={handleSubmit}>Post job</button>
+          <button type="button" className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+          <button type="button" className={styles.saveBtn} onClick={handleSubmit}>Post job</button>
         </div>
       </div>
     </div>

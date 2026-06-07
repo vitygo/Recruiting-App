@@ -1,3 +1,8 @@
+export const TECHNOLOGIES_LIST = [
+  'React', 'TypeScript', 'Node.js', 'Python', 'Go', 'AWS', 'Docker',
+  'GraphQL', 'TailwindCSS', 'PostgreSQL', 'Next.js', 'Prisma',
+]
+
 export const TYPE_LABELS: Record<string, string> = {
   FULL_TIME: 'Full-time',
   PART_TIME: 'Part-time',

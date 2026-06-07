@@ -1,5 +1,6 @@
 import { Users } from '@phosphor-icons/react'
 import type { Candidate } from '../../../../types'
+import { LoadingSpinner } from '../../../../components/LoadingSpinner'
 import { CandidateCard } from '../CandidateCard/CandidateCard'
 import styles from './CandidateGrid.module.css'
 
@@ -15,11 +16,11 @@ export function CandidateGrid({ candidates, isLoading, onCandidateClick, onDelet
     <div className={styles.grid}>
       {isLoading ? (
         <div className={styles.empty}>
-          <div className={styles.emptyTitle}>Loading...</div>
+          <LoadingSpinner size={44} />
         </div>
       ) : candidates.length === 0 ? (
         <div className={styles.empty}>
-          <Users size={40} weight="thin" />
+          <Users size={40} weight="thin" aria-hidden="true" />
           <div className={styles.emptyTitle}>No candidates found</div>
           <div className={styles.emptyDesc}>Try adjusting your search or filters</div>
         </div>

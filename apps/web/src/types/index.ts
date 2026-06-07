@@ -17,6 +17,7 @@ export interface User {
     salaryMax?: number
     description: string
     status: 'OPEN' | 'ACTIVE' | 'REVIEWING' | 'ENDED' | 'PAUSED' | 'CLOSED'
+    technologies?: string[]
     createdAt: string
     userId: string
     _count?: { candidates: number }

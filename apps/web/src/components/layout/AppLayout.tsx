@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useThemeStore } from '../../store/themeStore'
 import { useRipple } from '../../hooks/useRipple'
+import { AssistantBubble } from '../AssistantBubble'
 import styles from './AppLayout.module.css'
 
 
@@ -182,6 +183,8 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
           </NavLink>
         ))}
       </nav>
+
+      <AssistantBubble />
     </div>
   )
 }

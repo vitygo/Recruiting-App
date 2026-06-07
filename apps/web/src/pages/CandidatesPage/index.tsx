@@ -111,12 +111,6 @@ export default function CandidatesPage() {
   return (
     <AppLayout title="Candidates">
       <div className={styles.page}>
-        {isDemoMode && (
-          <div className={styles.demoBanner}>
-            Demo mode — showing sample candidates. Add real data to replace this view.
-          </div>
-        )}
-
         <CandidateStats stats={STATS} isLoading={isLoading} />
 
         <CandidateToolbar

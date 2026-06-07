@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { X } from '@phosphor-icons/react'
 import { Select } from '../../../../components/ui/Select'
 import { FormInput } from '../../../../components/ui/FormInput'
-import { JOB_STATUS_EDIT_OPTIONS } from '../../constants'
+import { TechMultiSelect } from '../../../../components/ui/TechMultiSelect'
+import { JOB_STATUS_EDIT_OPTIONS, TECHNOLOGIES_LIST } from '../../constants'
 import type { Job } from '../../../../types'
 import styles from './EditJobModal.module.css'
 
@@ -14,6 +15,7 @@ export type EditJobData = {
   salaryMin: number
   salaryMax: number
   description: string
+  technologies: string[]
 }
 
 type Props = {
@@ -24,25 +26,27 @@ type Props = {
 
 export function EditJobModal({ job, onClose, onSave }: Props) {
   const [form, setForm] = useState({
-    title: job.title,
-    department: job.department,
-    location: job.location ?? '',
-    status: job.status,
-    salaryMin: job.salaryMin?.toString() ?? '',
-    salaryMax: job.salaryMax?.toString() ?? '',
-    description: job.description ?? '',
+    title:        job.title,
+    department:   job.department,
+    location:     job.location ?? '',
+    status:       job.status,
+    salaryMin:    job.salaryMin?.toString() ?? '',
+    salaryMax:    job.salaryMax?.toString() ?? '',
+    description:  job.description ?? '',
+    technologies: job.technologies ?? [] as string[],
   })
 
   const handleSubmit = () => {
     if (!form.title || !form.department) return
     onSave({
-      title: form.title,
-      department: form.department,
-      location: form.location,
-      status: form.status as Job['status'],
-      salaryMin: Number(form.salaryMin) || 0,
-      salaryMax: Number(form.salaryMax) || 0,
-      description: form.description,
+      title:        form.title,
+      department:   form.department,
+      location:     form.location,
+      status:       form.status as Job['status'],
+      salaryMin:    Number(form.salaryMin) || 0,
+      salaryMax:    Number(form.salaryMax) || 0,
+      description:  form.description,
+      technologies: form.technologies,
     })
     onClose()
   }
@@ -56,8 +60,8 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
             <div className={styles.modalName}>Edit job</div>
             <div className={styles.modalRole}>{job.title}</div>
           </div>
-          <button className={styles.modalCloseBtn} onClick={onClose} aria-label="Close">
-            <X size={16} weight="bold" />
+          <button type="button" className={styles.modalCloseBtn} onClick={onClose} aria-label="Close modal">
+            <X size={16} weight="bold" aria-hidden="true" />
           </button>
         </div>
 
@@ -113,6 +117,14 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
             />
           </div>
 
+          <TechMultiSelect
+            label="Tech stack"
+            selected={form.technologies}
+            options={TECHNOLOGIES_LIST}
+            onChange={v => setForm(p => ({ ...p, technologies: v }))}
+            placeholder="Search technologies…"
+          />
+
           <div className={styles.modalSection}>
             <div className={styles.modalSectionLabel}>Description</div>
             <textarea
@@ -121,13 +133,14 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
               onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
               placeholder="Describe the role, responsibilities and requirements..."
               rows={4}
+              aria-label="Job description"
             />
           </div>
         </div>
 
         <div className={styles.modalFooter}>
-          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-          <button className={styles.saveBtn} onClick={handleSubmit}>Save changes</button>
+          <button type="button" className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+          <button type="button" className={styles.saveBtn} onClick={handleSubmit}>Save changes</button>
         </div>
       </div>
     </div>
