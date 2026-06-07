@@ -6,7 +6,7 @@ import { jobsApi } from '../../api/jobs'
 import { pipelineApi } from '../../api/pipeline'
 import { interviewsApi } from '../../api/interviews'
 import { loadDemoPipeline, loadDemoJobs } from '../../lib/demoStorage'
-import { DEMO_INTERVIEWS } from '../PipelinePage/constants'
+import { DEMO_INTERVIEWS, STAGES } from '../PipelinePage/constants'
 import { PipelineTracker } from './components/PipelineTracker/PipelineTracker'
 import { ActiveJobs } from './components/ActiveJobs/ActiveJobs'
 import { UpcomingInterviews } from './components/UpcomingInterviews/UpcomingInterviews'
@@ -121,6 +121,16 @@ export default function DashboardPage() {
       }))
     : (jobsData?.jobs.slice(0, 3) || [])
 
+  const pipelineSource = isDemoMode ? demoPipeline : pipeline
+  const stageCounts = STAGES.map(s => pipelineSource.filter(p => p.stage === s.id).length)
+  const stageMax = Math.max(...stageCounts, 1)
+  const hiringStages = STAGES.map((s, i) => ({
+    label: s.label,
+    count: stageCounts[i],
+    color: s.color,
+    max: stageMax,
+  }))
+
   return (
     <AppLayout title="Dashboard">
       <div className={styles.dashboardContainer}>
@@ -132,11 +142,7 @@ export default function DashboardPage() {
         <div className={styles.bottomSection}>
           <UpcomingInterviews interviews={upcomingInterviews} onSeeAll={() => navigate('/interviews')} />
           <ProUpgradeCard />
-          <HiringProgress
-            totalCandidates={totalCandidates}
-            interviewsThisWeek={interviewsThisWeek}
-            activeJobs={activeJobs}
-          />
+          <HiringProgress stages={hiringStages} />
         </div>
       </div>
     </AppLayout>
