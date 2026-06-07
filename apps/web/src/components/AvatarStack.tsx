@@ -11,12 +11,8 @@ interface Props {
   size?: number
 }
 
-const PALETTE = [
-  { bg: 'rgba(255,122,61,0.15)', color: 'var(--c-orange)' },
-  { bg: 'rgba(0,153,255,0.12)',  color: 'var(--c-accent)' },
-  { bg: 'rgba(34,197,94,0.12)',  color: 'var(--c-success)' },
-  { bg: 'rgba(168,85,247,0.12)', color: '#a855f7' },
-]
+const MONO_BG    = '#2e2e3a'
+const MONO_COLOR = '#d4d4e0'
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/)
@@ -34,7 +30,6 @@ export function AvatarStack({ items, max = 4, size = 28 }: Props) {
   return (
     <div className={styles.stack} style={{ height: `${size}px` }}>
       {visible.map((item, i) => {
-        const { bg, color } = PALETTE[i % PALETTE.length]
         return (
           <div
             key={i}
@@ -43,8 +38,8 @@ export function AvatarStack({ items, max = 4, size = 28 }: Props) {
               width:       `${size}px`,
               height:      `${size}px`,
               marginLeft:  i === 0 ? 0 : `-${overlap}px`,
-              background:  item.avatarUrl ? undefined : bg,
-              color:       item.avatarUrl ? undefined : color,
+              background:  item.avatarUrl ? undefined : MONO_BG,
+              color:       item.avatarUrl ? undefined : MONO_COLOR,
               fontSize:    `${Math.round(size * 0.36)}px`,
               zIndex:      visible.length - i,
             }}

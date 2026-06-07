@@ -31,7 +31,7 @@
 }
 
 .extra {
-  background: var(--c-surface-2);
-  color: var(--c-ink-muted);
+  background: #3a3a48;
+  color: #a0a0b4;
   border-color: var(--c-surface-1);
 }

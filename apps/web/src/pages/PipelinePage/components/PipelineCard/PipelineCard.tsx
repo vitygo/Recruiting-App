@@ -55,6 +55,10 @@ export function CardContent({ item, onClick, isDragging = false, onDelete }: {
           <div className={styles.cardRole}>{item.job?.title || item.candidate?.email}</div>
         </div>
       </div>
+      {item.appliedAt && (
+        <div className={styles.appliedAt}>{item.appliedAt}</div>
+      )}
+
       <div className={styles.cardBottom}>
         <div className={styles.scoreWrap}>
           <div className={styles.scoreBar} aria-hidden="true">

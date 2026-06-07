@@ -32,13 +32,14 @@ export interface User {
     linkedinUrl?: string
     cvUrl?: string
     location?: string
+    avatarUrl?: string
     source: 'LINKEDIN' | 'INDEED' | 'REFERRAL' | 'CAREERS_PAGE' | 'MANUAL' | 'OTHER'
     createdAt: string
     userId: string
     jobs?: CandidateJob[]
     candidateJobs?: CandidateJob[]
   }
-  
+
   export interface CandidateJob {
     id: string
     candidateId: string
@@ -47,6 +48,7 @@ export interface User {
     aiScore?: number
     aiReason?: string
     rejectionReason?: string
+    appliedAt?: string
     createdAt: string
     updatedAt: string
     candidate?: Candidate

@@ -67,6 +67,13 @@
   letter-spacing: -0.0088rem;
 }
 
+.modalApplied {
+  font-size: 0.75rem;
+  color: var(--c-ink-muted);
+  margin-top: 0.25rem;
+  letter-spacing: -0.0075rem;
+}
+
 .modalActions {
   margin-left: auto;
   display: flex;

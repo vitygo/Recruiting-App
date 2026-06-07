@@ -58,9 +58,11 @@ function mkCJ(
   id: string, candidateId: string, jobId: string, stage: PipelineStage,
   aiScore: number, aiReason: string, candidate: Candidate, job: Job,
   rejectionReason?: string,
+  appliedAt?: string,
 ): CandidateJob {
   return {
     id, candidateId, jobId, stage, aiScore, aiReason, rejectionReason,
+    appliedAt: appliedAt ?? 'Applied 17 days ago',
     createdAt: '2026-05-21T00:00:00Z', updatedAt: '2026-05-21T00:00:00Z',
     candidate, job,
   }
@@ -96,20 +98,20 @@ const dc = {
 
 export const DEMO_PIPELINE: CandidateJob[] = [
   // ── Senior React Developer ────────────────────────────────────────────────
-  mkCJ('dcj-1',  'dc-1',  'demo-job-1', 'APPLIED',   72, 'Strong TypeScript background',         dc.c1,  j1),
-  mkCJ('dcj-2',  'dc-2',  'demo-job-1', 'APPLIED',   58, 'React exp, limited TS',               dc.c2,  j1),
-  mkCJ('dcj-3',  'dc-3',  'demo-job-1', 'SCREENING', 85, '5 yrs React, open source contributor', dc.c3,  j1),
-  mkCJ('dcj-4',  'dc-4',  'demo-job-1', 'INTERVIEW', 91, 'Senior React, system design exp',      dc.c4,  j1),
-  mkCJ('dcj-5',  'dc-5',  'demo-job-1', 'OFFER',     94, 'Exceptional React + GraphQL',          dc.c5,  j1),
+  mkCJ('dcj-1',  'dc-1',  'demo-job-1', 'APPLIED',   72, 'Strong TypeScript background',         dc.c1,  j1, undefined,                                            'Applied 18 days ago'),
+  mkCJ('dcj-2',  'dc-2',  'demo-job-1', 'APPLIED',   58, 'React exp, limited TS',               dc.c2,  j1, undefined,                                            'Applied 17 days ago'),
+  mkCJ('dcj-3',  'dc-3',  'demo-job-1', 'SCREENING', 85, '5 yrs React, open source contributor', dc.c3,  j1, undefined,                                            'Applied 14 days ago'),
+  mkCJ('dcj-4',  'dc-4',  'demo-job-1', 'INTERVIEW', 91, 'Senior React, system design exp',      dc.c4,  j1, undefined,                                            'Applied 12 days ago'),
+  mkCJ('dcj-5',  'dc-5',  'demo-job-1', 'OFFER',     94, 'Exceptional React + GraphQL',          dc.c5,  j1, undefined,                                            'Applied 10 days ago'),
   // ── DevOps Engineer ───────────────────────────────────────────────────────
-  mkCJ('dcj-6',  'dc-6',  'demo-job-2', 'APPLIED',   65, 'AWS certified, limited K8s',           dc.c6,  j2),
-  mkCJ('dcj-7',  'dc-7',  'demo-job-2', 'SCREENING', 78, 'K8s + Terraform expert',              dc.c7,  j2),
-  mkCJ('dcj-8',  'dc-8',  'demo-job-2', 'INTERVIEW', 88, 'CI/CD automation & GitOps',           dc.c8,  j2),
-  mkCJ('dcj-9',  'dc-9',  'demo-job-2', 'REJECTED',  42, 'Limited cloud exp',                   dc.c9,  j2, 'Does not meet minimum cloud infra requirements'),
+  mkCJ('dcj-6',  'dc-6',  'demo-job-2', 'APPLIED',   65, 'AWS certified, limited K8s',           dc.c6,  j2, undefined,                                            'Applied 21 days ago'),
+  mkCJ('dcj-7',  'dc-7',  'demo-job-2', 'SCREENING', 78, 'K8s + Terraform expert',              dc.c7,  j2, undefined,                                            'Applied 16 days ago'),
+  mkCJ('dcj-8',  'dc-8',  'demo-job-2', 'INTERVIEW', 88, 'CI/CD automation & GitOps',           dc.c8,  j2, undefined,                                            'Applied 13 days ago'),
+  mkCJ('dcj-9',  'dc-9',  'demo-job-2', 'REJECTED',  42, 'Limited cloud exp',                   dc.c9,  j2, 'Does not meet minimum cloud infra requirements',     'Applied 23 days ago'),
   // ── Product Designer ──────────────────────────────────────────────────────
-  mkCJ('dcj-10', 'dc-10', 'demo-job-3', 'APPLIED',   70, 'Figma proficient, UX portfolio',      dc.c10, j3),
-  mkCJ('dcj-11', 'dc-11', 'demo-job-3', 'SCREENING', 82, 'Strong product sense, motion design', dc.c11, j3),
-  mkCJ('dcj-12', 'dc-12', 'demo-job-3', 'HIRED',     96, 'Exceptional portfolio, cultural fit', dc.c12, j3),
+  mkCJ('dcj-10', 'dc-10', 'demo-job-3', 'APPLIED',   70, 'Figma proficient, UX portfolio',      dc.c10, j3, undefined,                                            'Applied 15 days ago'),
+  mkCJ('dcj-11', 'dc-11', 'demo-job-3', 'SCREENING', 82, 'Strong product sense, motion design', dc.c11, j3, undefined,                                            'Applied 11 days ago'),
+  mkCJ('dcj-12', 'dc-12', 'demo-job-3', 'HIRED',     96, 'Exceptional portfolio, cultural fit', dc.c12, j3, undefined,                                            'Applied 8 days ago'),
 ]
 
 // ── Demo Interviews ───────────────────────────────────────────────────────────

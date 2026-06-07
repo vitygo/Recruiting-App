@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Briefcase, MapPin, CurrencyDollar, ArrowRight, PencilSimple, CaretDown } from '@phosphor-icons/react'
+import { Briefcase, MapPin, CurrencyDollar, ArrowRight, PencilSimple, CaretDown, CalendarBlank } from '@phosphor-icons/react'
 import type { Job, CandidateJob } from '../../../../types'
 import { AvatarStack } from '../../../../components/AvatarStack'
 import { TYPE_LABELS } from '../../constants'
@@ -26,6 +26,10 @@ type Props = {
   onViewPipeline: () => void
   onEdit?: () => void
   candidatesForJob?: CandidateJob[]
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 export function JobCard({ job, metrics, onViewPipeline, onEdit, candidatesForJob = [] }: Props) {
@@ -90,6 +94,12 @@ export function JobCard({ job, metrics, onViewPipeline, onEdit, candidatesForJob
           <span className={styles.metaItem}>
             <CurrencyDollar size={13} weight="fill" aria-hidden="true" />
             ${job.salaryMin.toLocaleString()} — ${job.salaryMax.toLocaleString()}
+          </span>
+        )}
+        {job.createdAt && (
+          <span className={styles.metaItem}>
+            <CalendarBlank size={13} weight="fill" aria-hidden="true" />
+            Created on {formatDate(job.createdAt)}
           </span>
         )}
       </div>

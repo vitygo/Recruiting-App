@@ -36,6 +36,9 @@ export function CandidateModal({ item, onClose, onStageChange, onDelete }: Candi
               {item.job?.title && <span>{item.job.title} · </span>}
               {item.candidate?.location || 'No location'} · {item.candidate?.source}
             </div>
+            {item.appliedAt && (
+              <div className={styles.modalApplied}>{item.appliedAt}</div>
+            )}
           </div>
           <div className={styles.modalActions}>
             {onDelete && (
