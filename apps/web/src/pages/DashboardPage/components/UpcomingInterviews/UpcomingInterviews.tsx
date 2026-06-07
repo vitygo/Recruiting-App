@@ -12,6 +12,7 @@ interface Interview {
 
 interface UpcomingInterviewsProps {
   interviews: Interview[]
+  onSeeAll?: () => void
 }
 
 function formatInterviewTime(scheduledAt: string): string {
@@ -29,12 +30,12 @@ function formatInterviewTime(scheduledAt: string): string {
   return d.toLocaleDateString('en-US', { weekday: 'short' }) + ' ' + time
 }
 
-export function UpcomingInterviews({ interviews }: UpcomingInterviewsProps) {
+export function UpcomingInterviews({ interviews, onSeeAll }: UpcomingInterviewsProps) {
   return (
     <div className={styles.connectCard}>
       <div className={styles.sectionHeader}>
         <h4 className={styles.sectionTitle}>Upcoming Interviews</h4>
-        <span className={styles.seeAllLink}>See all</span>
+        <span className={styles.seeAllLink} onClick={onSeeAll} style={{ cursor: onSeeAll ? 'pointer' : undefined }}>See all</span>
       </div>
       <div className={styles.connectList}>
         {interviews.length === 0 ? (

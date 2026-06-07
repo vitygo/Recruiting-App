@@ -10,14 +10,15 @@ interface Job {
 
 interface ActiveJobsProps {
   jobs: Job[]
+  onSeeAll?: () => void
 }
 
-export function ActiveJobs({ jobs }: ActiveJobsProps) {
+export function ActiveJobs({ jobs, onSeeAll }: ActiveJobsProps) {
   return (
     <div className={styles.jobsCard}>
       <div className={styles.sectionHeader}>
         <h4 className={styles.sectionTitle}>Active Jobs</h4>
-        <span className={styles.seeAllLink}>See all jobs</span>
+        <span className={styles.seeAllLink} onClick={onSeeAll} style={{ cursor: onSeeAll ? 'pointer' : undefined }}>See all jobs</span>
       </div>
 
       <div className={styles.jobsList}>

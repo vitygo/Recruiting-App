@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { candidatesApi } from '../../api/candidates'
 import { jobsApi } from '../../api/jobs'
 import { pipelineApi } from '../../api/pipeline'
 import { interviewsApi } from '../../api/interviews'
-import { DEMO_PIPELINE, DEMO_JOBS, DEMO_INTERVIEWS } from '../PipelinePage/constants'
+import { loadDemoPipeline, loadDemoJobs } from '../../lib/demoStorage'
+import { DEMO_INTERVIEWS } from '../PipelinePage/constants'
 import { PipelineTracker } from './components/PipelineTracker/PipelineTracker'
 import { ActiveJobs } from './components/ActiveJobs/ActiveJobs'
 import { UpcomingInterviews } from './components/UpcomingInterviews/UpcomingInterviews'
@@ -24,9 +26,13 @@ const STAGE_COLORS: Record<string, string> = {
   HIRED: 'var(--c-success)',
 }
 
-const DEMO_TOTAL_CANDIDATES = new Set(DEMO_PIPELINE.map(cj => cj.candidateId)).size
-
 export default function DashboardPage() {
+  const navigate = useNavigate()
+
+  // Load live demo data from localStorage (falls back to seed data if untouched)
+  const demoPipeline = loadDemoPipeline()
+  const demoJobsLive = loadDemoJobs()
+
   const { data: candidatesData } = useQuery({
     queryKey: ['candidates'],
     queryFn: () => candidatesApi.getAll({ limit: 100 }),
@@ -56,12 +62,20 @@ export default function DashboardPage() {
   const weekEnd = new Date(weekStart)
   weekEnd.setDate(weekStart.getDate() + 7)
 
+  // Per-job candidate counts derived from live localStorage pipeline
+  const candidateCountsByJob = isDemoMode
+    ? demoPipeline.reduce<Record<string, number>>((acc, cj) => {
+        acc[cj.jobId] = (acc[cj.jobId] ?? 0) + 1
+        return acc
+      }, {})
+    : {}
+
   const totalCandidates = isDemoMode
-    ? DEMO_TOTAL_CANDIDATES
+    ? new Set(demoPipeline.map(cj => cj.candidateId)).size
     : (candidatesData?.total || 0)
 
   const activeJobs = isDemoMode
-    ? DEMO_JOBS.filter(j => j.status === 'OPEN').length
+    ? demoJobsLive.filter(j => j.status === 'OPEN').length
     : (jobsData?.jobs.filter(j => j.status === 'OPEN').length || 0)
 
   const interviewsThisWeek = isDemoMode
@@ -78,8 +92,8 @@ export default function DashboardPage() {
     ? STAGE_ORDER.map(stage => ({
         label: stage,
         short: STAGE_SHORT[stage],
-        count: DEMO_PIPELINE.filter(p => p.stage === stage).length,
-        max: Math.max(DEMO_PIPELINE.length, 1),
+        count: demoPipeline.filter(p => p.stage === stage).length,
+        max: Math.max(demoPipeline.length, 1),
         color: STAGE_COLORS[stage],
       }))
     : STAGE_ORDER.map(stage => ({
@@ -101,7 +115,10 @@ export default function DashboardPage() {
         .slice(0, 4)
 
   const recentJobs = isDemoMode
-    ? DEMO_JOBS.slice(0, 3)
+    ? demoJobsLive.slice(0, 3).map(job => ({
+        ...job,
+        _count: { candidates: candidateCountsByJob[job.id] ?? 0 },
+      }))
     : (jobsData?.jobs.slice(0, 3) || [])
 
   return (
@@ -109,11 +126,11 @@ export default function DashboardPage() {
       <div className={styles.dashboardContainer}>
         <div className={styles.topSection}>
           <PipelineTracker pipelineByStage={pipelineByStage} totalCandidates={totalCandidates} />
-          <ActiveJobs jobs={recentJobs} />
+          <ActiveJobs jobs={recentJobs} onSeeAll={() => navigate('/jobs')} />
         </div>
 
         <div className={styles.bottomSection}>
-          <UpcomingInterviews interviews={upcomingInterviews} />
+          <UpcomingInterviews interviews={upcomingInterviews} onSeeAll={() => navigate('/interviews')} />
           <ProUpgradeCard />
           <HiringProgress
             totalCandidates={totalCandidates}
