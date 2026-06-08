@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../../store/authStore'
+import { NavLink } from 'react-router-dom'
 import { useThemeStore } from '../../store/themeStore'
+import { useOrgStore } from '../../store/orgStore'
 import { useRipple } from '../../hooks/useRipple'
 import { AssistantBubble } from '../AssistantBubble'
+import { UserDropdown } from './UserDropdown'
 import styles from './AppLayout.module.css'
 
 
@@ -31,19 +32,9 @@ const SETTINGS_ITEMS = [
 
 export function AppLayout({ children, title }: { children: React.ReactNode; title: string }) {
   const [collapsed, setCollapsed] = useState(false)
-  const { user, logout } = useAuthStore()
   const { theme, toggle } = useThemeStore()
+  const companyName = useOrgStore((s) => s.companyName)
   const createRipple = useRipple()
-  const navigate = useNavigate()
-
-  const handleLogout = async () => {
-    await logout()
-    navigate('/login')
-  }
-
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : 'U'
 
   return (
     <div className={styles.root}>
@@ -54,7 +45,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
       className={`${styles.logo} ${collapsed ? styles.logoCollapsed : ''}`}
     >
       <span className={`${styles.logoText} ${collapsed ? styles.logoTextHidden : ''}`}>
-        RecruitApex
+        {companyName}
       </span>
     </NavLink>
 
@@ -111,16 +102,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
 
     <div className={styles.spacer} />
 
-    <div
-      className={`${styles.userArea} ${collapsed ? styles.userAreaCollapsed : ''}`}
-      onClick={handleLogout}
-    >
-      <div className={styles.avatarBtn }>{initials}</div>
-      <div className={`${collapsed ? styles.userInfoHidden : ''}`}>
-        <div className={styles.userName}>{user?.name || 'User'}</div>
-        <div className={styles.userRole}>{user?.role || 'Recruiter'}</div>
-      </div>
-    </div>
+    <UserDropdown placement="sidebar" sidebarCollapsed={collapsed} />
   </div>
 
   <button
@@ -134,7 +116,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
       <div className={styles.main}>
         <div className={styles.topbar}>
           <div className={`${styles.topbarLogo} ${collapsed ? styles.topbarLogoVisible : ''}`}>
-            RecruitApex
+            {companyName}
           </div>
 
           {/* <div className={styles.topbarSearch}>
@@ -160,7 +142,7 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
             <button className={styles.iconBtn} onClick={(e) => { createRipple(e); toggle() }}>
               <i className={`ti ${theme === 'dark' ? 'ti-sun' : 'ti-moon'}`} />
             </button>
-            <div className={styles.avatarBtn}>{initials}</div>
+            <UserDropdown />
           </div>
         </div>
 

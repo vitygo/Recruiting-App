@@ -1,0 +1,312 @@
+.wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.trigger {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.15s;
+}
+
+.triggerActive .avatar,
+.trigger:focus-visible .avatar {
+  box-shadow: 0 0 0 2px var(--c-orange);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-orange), var(--c-orange));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(106, 76, 245, 0.3);
+  transition: box-shadow 0.15s;
+  cursor: pointer;
+}
+
+.triggerActive .avatar {
+  box-shadow: 0 0 0 2px var(--c-orange), 0 2px 12px rgba(106, 76, 245, 0.3);
+}
+
+/* Dropdown panel */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  background: var(--c-surface-1);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+  transform-origin: top right;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+[data-theme="light"] .dropdown {
+  background: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.dropdownOpen {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Header section */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 12px;
+}
+
+.headerAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-orange), var(--c-orange));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(106, 76, 245, 0.25);
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.headerName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerEmail {
+  font-size: 0.6875rem;
+  color: var(--c-ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 2px 0;
+}
+
+[data-theme="light"] .divider {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+/* Menu items */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  font-family: var(--f-body);
+  font-size: 0.8125rem;
+  color: var(--c-ink-muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+  text-align: left;
+}
+
+.item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--c-ink);
+}
+
+[data-theme="light"] .item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--c-ink);
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.item:hover .itemIcon {
+  opacity: 1;
+}
+
+/* Logout item */
+.itemLogout {
+  color: #f87171;
+}
+
+.itemLogout:hover {
+  background: rgba(248, 113, 113, 0.1);
+  color: #ef4444;
+}
+
+[data-theme="light"] .itemLogout:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
+/* Sidebar fixed dropdown */
+.dropdownSidebar {
+  position: fixed;
+  top: auto;
+  right: auto;
+  transform-origin: bottom left;
+}
+
+/* Avatar image (when user has uploaded photo) */
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Sidebar trigger button */
+.sidebarWrap {
+  width: 100%;
+}
+
+.sidebarTrigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  background: var(--c-surface-2);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  overflow: hidden;
+  text-align: left;
+  font-family: var(--f-body);
+}
+
+.sidebarTrigger:hover,
+.sidebarTriggerActive {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .sidebarTrigger {
+  background: rgba(106, 76, 245, 0.04);
+}
+
+[data-theme="light"] .sidebarTrigger:hover,
+[data-theme="light"] .sidebarTriggerActive {
+  background: rgba(106, 76, 245, 0.08);
+}
+
+.sidebarTriggerCollapsed {
+  justify-content: center;
+  padding: 8px 0;
+  background: none;
+}
+
+.sidebarTriggerCollapsed:hover {
+  background: none;
+}
+
+/* Sidebar avatar (32px, smaller than topbar) */
+.sidebarAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-orange), var(--c-orange));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(106, 76, 245, 0.25);
+}
+
+.sidebarHeaderAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-orange), var(--c-orange));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(106, 76, 245, 0.25);
+}
+
+.sidebarUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebarUserName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebarUserRole {
+  font-size: 0.6875rem;
+  color: var(--c-ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile: keep dropdown within viewport */
+@media (max-width: 768px) {
+  .dropdown {
+    right: 0;
+    left: auto;
+    width: 200px;
+  }
+}

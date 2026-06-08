@@ -122,6 +122,15 @@
   color: #9ca3af;
 }
 
+.appliedRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--c-ink-muted);
+  opacity: 0.75;
+}
+
 .cardFooter {
   display: flex;
   align-items: center;

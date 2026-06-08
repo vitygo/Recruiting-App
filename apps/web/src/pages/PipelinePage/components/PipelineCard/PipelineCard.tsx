@@ -6,6 +6,17 @@ import { getInitials, getAvatarColor } from '../../utils'
 import type { CandidateJob } from '../../../../types'
 import styles from './PipelineCard.module.css'
 
+function formatAppliedAt(dateStr: string): string {
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return dateStr.replace(/^Applied\s+/i, '')
+  const diffDays = Math.floor((Date.now() - date.getTime()) / 86_400_000)
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 30) return `${diffDays}d ago`
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 export function CardContent({ item, onClick, isDragging = false, onDelete }: {
   item: CandidateJob
   onClick: () => void
@@ -56,7 +67,7 @@ export function CardContent({ item, onClick, isDragging = false, onDelete }: {
         </div>
       </div>
       {item.appliedAt && (
-        <div className={styles.appliedAt}>{item.appliedAt}</div>
+        <div className={styles.appliedAt}>Applied {formatAppliedAt(item.appliedAt)}</div>
       )}
 
       <div className={styles.cardBottom}>

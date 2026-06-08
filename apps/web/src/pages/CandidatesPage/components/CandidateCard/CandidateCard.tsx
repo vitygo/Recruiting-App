@@ -1,4 +1,4 @@
-import { MapPin, BriefcaseIcon, Trash } from '@phosphor-icons/react'
+import { MapPin, BriefcaseIcon, Trash, CalendarBlank } from '@phosphor-icons/react'
 import type { Candidate } from '../../../../types'
 import { STAGES } from '../../../PipelinePage/constants'
 import { SOURCE_COLORS, STAGE_COLORS } from '../../constants'
@@ -9,6 +9,21 @@ interface CandidateCardProps {
   candidate: Candidate
   onClick: (candidate: Candidate) => void
   onDelete?: (id: string) => void
+}
+
+function formatAppliedAt(dateStr: string): string {
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) {
+    // Pre-formatted string like "Applied 18 days ago" — strip the prefix we re-add
+    return dateStr.replace(/^Applied\s+/i, '')
+  }
+  const now = new Date()
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86_400_000)
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 30) return `${diffDays}d ago`
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 export function CandidateCard({ candidate, onClick, onDelete }: CandidateCardProps) {
@@ -22,6 +37,7 @@ export function CandidateCard({ candidate, onClick, onDelete }: CandidateCardPro
   const jobTitle = latestCJ?.job?.title
   const initials = getInitials(candidate.firstName, candidate.lastName)
   const score = latestCJ?.aiScore
+  const appliedLabel = latestCJ?.appliedAt ? formatAppliedAt(latestCJ.appliedAt) : null
 
   return (
     <div className={styles.card} onClick={() => onClick(candidate)}>
@@ -59,6 +75,13 @@ export function CandidateCard({ candidate, onClick, onDelete }: CandidateCardPro
           <span className={styles.generalPoolBadge}>General Pool</span>
         )}
       </div>
+
+      {appliedLabel && (
+        <div className={styles.appliedRow}>
+          <CalendarBlank size={11} weight="regular" />
+          <span>Applied {appliedLabel}</span>
+        </div>
+      )}
 
       <div className={styles.cardFooter}>
         <div className={styles.scoreWrap}>

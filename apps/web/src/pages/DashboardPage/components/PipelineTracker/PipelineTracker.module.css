@@ -121,6 +121,7 @@
   border-top: 1px solid var(--c-hairline-soft);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1.5rem;
 }
 
