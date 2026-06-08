@@ -11,7 +11,6 @@ import { FaqSection } from './components/FaqSection/FaqSection'
 import { CtaSection } from './components/CtaSection/CtaSection'
 import { LandingFooter } from './components/LandingFooter/LandingFooter'
 import { BackToTop } from './components/BackToTop/BackToTop'
-import { PerspectiveSection } from './components/PerspectiveSection/PerspectiveSection'
 
 export default function LandingPage() {
   useScrollReveal()
@@ -31,7 +30,6 @@ export default function LandingPage() {
         <TestimonialsSection />
         <PricingSection />
         <FaqSection />
-        <PerspectiveSection />
         <CtaSection />
       </main>
       <LandingFooter />
