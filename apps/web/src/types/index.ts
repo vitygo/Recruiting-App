@@ -16,6 +16,7 @@ export interface User {
     salaryMin?: number
     salaryMax?: number
     description: string
+    techStack?: string
     status: 'OPEN' | 'ACTIVE' | 'REVIEWING' | 'ENDED' | 'PAUSED' | 'CLOSED'
     technologies?: string[]
     createdAt: string

@@ -35,6 +35,7 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
       const res = await authApi.register(data)
       setAccessToken(res.accessToken)
       setUser(res.user)
+      localStorage.setItem('is_demo_active', 'true')
       toast.success('Account created!')
       navigate('/dashboard')
     } catch {

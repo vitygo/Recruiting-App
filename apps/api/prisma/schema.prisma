@@ -34,6 +34,7 @@ model Job {
   salaryMin   Int?
   salaryMax   Int?
   description String
+  techStack   String?
   status      String   @default("OPEN")
   createdAt   DateTime @default(now())
   userId      String
@@ -51,6 +52,7 @@ model Candidate {
   linkedinUrl String?
   cvUrl       String?
   location    String?
+  avatarUrl   String?
   source      String   @default("MANUAL")
   createdAt   DateTime @default(now())
   userId      String
@@ -91,7 +93,7 @@ model Interview {
   scorecard   String?
   createdAt   DateTime @default(now())
 
-  candidate Candidate @relation(fields: [candidateId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
 }
 
@@ -103,7 +105,7 @@ model Note {
   userId      String
   createdAt   DateTime @default(now())
 
-  candidate Candidate @relation(fields: [candidateId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
 }
 

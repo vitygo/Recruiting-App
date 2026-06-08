@@ -630,6 +630,12 @@
   margin: 0;
 }
 
+.dangerError {
+  font-size: 0.8125rem;
+  color: #ef4444;
+  margin: 4px 0 0;
+}
+
 .btnDanger {
   font-size: 0.8125rem;
   font-weight: 600;

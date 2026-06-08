@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma'
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../lib/tokens'
 import { RegisterInput, LoginInput } from '../schemas/auth.schema'
 import { AuthRequest } from '../middleware/auth.middleware'
+import { seedForUser } from '../lib/seed'
 
 export async function register(req: Request, res: Response): Promise<void> {
   try {
@@ -21,6 +22,8 @@ export async function register(req: Request, res: Response): Promise<void> {
       data: { name, email, passwordHash },
       select: { id: true, name: true, email: true, role: true, createdAt: true },
     })
+
+    await seedForUser(user.id)
 
     const accessToken  = generateAccessToken(user.id)
     const refreshToken = generateRefreshToken(user.id)

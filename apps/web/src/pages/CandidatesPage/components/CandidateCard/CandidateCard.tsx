@@ -37,7 +37,8 @@ export function CandidateCard({ candidate, onClick, onDelete }: CandidateCardPro
   const jobTitle = latestCJ?.job?.title
   const initials = getInitials(candidate.firstName, candidate.lastName)
   const score = latestCJ?.aiScore
-  const appliedLabel = latestCJ?.appliedAt ? formatAppliedAt(latestCJ.appliedAt) : null
+  const appliedDateStr = latestCJ?.appliedAt ?? latestCJ?.createdAt
+  const appliedLabel = appliedDateStr ? formatAppliedAt(appliedDateStr) : null
 
   return (
     <div className={styles.card} onClick={() => onClick(candidate)}>

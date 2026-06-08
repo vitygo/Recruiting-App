@@ -1,14 +1,41 @@
 import { useState, useEffect } from 'react'
 import { X } from '@phosphor-icons/react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { demoApi } from '../api/demo'
 import styles from './AssistantBubble.module.css'
 
-const MESSAGE =
-  'Demo mode active. You are viewing sample data. Connect a real database or update localized storage parameters to manipulate live assets.'
+const FULL_MESSAGE =
+  'Demo mode active. We have populated your pipeline with sample positions and talent. ' +
+  'Click below to permanently wipe this workspace and start fresh.'
 
 export function AssistantBubble() {
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [displayText, setDisplayText] = useState('')
+  const [isDemoActive, setIsDemoActive] = useState(
+    () => localStorage.getItem('is_demo_active') === 'true'
+  )
 
+  const wipeMutation = useMutation({
+    mutationFn: () => demoApi.clear(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries()
+      localStorage.removeItem('has_seen_assistant')
+      localStorage.setItem('is_demo_active', 'false')
+      setIsDemoActive(false)
+      setOpen(false)
+    },
+  })
+
+  // Auto-open once per session; localStorage prevents re-trigger on route changes
+  useEffect(() => {
+    if (isDemoActive && !localStorage.getItem('has_seen_assistant')) {
+      setOpen(true)
+      localStorage.setItem('has_seen_assistant', 'true')
+    }
+  }, [isDemoActive])
+
+  // Typewriter animation — restarts every time the popup opens
   useEffect(() => {
     if (!open) {
       setDisplayText('')
@@ -18,11 +45,15 @@ export function AssistantBubble() {
     let i = 0
     const id = setInterval(() => {
       i++
-      setDisplayText(MESSAGE.slice(0, i))
-      if (i >= MESSAGE.length) clearInterval(id)
-    }, 22)
+      setDisplayText(FULL_MESSAGE.slice(0, i))
+      if (i >= FULL_MESSAGE.length) clearInterval(id)
+    }, 20)
     return () => clearInterval(id)
   }, [open])
+
+  if (!isDemoActive) return null
+
+  const typingDone = displayText.length >= FULL_MESSAGE.length
 
   return (
     <div className={styles.wrapper}>
@@ -33,10 +64,22 @@ export function AssistantBubble() {
       >
         <p className={styles.popupText}>
           {displayText}
-          {open && displayText.length < MESSAGE.length && (
+          {open && !typingDone && (
             <span className={styles.cursor} aria-hidden="true">|</span>
           )}
         </p>
+
+        {typingDone && (
+          <button
+            type="button"
+            className={styles.wipeBtn}
+            onClick={() => wipeMutation.mutate()}
+            disabled={wipeMutation.isPending}
+          >
+            {wipeMutation.isPending ? 'Clearing…' : 'Clear Workspace Data'}
+          </button>
+        )}
+
         <span className={styles.popupArrow} aria-hidden="true" />
       </div>
 

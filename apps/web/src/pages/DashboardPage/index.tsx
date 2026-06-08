@@ -5,8 +5,7 @@ import { candidatesApi } from '../../api/candidates'
 import { jobsApi } from '../../api/jobs'
 import { pipelineApi } from '../../api/pipeline'
 import { interviewsApi } from '../../api/interviews'
-import { loadDemoPipeline, loadDemoJobs } from '../../lib/demoStorage'
-import { DEMO_INTERVIEWS, STAGES } from '../PipelinePage/constants'
+import { STAGES } from '../PipelinePage/constants'
 import { PipelineTracker } from './components/PipelineTracker/PipelineTracker'
 import { ActiveJobs } from './components/ActiveJobs/ActiveJobs'
 import { UpcomingInterviews } from './components/UpcomingInterviews/UpcomingInterviews'
@@ -29,10 +28,6 @@ const STAGE_COLORS: Record<string, string> = {
 export default function DashboardPage() {
   const navigate = useNavigate()
 
-  // Load live demo data from localStorage (falls back to seed data if untouched)
-  const demoPipeline = loadDemoPipeline()
-  const demoJobsLive = loadDemoJobs()
-
   const { data: candidatesData } = useQuery({
     queryKey: ['candidates'],
     queryFn: () => candidatesApi.getAll({ limit: 100 }),
@@ -43,7 +38,7 @@ export default function DashboardPage() {
     queryFn: () => jobsApi.getAll(),
   })
 
-  const { data: pipelineData, isLoading: pipelineLoading } = useQuery({
+  const { data: pipelineData } = useQuery({
     queryKey: ['pipeline'],
     queryFn: () => pipelineApi.getAll(),
   })
@@ -53,76 +48,29 @@ export default function DashboardPage() {
     queryFn: () => interviewsApi.getAll(),
   })
 
-  const pipeline = pipelineData?.pipeline || []
-  const isDemoMode = !pipelineLoading && pipeline.length === 0
+  const pipeline = pipelineData?.pipeline ?? []
+  const jobs = jobsData?.jobs ?? []
 
   const now = new Date()
-  const weekStart = new Date(now)
-  weekStart.setDate(now.getDate() - now.getDay())
-  const weekEnd = new Date(weekStart)
-  weekEnd.setDate(weekStart.getDate() + 7)
 
-  // Per-job candidate counts derived from live localStorage pipeline
-  const candidateCountsByJob = isDemoMode
-    ? demoPipeline.reduce<Record<string, number>>((acc, cj) => {
-        acc[cj.jobId] = (acc[cj.jobId] ?? 0) + 1
-        return acc
-      }, {})
-    : {}
+  const totalCandidates = candidatesData?.total ?? 0
 
-  const totalCandidates = isDemoMode
-    ? new Set(demoPipeline.map(cj => cj.candidateId)).size
-    : (candidatesData?.total || 0)
+  const pipelineByStage = STAGE_ORDER.map(stage => ({
+    label: stage,
+    short: STAGE_SHORT[stage],
+    count: pipeline.filter(p => p.stage === stage).length,
+    max: Math.max(pipeline.length, 1),
+    color: STAGE_COLORS[stage],
+  }))
 
-  const activeJobs = isDemoMode
-    ? demoJobsLive.filter(j => j.status === 'OPEN').length
-    : (jobsData?.jobs.filter(j => j.status === 'OPEN').length || 0)
+  const upcomingInterviews = (interviewsData?.interviews ?? [])
+    .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
+    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+    .slice(0, 4)
 
-  const interviewsThisWeek = isDemoMode
-    ? DEMO_INTERVIEWS.filter(iv => {
-        const d = new Date(iv.scheduledAt)
-        return d >= weekStart && d <= weekEnd
-      }).length
-    : (interviewsData?.interviews.filter(iv => {
-        const d = new Date(iv.scheduledAt)
-        return d >= weekStart && d <= weekEnd
-      }).length || 0)
+  const recentJobs = jobs.slice(0, 3)
 
-  const pipelineByStage = isDemoMode
-    ? STAGE_ORDER.map(stage => ({
-        label: stage,
-        short: STAGE_SHORT[stage],
-        count: demoPipeline.filter(p => p.stage === stage).length,
-        max: Math.max(demoPipeline.length, 1),
-        color: STAGE_COLORS[stage],
-      }))
-    : STAGE_ORDER.map(stage => ({
-        label: stage,
-        short: STAGE_SHORT[stage],
-        count: pipeline.filter(p => p.stage === stage).length,
-        max: Math.max(pipeline.length, 1),
-        color: STAGE_COLORS[stage],
-      }))
-
-  const upcomingInterviews = isDemoMode
-    ? DEMO_INTERVIEWS
-        .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
-        .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
-        .slice(0, 2)
-    : (interviewsData?.interviews || [])
-        .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
-        .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
-        .slice(0, 4)
-
-  const recentJobs = isDemoMode
-    ? demoJobsLive.slice(0, 3).map(job => ({
-        ...job,
-        _count: { candidates: candidateCountsByJob[job.id] ?? 0 },
-      }))
-    : (jobsData?.jobs.slice(0, 3) || [])
-
-  const pipelineSource = isDemoMode ? demoPipeline : pipeline
-  const stageCounts = STAGES.map(s => pipelineSource.filter(p => p.stage === s.id).length)
+  const stageCounts = STAGES.map(s => pipeline.filter(p => p.stage === s.id).length)
   const stageMax = Math.max(...stageCounts, 1)
   const hiringStages = STAGES.map((s, i) => ({
     label: s.label,
@@ -135,7 +83,7 @@ export default function DashboardPage() {
     <AppLayout title="Dashboard">
       <div className={styles.dashboardContainer}>
         <div className={styles.topSection}>
-          <PipelineTracker pipelineByStage={pipelineByStage} totalCandidates={totalCandidates} pipeline={pipelineSource} />
+          <PipelineTracker pipelineByStage={pipelineByStage} totalCandidates={totalCandidates} pipeline={pipeline} />
           <ActiveJobs jobs={recentJobs} onSeeAll={() => navigate('/jobs')} />
         </div>
 

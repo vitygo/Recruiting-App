@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { loadDemoUser, saveDemoUser, type DemoUser } from '../../lib/demoStorage'
+import { demoApi } from '../../api/demo'
 import { useOrgStore } from '../../store/orgStore'
 import { useThemeStore } from '../../store/themeStore'
 
@@ -417,7 +419,30 @@ function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; on
 
 function DangerTab() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [wiping, setWiping] = useState(false)
+  const [wipeError, setWipeError] = useState('')
+
+  const wipeMutation = useMutation({
+    mutationFn: () => demoApi.clear(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries()
+      localStorage.removeItem('has_seen_assistant')
+      localStorage.setItem('is_demo_active', 'false')
+      setWiping(false)
+    },
+    onError: () => {
+      setWipeError('Failed to wipe data. Please try again.')
+      setWiping(false)
+    },
+  })
+
+  const handleWipe = () => {
+    setWiping(true)
+    setWipeError('')
+    wipeMutation.mutate()
+  }
 
   const handleDeleteAccount = () => {
     localStorage.clear()
@@ -444,18 +469,19 @@ function DangerTab() {
 
         <div className={styles.dangerItem}>
           <div>
-            <p className={styles.dangerLabel}>Reset demo data</p>
-            <p className={styles.dangerDesc}>Clears all pipeline, job, and candidate data from localStorage and reverts to seed data.</p>
+            <p className={styles.dangerLabel}>Wipe Demo Data &amp; Reset Application</p>
+            <p className={styles.dangerDesc}>
+              Permanently deletes all jobs, candidates, and pipeline records from the database.
+              This transitions the app to clean production mode.
+            </p>
+            {wipeError && <p className={styles.dangerError}>{wipeError}</p>}
           </div>
           <button
-            className={styles.btnDanger}
-            onClick={() => {
-              localStorage.removeItem('recruit_demo_pipeline')
-              localStorage.removeItem('recruit_demo_jobs')
-              window.location.reload()
-            }}
+            className={styles.btnDangerSolid}
+            onClick={handleWipe}
+            disabled={wiping || wipeMutation.isPending}
           >
-            Reset data
+            {wipeMutation.isPending ? 'Wiping…' : 'Wipe demo data'}
           </button>
         </div>
 

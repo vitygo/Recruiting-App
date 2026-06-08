@@ -8,7 +8,8 @@ export const createJobSchema = z.object({
     salaryMin: z.number().int().positive().optional(),
     salaryMax: z.number().int().positive().optional(),
     description: z.string().min(1).trim(),
-    status: z.enum(['OPEN', 'PAUSED', 'CLOSED']).default('OPEN'),
+    techStack: z.string().optional(),
+    status: z.enum(['OPEN', 'ACTIVE', 'REVIEWING', 'PAUSED', 'ENDED', 'CLOSED']).default('OPEN'),
   })
   
   export const updateJobSchema = createJobSchema.partial()

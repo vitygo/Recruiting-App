@@ -72,6 +72,41 @@
   transform: rotate(45deg);
 }
 
+/* ── Wipe action button ─────────────────────────────────── */
+.wipeBtn {
+  display: block;
+  width: 100%;
+  margin-top: 0.875rem;
+  padding: 0.625rem 1rem;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  text-align: center;
+}
+
+.wipeBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.wipeBtn:active {
+  transform: scale(0.98);
+  opacity: 1;
+}
+
+.wipeBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+
 /* ── Floating button ────────────────────────────────────── */
 .bubble {
   width: 3.25rem;

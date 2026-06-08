@@ -4,9 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Briefcase, Buildings, Users, Clock } from '@phosphor-icons/react'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { jobsApi } from '../../api/jobs'
+import { pipelineApi } from '../../api/pipeline'
 import { useDebounce } from '../../hooks/useDebounce'
-import { DEMO_PIPELINE } from '../PipelinePage/constants'
-import { loadDemoPipeline, loadDemoJobs, saveDemoJobs } from '../../lib/demoStorage'
 import { ACTIVE_STATUSES } from './constants'
 import { JobStats } from './components/JobStats/JobStats'
 import { JobToolbar } from './components/JobToolbar/JobToolbar'
@@ -26,13 +25,17 @@ export default function JobsPage() {
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active')
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingJob, setEditingJob] = useState<Job | null>(null)
-  const [demoJobs, setDemoJobs] = useState<Job[] | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
 
-  const { data, isLoading, isSuccess } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['jobs'],
     queryFn: () => jobsApi.getAll(),
+  })
+
+  const { data: pipelineData } = useQuery({
+    queryKey: ['pipeline'],
+    queryFn: () => pipelineApi.getAll(),
   })
 
   const addJobMutation = useMutation({
@@ -40,16 +43,16 @@ export default function JobsPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobs'] }),
   })
 
-  const apiJobs = data?.jobs ?? []
-  const isDemo = isSuccess && apiJobs.length === 0
+  const editJobMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: EditJobData }) => jobsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      setEditingJob(null)
+    },
+  })
 
-  const jobs = useMemo(() => {
-    if (!isDemo) return apiJobs
-    if (demoJobs) return demoJobs
-    return loadDemoJobs()
-  }, [isDemo, apiJobs, demoJobs])
-
-  const effectivePipeline = isDemo ? loadDemoPipeline() : []
+  const jobs = data?.jobs ?? []
+  const pipeline = pipelineData?.pipeline ?? []
 
   const tabFiltered = useMemo(() => {
     return jobs.filter(j =>
@@ -70,36 +73,12 @@ export default function JobsPage() {
     })
   }, [tabFiltered, debouncedSearch, typeFilter])
 
-  const stats = useMemo(() => ({
-    total: jobs.length,
-    active: jobs.filter(j => ACTIVE_STATUSES.has(j.status)).length,
-    applicants: isDemo
-      ? effectivePipeline.length
-      : jobs.reduce((acc, j) => acc + (j._count?.candidates || 0), 0),
-  }), [jobs, isDemo, effectivePipeline])
-
   const STATS = [
-    { label: 'Total jobs',       value: stats.total.toString(),       icon: Briefcase, iconBg: 'rgba(255,122,61,0.1)',  iconColor: 'var(--c-orange)' },
-    { label: 'Active positions', value: stats.active.toString(),      icon: Buildings, iconBg: 'rgba(255,122,61,0.1)',  iconColor: 'var(--c-orange)' },
-    { label: 'Total applicants', value: stats.applicants.toString(),  icon: Users,     iconBg: 'rgba(0,153,255,0.1)',   iconColor: 'var(--c-accent)' },
-    { label: 'Avg time to fill', value: '18d',                        icon: Clock,     iconBg: 'rgba(0,153,255,0.1)',   iconColor: 'var(--c-accent)' },
+    { label: 'Total jobs',       value: jobs.length.toString(),                                             icon: Briefcase, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
+    { label: 'Active positions', value: jobs.filter(j => ACTIVE_STATUSES.has(j.status)).length.toString(), icon: Buildings, iconBg: 'rgba(255,122,61,0.1)', iconColor: 'var(--c-orange)' },
+    { label: 'Total applicants', value: pipeline.length.toString(),                                         icon: Users,     iconBg: 'rgba(0,153,255,0.1)',  iconColor: 'var(--c-accent)' },
+    { label: 'Avg time to fill', value: '18d',                                                              icon: Clock,     iconBg: 'rgba(0,153,255,0.1)',  iconColor: 'var(--c-accent)' },
   ]
-
-  const handleViewPipeline = (jobId: string) => {
-    navigate(`/pipeline?job=${jobId}`)
-  }
-
-  const handleEditJob = (data: EditJobData) => {
-    if (!editingJob) return
-    if (isDemo) {
-      setDemoJobs(prev => {
-        const base = prev ?? loadDemoJobs()
-        const next = base.map(j => j.id === editingJob.id ? { ...j, ...data } : j)
-        saveDemoJobs(next)
-        return next
-      })
-    }
-  }
 
   return (
     <AppLayout title="Jobs">
@@ -133,17 +112,17 @@ export default function JobsPage() {
 
         <JobGrid
           jobs={filtered}
-          pipeline={effectivePipeline}
+          pipeline={pipeline}
           isLoading={isLoading}
-          onViewPipeline={handleViewPipeline}
-          onEditJob={isDemo ? setEditingJob : undefined}
+          onViewPipeline={(jobId) => navigate(`/pipeline?job=${jobId}`)}
+          onEditJob={setEditingJob}
         />
       </div>
 
       {showAddModal && (
         <AddJobModal
           onClose={() => setShowAddModal(false)}
-          onAdd={(data: AddJobData) => addJobMutation.mutate(data)}
+          onAdd={(data: AddJobData) => addJobMutation.mutate(data as Partial<Job>)}
         />
       )}
 
@@ -151,7 +130,7 @@ export default function JobsPage() {
         <EditJobModal
           job={editingJob}
           onClose={() => setEditingJob(null)}
-          onSave={handleEditJob}
+          onSave={(data: EditJobData) => editJobMutation.mutate({ id: editingJob.id, data })}
         />
       )}
     </AppLayout>
