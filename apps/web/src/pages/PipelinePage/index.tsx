@@ -69,6 +69,10 @@ export default function PipelinePage() {
     mutationFn: ({ id, stage }: { id: string; stage: PipelineStage }) =>
       pipelineApi.updateStage(id, stage),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pipeline'] }),
+    onError: (error) => {
+      console.error('Pipeline stage update failed:', error)
+      queryClient.invalidateQueries({ queryKey: ['pipeline'] })
+    },
   })
 
   const deletePipelineMutation = useMutation({

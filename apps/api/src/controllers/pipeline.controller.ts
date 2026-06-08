@@ -86,7 +86,8 @@ export async function updateStage(req: AuthRequest, res: Response): Promise<void
     })
 
     res.json({ candidateJob: updated })
-  } catch {
+  } catch (error) {
+    console.error('DRAG_DROP_ERROR:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 }
