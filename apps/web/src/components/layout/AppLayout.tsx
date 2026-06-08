@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useThemeStore } from '../../store/themeStore'
 import { useOrgStore } from '../../store/orgStore'
 import { useRipple } from '../../hooks/useRipple'
 import { AssistantBubble } from '../AssistantBubble'
 import { UserDropdown } from './UserDropdown'
+import { pipelineApi } from '../../api/pipeline'
+import { interviewsApi } from '../../api/interviews'
 import styles from './AppLayout.module.css'
 
 
@@ -19,10 +22,10 @@ import { Gear } from "@phosphor-icons/react/Gear"
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: SquaresFour, label: 'Dashboard' },
-  { to: '/pipeline', icon: Kanban, label: 'Pipeline', badge: '14' },
+  { to: '/pipeline', icon: Kanban, label: 'Pipeline' },
   { to: '/candidates', icon: Users, label: 'Candidates' },
   { to: '/jobs', icon: Briefcase, label: 'Jobs' },
-  { to: '/interviews', icon: CalendarBlank, label: 'Interviews', badge: '3' },
+  { to: '/interviews', icon: CalendarBlank, label: 'Interviews' },
 ]
 
 
@@ -35,6 +38,27 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
   const { theme, toggle } = useThemeStore()
   const companyName = useOrgStore((s) => s.companyName)
   const createRipple = useRipple()
+
+  const { data: pipelineData } = useQuery({
+    queryKey: ['pipeline', 'all'],
+    queryFn: () => pipelineApi.getAll(),
+  })
+
+  const { data: interviewsData } = useQuery({
+    queryKey: ['interviews'],
+    queryFn: () => interviewsApi.getAll(),
+  })
+
+  const now = new Date()
+  const pipelineCount = pipelineData?.pipeline?.length ?? 0
+  const interviewCount = (interviewsData?.interviews ?? [])
+    .filter(iv => iv.status === 'SCHEDULED' && new Date(iv.scheduledAt) >= now)
+    .length
+
+  const navBadges: Record<string, string | undefined> = {
+    '/pipeline': pipelineCount > 0 ? String(pipelineCount) : undefined,
+    '/interviews': interviewCount > 0 ? String(interviewCount) : undefined,
+  }
 
   return (
     <div className={styles.root}>
@@ -67,9 +91,9 @@ export function AppLayout({ children, title }: { children: React.ReactNode; titl
           <span className={`${styles.navLabel} ${collapsed ? styles.navLabelHidden : ''}`}>
             {item.label}
           </span>
-          {item.badge && (
+          {navBadges[item.to] && (
             <span className={`${styles.navBadge} ${collapsed ? styles.navBadgeHidden : ''}`}>
-              {item.badge}
+              {navBadges[item.to]}
             </span>
           )}
           {collapsed && <span className={styles.tooltip}>{item.label}</span>}

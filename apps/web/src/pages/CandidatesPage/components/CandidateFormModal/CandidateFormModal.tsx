@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { X } from '@phosphor-icons/react'
 import { Select } from '../../../../components/ui/Select'
 import { FormInput } from '../../../../components/ui/FormInput'
@@ -16,11 +16,12 @@ interface CandidateFormModalProps {
   onSave: (data: Partial<Candidate>) => void
   title: string
   submitLabel: string
+  isSubmitting?: boolean
 }
 
 type Errors = Partial<Record<'firstName' | 'lastName' | 'email' | 'phone', string>>
 
-export function CandidateFormModal({ candidate, onClose, onSave, title, submitLabel }: CandidateFormModalProps) {
+export function CandidateFormModal({ candidate, onClose, onSave, title, submitLabel, isSubmitting }: CandidateFormModalProps) {
   const [form, setForm] = useState({
     firstName: candidate?.firstName || '',
     lastName: candidate?.lastName || '',
@@ -30,6 +31,11 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
     source: candidate?.source || 'MANUAL',
   })
   const [errors, setErrors] = useState<Errors>({})
+
+  const firstNameRef = useRef<HTMLInputElement>(null)
+  const lastNameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
 
   const set = <K extends keyof typeof form>(key: K) => (v: string) => {
     setForm(p => ({ ...p, [key]: v }))
@@ -53,7 +59,14 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
 
   const handleSubmit = () => {
     const errs = validate()
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
+      if (errs.firstName) firstNameRef.current?.focus()
+      else if (errs.lastName) lastNameRef.current?.focus()
+      else if (errs.email) emailRef.current?.focus()
+      else if (errs.phone) phoneRef.current?.focus()
+      return
+    }
     onSave(form)
   }
 
@@ -73,8 +86,8 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
             <div className={styles.modalRole}>Fill in the candidate details</div>
           </div>
           </div>
-          <button className={styles.modalCloseBtn} onClick={onClose}>
-            <X size={16} weight="bold" />
+          <button type="button" className={styles.modalCloseBtn} onClick={onClose} aria-label="Close modal">
+            <X size={16} weight="bold" aria-hidden="true" />
           </button>
         </div>
 
@@ -87,6 +100,7 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
               onChange={set('firstName')}
               placeholder="Alex"
               error={errors.firstName}
+              inputRef={firstNameRef}
             />
             <FormInput
               label="Last name"
@@ -95,6 +109,7 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
               onChange={set('lastName')}
               placeholder="Johnson"
               error={errors.lastName}
+              inputRef={lastNameRef}
             />
           </div>
 
@@ -106,6 +121,7 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
             onChange={set('email')}
             placeholder="alex@email.com"
             error={errors.email}
+            inputRef={emailRef}
           />
 
           <div className={styles.twoCol}>
@@ -115,6 +131,7 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
               onChange={set('phone')}
               placeholder="+380 50 123 4567"
               error={errors.phone}
+              inputRef={phoneRef}
             />
             <FormInput
               label="Location"
@@ -131,8 +148,15 @@ export function CandidateFormModal({ candidate, onClose, onSave, title, submitLa
         </div>
 
         <div className={styles.modalFooter}>
-          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-          <button className={styles.saveBtn} onClick={handleSubmit}>{submitLabel}</button>
+          <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={isSubmitting}>Cancel</button>
+          <button
+            type="button"
+            className={styles.saveBtn}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Saving...' : submitLabel}
+          </button>
         </div>
       </div>
     </div>

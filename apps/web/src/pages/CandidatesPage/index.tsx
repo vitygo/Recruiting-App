@@ -125,6 +125,7 @@ export default function CandidatesPage() {
           submitLabel="Add candidate"
           onClose={() => setShowAddModal(false)}
           onSave={data => addCandidateMutation.mutate(data)}
+          isSubmitting={addCandidateMutation.isPending}
         />
       )}
 
@@ -135,6 +136,7 @@ export default function CandidatesPage() {
           candidate={selectedCandidate}
           onClose={() => setSelectedCandidate(null)}
           onSave={data => updateCandidateMutation.mutate({ id: selectedCandidate.id, data })}
+          isSubmitting={updateCandidateMutation.isPending}
         />
       )}
     </AppLayout>

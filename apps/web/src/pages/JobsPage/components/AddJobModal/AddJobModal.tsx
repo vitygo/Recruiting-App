@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { X } from '@phosphor-icons/react'
 import { Select } from '../../../../components/ui/Select'
 import { FormInput } from '../../../../components/ui/FormInput'
@@ -22,9 +22,10 @@ type Errors = Partial<Record<'title' | 'department' | 'location' | 'description'
 type Props = {
   onClose: () => void
   onAdd: (data: AddJobData) => void
+  isSubmitting?: boolean
 }
 
-export function AddJobModal({ onClose, onAdd }: Props) {
+export function AddJobModal({ onClose, onAdd, isSubmitting }: Props) {
   const [form, setForm] = useState({
     title: '',
     department: '',
@@ -36,6 +37,11 @@ export function AddJobModal({ onClose, onAdd }: Props) {
     technologies: [] as string[],
   })
   const [errors, setErrors] = useState<Errors>({})
+
+  const titleRef = useRef<HTMLInputElement>(null)
+  const departmentRef = useRef<HTMLInputElement>(null)
+  const locationRef = useRef<HTMLInputElement>(null)
+  const descriptionRef = useRef<HTMLTextAreaElement>(null)
 
   const set = (key: string) => (v: string) => {
     setForm(p => ({ ...p, [key]: v }))
@@ -53,7 +59,14 @@ export function AddJobModal({ onClose, onAdd }: Props) {
 
   const handleSubmit = () => {
     const errs = validate()
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
+      if (errs.title) titleRef.current?.focus()
+      else if (errs.department) departmentRef.current?.focus()
+      else if (errs.location) locationRef.current?.focus()
+      else if (errs.description) descriptionRef.current?.focus()
+      return
+    }
     onAdd({
       ...form,
       salaryMin: Number(form.salaryMin) || 0,
@@ -83,6 +96,7 @@ export function AddJobModal({ onClose, onAdd }: Props) {
             onChange={set('title')}
             placeholder="Senior Full-Stack Engineer"
             error={errors.title}
+            inputRef={titleRef}
           />
 
           <div className={styles.twoCol}>
@@ -93,6 +107,7 @@ export function AddJobModal({ onClose, onAdd }: Props) {
               onChange={set('department')}
               placeholder="Engineering"
               error={errors.department}
+              inputRef={departmentRef}
             />
             <FormInput
               label="Location"
@@ -101,6 +116,7 @@ export function AddJobModal({ onClose, onAdd }: Props) {
               onChange={set('location')}
               placeholder="Kyiv, Ukraine"
               error={errors.location}
+              inputRef={locationRef}
             />
           </div>
 
@@ -144,6 +160,7 @@ export function AddJobModal({ onClose, onAdd }: Props) {
               Description <span className={styles.required}>*</span>
             </div>
             <textarea
+              ref={descriptionRef}
               className={`${styles.textarea}${errors.description ? ' ' + styles.textareaError : ''}`}
               value={form.description}
               onChange={e => {
@@ -159,8 +176,15 @@ export function AddJobModal({ onClose, onAdd }: Props) {
         </div>
 
         <div className={styles.modalFooter}>
-          <button type="button" className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-          <button type="button" className={styles.saveBtn} onClick={handleSubmit}>Post job</button>
+          <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={isSubmitting}>Cancel</button>
+          <button
+            type="button"
+            className={styles.saveBtn}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Saving...' : 'Post job'}
+          </button>
         </div>
       </div>
     </div>

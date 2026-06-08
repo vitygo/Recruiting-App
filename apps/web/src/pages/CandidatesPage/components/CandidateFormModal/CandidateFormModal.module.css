@@ -158,8 +158,14 @@
   transition: opacity 0.15s;
 }
 
-.saveBtn:hover {
+.saveBtn:hover:not(:disabled) {
   opacity: 0.88;
+}
+
+.saveBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .fieldError {

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { AppLayout } from '../../components/layout/AppLayout'
-import { candidatesApi } from '../../api/candidates'
+import { dashboardApi } from '../../api/dashboard'
 import { jobsApi } from '../../api/jobs'
 import { pipelineApi } from '../../api/pipeline'
 import { interviewsApi } from '../../api/interviews'
@@ -28,9 +28,9 @@ const STAGE_COLORS: Record<string, string> = {
 export default function DashboardPage() {
   const navigate = useNavigate()
 
-  const { data: candidatesData } = useQuery({
-    queryKey: ['candidates'],
-    queryFn: () => candidatesApi.getAll({ limit: 100 }),
+  const { data: statsData } = useQuery({
+    queryKey: ['dashboard', 'stats'],
+    queryFn: () => dashboardApi.getStats(),
   })
 
   const { data: jobsData } = useQuery({
@@ -39,7 +39,7 @@ export default function DashboardPage() {
   })
 
   const { data: pipelineData } = useQuery({
-    queryKey: ['pipeline'],
+    queryKey: ['pipeline', 'all'],
     queryFn: () => pipelineApi.getAll(),
   })
 
@@ -53,7 +53,7 @@ export default function DashboardPage() {
 
   const now = new Date()
 
-  const totalCandidates = candidatesData?.total ?? 0
+  const totalCandidates = statsData?.totalCandidates ?? 0
 
   const pipelineByStage = STAGE_ORDER.map(stage => ({
     label: stage,

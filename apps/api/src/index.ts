@@ -11,6 +11,7 @@ import pipelineRoutes from './routes/pipeline.routes'
 import interviewsRoutes from './routes/interviews.routes'
 import notesRoutes from './routes/notes.routes'
 import demoRoutes from './routes/demo.routes'
+import dashboardRoutes from './routes/dashboard.routes'
 import { runSeedIfEmpty } from './lib/seed'
 
 const app = express()
@@ -44,6 +45,7 @@ app.use('/api/pipeline', pipelineRoutes)
 app.use('/api/interviews', interviewsRoutes)
 app.use('/api/notes', notesRoutes)
 app.use('/api/demo', demoRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 
 app.listen(PORT, async () => {
   console.log(`API running on http://localhost:${PORT}`)

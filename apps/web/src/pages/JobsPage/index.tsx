@@ -138,6 +138,7 @@ export default function JobsPage() {
         <AddJobModal
           onClose={() => setShowAddModal(false)}
           onAdd={(data: AddJobData) => addJobMutation.mutate(data as Partial<Job>)}
+          isSubmitting={addJobMutation.isPending}
         />
       )}
 
