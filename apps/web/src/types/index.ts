@@ -4,6 +4,8 @@ export interface User {
     email: string
     role: 'RECRUITER' | 'HIRING_MANAGER' | 'ADMIN'
     avatarUrl?: string
+    bio?: string
+    position?: string
     createdAt: string
   }
   

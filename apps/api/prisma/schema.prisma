@@ -16,6 +16,8 @@ model User {
   passwordHash String
   role         String   @default("RECRUITER")
   avatarUrl    String?
+  bio          String?
+  position     String?
   createdAt    DateTime @default(now())
 
   jobs          Job[]

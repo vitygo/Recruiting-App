@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import { prisma } from '../lib/prisma'
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../lib/tokens'
-import { RegisterInput, LoginInput } from '../schemas/auth.schema'
+import { RegisterInput, LoginInput, UpdateProfileInput } from '../schemas/auth.schema'
 import { AuthRequest } from '../middleware/auth.middleware'
 import { seedForUser } from '../lib/seed'
 
@@ -163,13 +163,29 @@ export async function me(req: AuthRequest, res: Response): Promise<void> {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
-      select: { id: true, name: true, email: true, role: true, avatarUrl: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, avatarUrl: true, bio: true, position: true, createdAt: true },
     })
 
     if (!user) {
       res.status(404).json({ error: 'User not found' })
       return
     }
+
+    res.json({ user })
+  } catch {
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}
+
+export async function updateMe(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { name, bio, position } = req.body as UpdateProfileInput
+
+    const user = await prisma.user.update({
+      where: { id: req.userId },
+      data: { name, bio, position },
+      select: { id: true, name: true, email: true, role: true, avatarUrl: true, bio: true, position: true, createdAt: true },
+    })
 
     res.json({ user })
   } catch {

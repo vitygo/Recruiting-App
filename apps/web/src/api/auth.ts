@@ -26,4 +26,9 @@ export const authApi = {
     const res = await client.get<{ user: User }>('/auth/me')
     return res.data
   },
+
+  updateMe: async (data: { name?: string; bio?: string; position?: string }) => {
+    const res = await client.patch<{ user: User }>('/auth/me', data)
+    return res.data.user
+  },
 }

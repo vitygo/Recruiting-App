@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { AppLayout } from '../../components/layout/AppLayout'
-import { loadDemoUser, saveDemoUser, type DemoUser } from '../../lib/demoStorage'
 import { demoApi } from '../../api/demo'
+import { authApi } from '../../api/auth'
+import { useAuthStore } from '../../store/authStore'
 import { useOrgStore } from '../../store/orgStore'
 import { useThemeStore } from '../../store/themeStore'
 
@@ -39,37 +40,52 @@ function initials(name: string) {
 }
 
 function ProfileTab() {
-  const stored = loadDemoUser()
-  const [form, setForm] = useState<DemoUser>(stored)
-  const [saved, setSaved] = useState(false)
+  const { user, setUser } = useAuthStore()
+  const [form, setForm] = useState({
+    name:     user?.name     ?? '',
+    bio:      user?.bio      ?? '',
+    position: user?.position ?? '',
+  })
+  const [avatarDataUrl, setAvatarDataUrl] = useState<string | undefined>(user?.avatarUrl)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const handleChange = (field: keyof DemoUser) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }))
-    setSaved(false)
-  }
+  const updateMutation = useMutation({
+    mutationFn: (data: { name: string; bio: string; position: string }) =>
+      authApi.updateMe(data),
+    onSuccess: (updatedUser) => {
+      setUser(updatedUser)
+      toast.success('Profile updated successfully!')
+    },
+    onError: () => {
+      toast.error('Failed to update profile. Please try again.')
+    },
+  })
+
+  const handleChange = (field: 'name' | 'bio' | 'position') =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setForm((prev) => ({ ...prev, [field]: e.target.value }))
+    }
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
     reader.onload = (ev) => {
-      const dataUrl = ev.target?.result as string
-      setForm((prev) => ({ ...prev, avatarDataUrl: dataUrl }))
-      setSaved(false)
+      setAvatarDataUrl(ev.target?.result as string)
     }
     reader.readAsDataURL(file)
   }
 
   const handleSave = () => {
-    saveDemoUser(form)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    updateMutation.mutate(form)
   }
 
   const handleReset = () => {
-    setForm(stored)
-    setSaved(false)
+    setForm({
+      name:     user?.name     ?? '',
+      bio:      user?.bio      ?? '',
+      position: user?.position ?? '',
+    })
   }
 
   const avatarInitials = initials(form.name)
@@ -85,8 +101,8 @@ function ProfileTab() {
         <div className={styles.avatarRow}>
           <div className={styles.avatarWrap} onClick={() => fileRef.current?.click()}>
             <div className={styles.avatar}>
-              {form.avatarDataUrl
-                ? <img src={form.avatarDataUrl} alt="avatar" className={styles.avatarImg} />
+              {avatarDataUrl
+                ? <img src={avatarDataUrl} alt="avatar" className={styles.avatarImg} />
                 : avatarInitials}
             </div>
             <div className={styles.avatarOverlay}>
@@ -137,8 +153,8 @@ function ProfileTab() {
             <input
               className={styles.input}
               type="email"
-              value={form.email}
-              onChange={handleChange('email')}
+              value={user?.email ?? ''}
+              readOnly
               placeholder="you@company.com"
             />
           </div>
@@ -155,17 +171,11 @@ function ProfileTab() {
         </div>
 
         <div className={styles.formFooter}>
-          {saved && (
-            <div className={`${styles.toast} ${styles.toastSuccess}`}>
-              <CheckCircle size={15} weight="fill" />
-              Changes saved
-            </div>
-          )}
-          <button className={styles.btnSecondary} onClick={handleReset}>
+          <button className={styles.btnSecondary} onClick={handleReset} disabled={updateMutation.isPending}>
             Discard
           </button>
-          <button className={styles.btnPrimary} onClick={handleSave}>
-            Save changes
+          <button className={styles.btnPrimary} onClick={handleSave} disabled={updateMutation.isPending}>
+            {updateMutation.isPending ? 'Saving…' : 'Save changes'}
           </button>
         </div>
       </div>
@@ -418,7 +428,6 @@ function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; on
 }
 
 function DangerTab() {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [wiping, setWiping] = useState(false)
@@ -445,8 +454,8 @@ function DangerTab() {
   }
 
   const handleDeleteAccount = () => {
-    localStorage.clear()
-    navigate('/register')
+    setShowDeleteModal(false)
+    toast.error('Account deletion is not yet available. Please contact support to remove your account.')
   }
 
   return (

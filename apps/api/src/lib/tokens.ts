@@ -1,7 +1,11 @@
 import jwt from 'jsonwebtoken'
 
-const ACCESS_SECRET  = process.env.JWT_ACCESS_SECRET  || 'dev-access-secret'
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret'
+if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+  throw new Error('CRITICAL: JWT Secrets are missing in environment variables!')
+}
+
+const ACCESS_SECRET  = process.env.JWT_ACCESS_SECRET as string
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string
 
 export function generateAccessToken(userId: string): string {
   return jwt.sign({ userId }, ACCESS_SECRET, { expiresIn: '15m' })
