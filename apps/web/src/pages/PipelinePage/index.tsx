@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
+import { toast } from 'sonner'
 import {
   DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter,
 } from '@dnd-kit/core'
@@ -96,6 +98,12 @@ export default function PipelinePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pipeline'] })
       queryClient.invalidateQueries({ queryKey: ['candidates'] })
+      setShowAddModal(false)
+      toast.success('Candidate added to pipeline!')
+    },
+    onError: (err) => {
+      const msg = isAxiosError(err) ? err.response?.data?.error ?? err.message : 'Unexpected error'
+      toast.error(`Failed to add candidate: ${msg}`)
     },
   })
 

@@ -18,6 +18,8 @@ export type EditJobData = {
   technologies: string[]
 }
 
+type Errors = Partial<Record<'title' | 'department' | 'location' | 'description', string>>
+
 type Props = {
   job: Job
   onClose: () => void
@@ -35,9 +37,25 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
     description:  job.description ?? '',
     technologies: job.technologies ?? [] as string[],
   })
+  const [errors, setErrors] = useState<Errors>({})
+
+  const set = (key: string) => (v: string) => {
+    setForm(p => ({ ...p, [key]: v }))
+    setErrors(p => ({ ...p, [key]: undefined }))
+  }
+
+  const validate = (): Errors => {
+    const e: Errors = {}
+    if (!form.title.trim()) e.title = 'This field is required'
+    if (!form.department.trim()) e.department = 'This field is required'
+    if (!form.location.trim()) e.location = 'This field is required'
+    if (!form.description.trim()) e.description = 'This field is required'
+    return e
+  }
 
   const handleSubmit = () => {
-    if (!form.title || !form.department) return
+    const errs = validate()
+    if (Object.keys(errs).length > 0) { setErrors(errs); return }
     onSave({
       title:        form.title,
       department:   form.department,
@@ -48,7 +66,6 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
       description:  form.description,
       technologies: form.technologies,
     })
-    onClose()
   }
 
   return (
@@ -70,8 +87,9 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
             label="Job title"
             required
             value={form.title}
-            onChange={v => setForm(p => ({ ...p, title: v }))}
+            onChange={set('title')}
             placeholder="Senior Full-Stack Engineer"
+            error={errors.title}
           />
 
           <div className={styles.twoCol}>
@@ -79,14 +97,17 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
               label="Department"
               required
               value={form.department}
-              onChange={v => setForm(p => ({ ...p, department: v }))}
+              onChange={set('department')}
               placeholder="Engineering"
+              error={errors.department}
             />
             <FormInput
               label="Location"
+              required
               value={form.location}
-              onChange={v => setForm(p => ({ ...p, location: v }))}
+              onChange={set('location')}
               placeholder="Kyiv, Ukraine"
+              error={errors.location}
             />
           </div>
 
@@ -104,14 +125,14 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
             <FormInput
               label="Salary min ($)"
               value={form.salaryMin}
-              onChange={v => setForm(p => ({ ...p, salaryMin: v }))}
+              onChange={set('salaryMin')}
               placeholder="3000"
               type="number"
             />
             <FormInput
               label="Salary max ($)"
               value={form.salaryMax}
-              onChange={v => setForm(p => ({ ...p, salaryMax: v }))}
+              onChange={set('salaryMax')}
               placeholder="6000"
               type="number"
             />
@@ -126,15 +147,21 @@ export function EditJobModal({ job, onClose, onSave }: Props) {
           />
 
           <div className={styles.modalSection}>
-            <div className={styles.modalSectionLabel}>Description</div>
+            <div className={`${styles.modalSectionLabel}${errors.description ? ' ' + styles.labelError : ''}`}>
+              Description <span className={styles.required}>*</span>
+            </div>
             <textarea
-              className={styles.textarea}
+              className={`${styles.textarea}${errors.description ? ' ' + styles.textareaError : ''}`}
               value={form.description}
-              onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+              onChange={e => {
+                setForm(p => ({ ...p, description: e.target.value }))
+                setErrors(p => ({ ...p, description: undefined }))
+              }}
               placeholder="Describe the role, responsibilities and requirements..."
               rows={4}
               aria-label="Job description"
             />
+            {errors.description && <span className={styles.fieldError}>{errors.description}</span>}
           </div>
         </div>
 

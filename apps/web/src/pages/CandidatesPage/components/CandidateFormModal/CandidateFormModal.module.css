@@ -161,3 +161,9 @@
 .saveBtn:hover {
   opacity: 0.88;
 }
+
+.fieldError {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: -2px;
+}

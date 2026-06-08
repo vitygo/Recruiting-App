@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
+import { toast } from 'sonner'
 import { Users, Sparkle, GraduationCap, UserCheck } from '@phosphor-icons/react'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { candidatesApi } from '../../api/candidates'
@@ -18,7 +20,6 @@ export default function CandidatesPage() {
   const [stageFilter, setStageFilter] = useState('All')
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
-  const [toast, setToast] = useState<string | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
 
@@ -33,18 +34,41 @@ export default function CandidatesPage() {
 
   const addCandidateMutation = useMutation({
     mutationFn: (data: Partial<Candidate>) => candidatesApi.create(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidates'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] })
+      setShowAddModal(false)
+      toast.success('Candidate created successfully!')
+    },
+    onError: (err) => {
+      const msg = isAxiosError(err) ? err.response?.data?.error ?? err.message : 'Unexpected error'
+      toast.error(`Failed to save: ${msg}`)
+    },
   })
 
   const updateCandidateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Candidate> }) =>
       candidatesApi.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidates'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] })
+      setSelectedCandidate(null)
+      toast.success('Candidate updated successfully!')
+    },
+    onError: (err) => {
+      const msg = isAxiosError(err) ? err.response?.data?.error ?? err.message : 'Unexpected error'
+      toast.error(`Failed to save: ${msg}`)
+    },
   })
 
   const deleteCandidateMutation = useMutation({
     mutationFn: (id: string) => candidatesApi.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['candidates'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] })
+      toast.success('Candidate removed')
+    },
+    onError: (err) => {
+      const msg = isAxiosError(err) ? err.response?.data?.error ?? err.message : 'Unexpected error'
+      toast.error(`Failed to delete: ${msg}`)
+    },
   })
 
   const candidates = data?.candidates ?? []
@@ -72,14 +96,6 @@ export default function CandidatesPage() {
     { label: 'Hired this month', icon: UserCheck,   iconBg: 'rgba(0,153,255,0.1)', iconColor: 'var(--c-accent)', value: stats.hired.toString() },
   ]
 
-  const handleDeleteCandidate = (id: string) => {
-    const c = candidates.find(x => x.id === id)
-    const name = c ? `${c.firstName} ${c.lastName}` : 'Candidate'
-    deleteCandidateMutation.mutate(id)
-    setToast(`${name} removed`)
-    setTimeout(() => setToast(null), 3000)
-  }
-
   return (
     <AppLayout title="Candidates">
       <div className={styles.page}>
@@ -99,15 +115,9 @@ export default function CandidatesPage() {
           candidates={filtered}
           isLoading={isLoading}
           onCandidateClick={setSelectedCandidate}
-          onDelete={handleDeleteCandidate}
+          onDelete={(id) => deleteCandidateMutation.mutate(id)}
         />
       </div>
-
-      {toast && (
-        <div className={styles.toast} role="status" aria-live="polite">
-          {toast}
-        </div>
-      )}
 
       {showAddModal && (
         <CandidateFormModal

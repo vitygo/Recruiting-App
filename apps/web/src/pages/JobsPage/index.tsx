@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
+import { toast } from 'sonner'
 import { Briefcase, Buildings, Users, Clock } from '@phosphor-icons/react'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { jobsApi } from '../../api/jobs'
@@ -40,7 +42,15 @@ export default function JobsPage() {
 
   const addJobMutation = useMutation({
     mutationFn: (data: Parameters<typeof jobsApi.create>[0]) => jobsApi.create(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobs'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      setShowAddModal(false)
+      toast.success('Job posted successfully!')
+    },
+    onError: (err) => {
+      const msg = isAxiosError(err) ? err.response?.data?.error ?? err.message : 'Unexpected error'
+      toast.error(`Failed to save: ${msg}`)
+    },
   })
 
   const editJobMutation = useMutation({
@@ -48,6 +58,11 @@ export default function JobsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       setEditingJob(null)
+      toast.success('Job updated successfully!')
+    },
+    onError: (err) => {
+      const msg = isAxiosError(err) ? err.response?.data?.error ?? err.message : 'Unexpected error'
+      toast.error(`Failed to save: ${msg}`)
     },
   })
 

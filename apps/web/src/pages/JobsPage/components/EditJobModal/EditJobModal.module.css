@@ -163,3 +163,22 @@
 .saveBtn:hover {
   opacity: 0.88;
 }
+
+.labelError {
+  color: #ef4444;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.textareaError {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.fieldError {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: -4px;
+}

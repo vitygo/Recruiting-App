@@ -5,6 +5,9 @@ import { FormInput } from '../../../../components/ui/FormInput'
 import { SOURCE_OPTIONS, STAGE_OPTIONS } from '../../constants'
 import styles from './AddCandidateModal.module.css'
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_REGEX = /^[+\d()\-\s]*$/
+
 export interface AddCandidateFormData {
   firstName: string
   lastName: string
@@ -43,8 +46,16 @@ export function AddCandidateModal({ onClose, onAdd, defaultStage, jobs, selected
 
   const validate = () => {
     const next: typeof errors = {}
-    if (!form.firstName.trim()) next.firstName = 'Required'
-    if (!form.email.trim())     next.email = 'Required'
+    if (!form.firstName.trim()) next.firstName = 'This field is required'
+    if (!form.lastName.trim()) next.lastName = 'This field is required'
+    if (!form.email.trim()) {
+      next.email = 'This field is required'
+    } else if (!EMAIL_REGEX.test(form.email)) {
+      next.email = 'Invalid email format'
+    }
+    if (form.phone && !PHONE_REGEX.test(form.phone)) {
+      next.phone = 'Please enter a valid phone number, digits only'
+    }
     if (!form.jobId && jobs.length > 0) next.jobId = 'Select a job position'
     return next
   }
@@ -53,7 +64,6 @@ export function AddCandidateModal({ onClose, onAdd, defaultStage, jobs, selected
     const errs = validate()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     onAdd(form)
-    onClose()
   }
 
   const set = <K extends keyof AddCandidateFormData>(key: K) =>
@@ -89,11 +99,13 @@ export function AddCandidateModal({ onClose, onAdd, defaultStage, jobs, selected
               label="First name" required
               value={form.firstName} onChange={set('firstName')}
               placeholder="Alex"
+              error={errors.firstName}
             />
             <FormInput
-              label="Last name"
+              label="Last name" required
               value={form.lastName} onChange={set('lastName')}
               placeholder="Johnson"
+              error={errors.lastName}
             />
           </div>
 
@@ -101,6 +113,7 @@ export function AddCandidateModal({ onClose, onAdd, defaultStage, jobs, selected
             label="Email" required type="email"
             value={form.email} onChange={set('email')}
             placeholder="alex@email.com"
+            error={errors.email}
           />
 
           <div className={styles.twoCol}>
@@ -108,6 +121,7 @@ export function AddCandidateModal({ onClose, onAdd, defaultStage, jobs, selected
               label="Phone"
               value={form.phone} onChange={set('phone')}
               placeholder="+1 212 555 0101"
+              error={errors.phone}
             />
             <FormInput
               label="Location"
